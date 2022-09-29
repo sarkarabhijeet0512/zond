@@ -1,4 +1,4 @@
-package enode
+package znode
 
 import (
 	"encoding/base64"
@@ -9,21 +9,21 @@ import (
 	"strings"
 
 	"github.com/syndtr/goleveldb/leveldb/errors"
-	"github.com/theQRL/zond/p2p/enr"
+	"github.com/theQRL/zond/p2p/znr"
 	"github.com/theQRL/zond/rlp"
 )
 
-//var errMissingPrefix = errors.New("missing 'enr:' prefix for base64-encoded record")
+//var errMissingPrefix = errors.New("missing 'znr:' prefix for base64-encoded record")
 
 // Node represents a host on the network.
 type Node struct {
-	r  enr.Record
+	r  znr.Record
 	id ID
 }
 
 // New wraps a node record. The record must be valid according to the given
 // identity scheme.
-func New(validSchemes enr.IdentityScheme, r *enr.Record) (*Node, error) {
+func New(validSchemes znr.IdentityScheme, r *znr.Record) (*Node, error) {
 	if err := r.VerifySignature(validSchemes); err != nil {
 		return nil, err
 	}
@@ -50,15 +50,15 @@ func (n *Node) Incomplete() bool {
 }
 
 // Load retrieves an entry from the underlying record.
-func (n *Node) Load(k enr.Entry) error {
+func (n *Node) Load(k znr.Entry) error {
 	return n.r.Load(k)
 }
 
 // IP returns the IP address of the node. This prefers IPv4 addresses.
 func (n *Node) IP() net.IP {
 	var (
-		ip4 enr.IPv4
-		ip6 enr.IPv6
+		ip4 znr.IPv4
+		ip6 znr.IPv6
 	)
 	if n.Load(&ip4) == nil {
 		return net.IP(ip4)
@@ -71,14 +71,14 @@ func (n *Node) IP() net.IP {
 
 // UDP returns the UDP port of the node.
 func (n *Node) UDP() int {
-	var port enr.UDP
+	var port znr.UDP
 	n.Load(&port)
 	return int(port)
 }
 
 // TCP returns the TCP port of the node.
 func (n *Node) TCP() int {
-	var port enr.TCP
+	var port znr.TCP
 	n.Load(&port)
 	return int(port)
 }
@@ -94,7 +94,7 @@ func (n *Node) TCP() int {
 
 // Record returns the node's record. The return value is a copy and may
 // be modified by the caller.
-func (n *Node) Record() *enr.Record {
+func (n *Node) Record() *znr.Record {
 	cpy := n.r
 	return &cpy
 }
@@ -121,7 +121,7 @@ func (n *Node) ValidateComplete() error {
 func (n *Node) String() string {
 	enc, _ := rlp.EncodeToBytes(&n.r) // always succeeds because record is valid
 	b64 := base64.RawURLEncoding.EncodeToString(enc)
-	return "enr:" + b64
+	return "znr:" + b64
 }
 
 // MarshalText implements encoding.TextMarshaler.

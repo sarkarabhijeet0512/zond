@@ -5,8 +5,8 @@ import (
 	"net"
 
 	"github.com/theQRL/zond/common/mclock"
-	"github.com/theQRL/zond/p2p/enode"
-	"github.com/theQRL/zond/p2p/enr"
+	"github.com/theQRL/zond/p2p/znode"
+	"github.com/theQRL/zond/p2p/znr"
 	"github.com/theQRL/zond/rlp"
 )
 
@@ -48,11 +48,11 @@ type (
 		ChallengeData []byte   // Encoded challenge
 		Nonce         Nonce    // Nonce of request packet
 		IDNonce       [16]byte // Identity proof data
-		RecordSeq     uint64   // ENR sequence number of recipient
+		RecordSeq     uint64   // znr sequence number of recipient
 
 		// Node is the locally known node record of recipient.
 		// This must be set by the caller of Encode.
-		Node *enode.Node
+		Node *znode.Node
 
 		sent mclock.AbsTime // for handshake GC.
 	}
@@ -60,13 +60,13 @@ type (
 	// PING is sent during liveness checks.
 	Ping struct {
 		ReqID  []byte
-		ENRSeq uint64
+		ZNRSeq uint64
 	}
 
 	// PONG is the reply to PING.
 	Pong struct {
 		ReqID  []byte
-		ENRSeq uint64
+		ZNRSeq uint64
 		ToIP   net.IP // These fields should mirror the UDP envelope address of the ping
 		ToPort uint16 // packet, which provides a way to discover the external address (after NAT).
 	}
@@ -81,7 +81,7 @@ type (
 	Nodes struct {
 		ReqID []byte
 		Total uint8
-		Nodes []*enr.Record
+		Nodes []*znr.Record
 	}
 
 	// TALKREQ is an application-level request.
@@ -113,7 +113,7 @@ type (
 	Regtopic struct {
 		ReqID  []byte
 		Ticket []byte
-		ENR    *enr.Record
+		znr    *znr.Record
 	}
 
 	// REGCONFIRMATION is the reply to REGTOPIC.

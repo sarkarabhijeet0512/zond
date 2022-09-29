@@ -1,4 +1,4 @@
-package enr
+package znr
 
 import (
 	"bytes"
@@ -83,14 +83,14 @@ func (r *Record) SetSeq(s uint64) {
 // Errors returned by Load are wrapped in KeyError. You can distinguish decoding errors
 // from missing keys using the IsNotFound function.
 func (r *Record) Load(e Entry) error {
-	i := sort.Search(len(r.pairs), func(i int) bool { return r.pairs[i].k >= e.ENRKey() })
-	if i < len(r.pairs) && r.pairs[i].k == e.ENRKey() {
+	i := sort.Search(len(r.pairs), func(i int) bool { return r.pairs[i].k >= e.ZNRKey() })
+	if i < len(r.pairs) && r.pairs[i].k == e.ZNRKey() {
 		if err := rlp.DecodeBytes(r.pairs[i].v, e); err != nil {
-			return &KeyError{Key: e.ENRKey(), Err: err}
+			return &KeyError{Key: e.ZNRKey(), Err: err}
 		}
 		return nil
 	}
-	return &KeyError{Key: e.ENRKey(), Err: errNotFound}
+	return &KeyError{Key: e.ZNRKey(), Err: errNotFound}
 }
 
 // Set adds or updates the given entry in the record. It panics if the value can't be
@@ -99,26 +99,26 @@ func (r *Record) Load(e Entry) error {
 func (r *Record) Set(e Entry) {
 	blob, err := rlp.EncodeToBytes(e)
 	if err != nil {
-		panic(fmt.Errorf("enr: can't encode %s: %v", e.ENRKey(), err))
+		panic(fmt.Errorf("enr: can't encode %s: %v", e.ZNRKey(), err))
 	}
 	r.invalidate()
 
 	pairs := make([]pair, len(r.pairs))
 	copy(pairs, r.pairs)
-	i := sort.Search(len(pairs), func(i int) bool { return pairs[i].k >= e.ENRKey() })
+	i := sort.Search(len(pairs), func(i int) bool { return pairs[i].k >= e.ZNRKey() })
 	switch {
-	case i < len(pairs) && pairs[i].k == e.ENRKey():
+	case i < len(pairs) && pairs[i].k == e.ZNRKey():
 		// element is present at r.pairs[i]
 		pairs[i].v = blob
 	case i < len(r.pairs):
 		// insert pair before i-th elem
-		el := pair{e.ENRKey(), blob}
+		el := pair{e.ZNRKey(), blob}
 		pairs = append(pairs, pair{})
 		copy(pairs[i+1:], pairs[i:])
 		pairs[i] = el
 	default:
 		// element should be placed at the end of r.pairs
-		pairs = append(pairs, pair{e.ENRKey(), blob})
+		pairs = append(pairs, pair{e.ZNRKey(), blob})
 	}
 	r.pairs = pairs
 }

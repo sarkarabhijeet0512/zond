@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/golang-lru/simplelru"
 	"github.com/theQRL/zond/common/mclock"
 	"github.com/theQRL/zond/crypto"
-	"github.com/theQRL/zond/p2p/enode"
+	"github.com/theQRL/zond/p2p/znode"
 )
 
 const handshakeTimeout = time.Second
@@ -29,7 +29,7 @@ type SessionCache struct {
 
 // sessionID identifies a session or handshake.
 type sessionID struct {
-	id   enode.ID
+	id   znode.ID
 	addr string
 }
 
@@ -78,7 +78,7 @@ func (sc *SessionCache) nextNonce(s *session) (Nonce, error) {
 }
 
 // session returns the current session for the given node, if any.
-func (sc *SessionCache) session(id enode.ID, addr string) *session {
+func (sc *SessionCache) session(id znode.ID, addr string) *session {
 	item, ok := sc.sessions.Get(sessionID{id, addr})
 	if !ok {
 		return nil
@@ -87,7 +87,7 @@ func (sc *SessionCache) session(id enode.ID, addr string) *session {
 }
 
 // readKey returns the current read key for the given node.
-func (sc *SessionCache) readKey(id enode.ID, addr string) []byte {
+func (sc *SessionCache) readKey(id znode.ID, addr string) []byte {
 	if s := sc.session(id, addr); s != nil {
 		return s.readKey
 	}
@@ -95,23 +95,23 @@ func (sc *SessionCache) readKey(id enode.ID, addr string) []byte {
 }
 
 // storeNewSession stores new encryption keys in the cache.
-func (sc *SessionCache) storeNewSession(id enode.ID, addr string, s *session) {
+func (sc *SessionCache) storeNewSession(id znode.ID, addr string, s *session) {
 	sc.sessions.Add(sessionID{id, addr}, s)
 }
 
 // getHandshake gets the handshake challenge we previously sent to the given remote node.
-func (sc *SessionCache) getHandshake(id enode.ID, addr string) *Whoareyou {
+func (sc *SessionCache) getHandshake(id znode.ID, addr string) *Whoareyou {
 	return sc.handshakes[sessionID{id, addr}]
 }
 
 // storeSentHandshake stores the handshake challenge sent to the given remote node.
-func (sc *SessionCache) storeSentHandshake(id enode.ID, addr string, challenge *Whoareyou) {
+func (sc *SessionCache) storeSentHandshake(id znode.ID, addr string, challenge *Whoareyou) {
 	challenge.sent = sc.clock.Now()
 	sc.handshakes[sessionID{id, addr}] = challenge
 }
 
 // deleteHandshake deletes handshake data for the given node.
-func (sc *SessionCache) deleteHandshake(id enode.ID, addr string) {
+func (sc *SessionCache) deleteHandshake(id znode.ID, addr string) {
 	delete(sc.handshakes, sessionID{id, addr})
 }
 

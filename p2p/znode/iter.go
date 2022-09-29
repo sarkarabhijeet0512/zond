@@ -1,4 +1,4 @@
-package enode
+package znode
 
 import (
 	"sync"
