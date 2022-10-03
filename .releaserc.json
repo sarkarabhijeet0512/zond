@@ -12,6 +12,6 @@
     "@semantic-release/github",
     ["@semantic-release/exec", {
       "publishCmd": "GOPROXY=proxy.golang.org go list -m github.com/Prajjawalk/zond@v${nextRelease.version}"
-    }],
+    }]
   ]
 }
