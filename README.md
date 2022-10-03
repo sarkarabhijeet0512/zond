@@ -2,7 +2,7 @@
 
 [![CircleCI](https://circleci.com/gh/theQRL/zond.svg?style=shield)](https://circleci.com/gh/theQRL/zond)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/958f22ba2f404e4bb45b8fef1a8ad1e5)](https://www.codacy.com/gh/theQRL/zond/dashboard?utm_source=github.com&utm_medium=referral&utm_content=theQRL/zond&utm_campaign=Badge_Grade)
-[![Run Action](https://github-action-button.web.app/buttons/simple.svg?name=Release&eventType=repository_dispatch&type=simple&action=dispatch)](https://github-action-button.web.app/repos/Prajjawalk/zond/button?name=Release&eventType=repository_dispatch&type=simple&action=dispatch)
+[![Run Action](https://github-action-button.web.app/buttons/simple.svg?name=Release&eventType=repository_dispatch&type=simple&action=dispatch)](https://github-action-button.web.app/repos/theQRL/zond/button?name=Release&eventType=repository_dispatch&type=simple&action=dispatch)
 
 > *WARNING: This is work in progress, NOT FOR PRODUCTION USE*
 

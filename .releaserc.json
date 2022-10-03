@@ -11,7 +11,7 @@
     "@semantic-release/release-notes-generator",
     "@semantic-release/github",
     ["@semantic-release/exec", {
-      "publishCmd": "GOPROXY=proxy.golang.org go list -m github.com/Prajjawalk/zond@v${nextRelease.version}"
+      "publishCmd": "GOPROXY=proxy.golang.org go list -m github.com/theQRL/zond@v${nextRelease.version}"
     }]
   ]
 }
