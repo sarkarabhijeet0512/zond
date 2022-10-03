@@ -27,6 +27,8 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: 17
+      - name: Install plugin
+        run: npm install -g @semantic-release/exec -D 
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
