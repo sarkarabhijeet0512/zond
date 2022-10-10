@@ -55,6 +55,79 @@ func broadcastTransaction(transaction interface{}, url string, txHash common.Has
 	return nil
 }
 
+type (
+	RPCMessage struct {
+		Version string          `json:"jsonrpc,omitempty"`
+		ID      json.RawMessage `json:"id,omitempty"`
+		Method  string          `json:"method,omitempty"`
+		Params  json.RawMessage `json:"params,omitempty"`
+		Error   *JsonError      `json:"error,omitempty"`
+		Result  json.RawMessage `json:"result,omitempty"`
+	}
+	JsonError struct {
+		Code    int         `json:"code"`
+		Message string      `json:"message"`
+		Data    interface{} `json:"data,omitempty"`
+	}
+)
+
+func broadcastTransactionViaRPC(transaction interface{}, url string, txHash common.Hash) error {
+	params := []interface{}{transaction}
+	p, _ := json.Marshal(params)
+	id, _ := json.Marshal(1)
+	reqBody := RPCMessage{
+		Version: "2.0",
+		ID:      id,
+		Method:  "zond_sendRawTransaction",
+		Params:  p,
+	}
+	responseBody := new(bytes.Buffer)
+	err := json.NewEncoder(responseBody).Encode(reqBody)
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+
+	req, err := http.NewRequest(http.MethodPost, url, responseBody)
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+	req.Header.Add("Content-Type", "application/json")
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+	defer resp.Body.Close()
+	bodyBytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	var response RPCMessage
+	err = json.Unmarshal(bodyBytes, &response)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	if response.Error != nil {
+		fmt.Println(response.Error)
+	} else {
+		hashed := ""
+		err := json.Unmarshal(response.Result, &hashed)
+		if err != nil {
+			fmt.Println(err)
+			return nil
+		}
+		if hashed == misc.BytesToHexStr(txHash[:]) {
+			fmt.Println("Transaction successfully broadcasted")
+		}
+	}
+	return nil
+}
+
 func evmCall(contractAddress string, data string, url string) (string, error) {
 	evmCallReq := view.EVMCall{Address: contractAddress, Data: data}
 	responseBody := new(bytes.Buffer)
@@ -106,6 +179,7 @@ func getTransactionSubCommands() []*cli.Command {
 				flags.TransactionStdOut,
 				flags.BroadcastFlag,
 				flags.RemoteAddrFlag,
+				flags.RemoteRPCAddrFlag,
 				&cli.StringFlag{
 					Name:  "output",
 					Value: "stake_transactions.json",
@@ -132,7 +206,7 @@ func getTransactionSubCommands() []*cli.Command {
 				output := c.String("output")
 				stdOut := c.Bool(flags.TransactionStdOut.Name)
 				broadcastFlag := c.Bool(flags.BroadcastFlag.Name)
-				remoteAddr := c.String(flags.RemoteAddrFlag.Name)
+				remoteAddr := c.String(flags.RemoteRPCAddrFlag.Name)
 
 				w := wallet.NewWallet(c.String(flags.WalletFile.Name))
 				a, err := w.GetDilithiumAccountByIndex(c.Uint(flags.AccountIndexFlag.Name))
@@ -173,11 +247,11 @@ func getTransactionSubCommands() []*cli.Command {
 
 				if broadcastFlag {
 					txHash := tx.Hash()
-					stake := view.PlainStakeTransaction{}
-					stake.TransactionFromPBData(tx.PBData(), txHash[:])
+					stake := view.PlainStakeTransactionRPC{}
+					stake.TransactionFromPBData(tx.PBData())
 
-					url := fmt.Sprintf("http://%s/api/broadcast/stake", remoteAddr)
-					return broadcastTransaction(stake, url, txHash)
+					url := fmt.Sprintf("%s", remoteAddr)
+					return broadcastTransactionViaRPC(stake, url, txHash)
 
 				}
 				return nil
@@ -221,7 +295,7 @@ func getTransactionSubCommands() []*cli.Command {
 				addressTo := c.String("to")
 				stdOut := c.Bool(flags.TransactionStdOut.Name)
 				broadcastFlag := c.Bool(flags.BroadcastFlag.Name)
-				remoteAddr := c.String(flags.RemoteAddrFlag.Name)
+				remoteAddr := c.String(flags.RemoteRPCAddrFlag.Name)
 				binAddressTo, err := misc.HexStrToBytes(addressTo)
 				if err != nil {
 					return err
@@ -250,11 +324,11 @@ func getTransactionSubCommands() []*cli.Command {
 
 				if broadcastFlag {
 					txHash := tx.Hash()
-					transfer := view.PlainTransferTransaction{}
-					transfer.TransactionFromPBData(tx.PBData(), txHash[:])
+					transfer := view.PlainTransferTransactionRPC{}
+					transfer.TransactionFromPBData(tx.PBData())
 
-					url := fmt.Sprintf("http://%s/api/broadcast/transfer", remoteAddr)
-					return broadcastTransaction(transfer, url, txHash)
+					url := fmt.Sprintf("%s", remoteAddr)
+					return broadcastTransactionViaRPC(transfer, url, txHash)
 				}
 				return nil
 			},
@@ -271,6 +345,7 @@ func getTransactionSubCommands() []*cli.Command {
 				flags.TransactionStdOut,
 				flags.BroadcastFlag,
 				flags.RemoteAddrFlag,
+				flags.RemoteRPCAddrFlag,
 				&cli.StringFlag{
 					Name:  "to",
 					Value: "",
@@ -295,7 +370,7 @@ func getTransactionSubCommands() []*cli.Command {
 				addressTo := c.String("to")
 				stdOut := c.Bool(flags.TransactionStdOut.Name)
 				broadcastFlag := c.Bool(flags.BroadcastFlag.Name)
-				remoteAddr := c.String(flags.RemoteAddrFlag.Name)
+				remoteAddr := c.String(flags.RemoteRPCAddrFlag.Name)
 				binAddressTo, err := misc.HexStrToBytes(addressTo)
 				if err != nil {
 					return err
@@ -324,11 +399,11 @@ func getTransactionSubCommands() []*cli.Command {
 
 				if broadcastFlag {
 					txHash := tx.Hash()
-					transfer := view.PlainTransferTransaction{}
-					transfer.TransactionFromPBData(tx.PBData(), txHash[:])
+					transfer := view.PlainTransferTransactionRPC{}
+					transfer.TransactionFromPBData(tx.PBData())
 
-					url := fmt.Sprintf("http://%s/api/broadcast/transfer", remoteAddr)
-					return broadcastTransaction(transfer, url, txHash)
+					url := fmt.Sprintf("%s", remoteAddr)
+					return broadcastTransactionViaRPC(transfer, url, txHash)
 				}
 				return nil
 			},
@@ -348,6 +423,7 @@ func getTransactionSubCommands() []*cli.Command {
 				flags.TransactionStdOut,
 				flags.BroadcastFlag,
 				flags.RemoteAddrFlag,
+				flags.RemoteRPCAddrFlag,
 			},
 			Action: func(c *cli.Context) error {
 				data, err := misc.HexStrToBytes(c.String(flags.DataFlag.Name))
@@ -364,7 +440,7 @@ func getTransactionSubCommands() []*cli.Command {
 
 				stdOut := c.Bool(flags.TransactionStdOut.Name)
 				broadcastFlag := c.Bool(flags.BroadcastFlag.Name)
-				remoteAddr := c.String(flags.RemoteAddrFlag.Name)
+				remoteAddr := c.String(flags.RemoteRPCAddrFlag.Name)
 				nonce := c.Uint64(flags.NonceFlag.Name)
 
 				pk := a.GetPK()
@@ -393,11 +469,11 @@ func getTransactionSubCommands() []*cli.Command {
 
 				if broadcastFlag {
 					txHash := tx.Hash()
-					transfer := view.PlainTransferTransaction{}
-					transfer.TransactionFromPBData(tx.PBData(), txHash[:])
+					transfer := view.PlainTransferTransactionRPC{}
+					transfer.TransactionFromPBData(tx.PBData())
 
-					url := fmt.Sprintf("http://%s/api/broadcast/transfer", remoteAddr)
-					return broadcastTransaction(transfer, url, txHash)
+					url := fmt.Sprintf("%s", remoteAddr)
+					return broadcastTransactionViaRPC(transfer, url, txHash)
 				}
 				return nil
 			},
@@ -422,6 +498,7 @@ func getTransactionSubCommands() []*cli.Command {
 				flags.TransactionStdOut,
 				flags.BroadcastFlag,
 				flags.RemoteAddrFlag,
+				flags.RemoteRPCAddrFlag,
 			},
 			Action: func(c *cli.Context) error {
 				data, err := misc.HexStrToBytes(c.String(flags.DataFlag.Name))
@@ -438,7 +515,7 @@ func getTransactionSubCommands() []*cli.Command {
 
 				stdOut := c.Bool(flags.TransactionStdOut.Name)
 				broadcastFlag := c.Bool(flags.BroadcastFlag.Name)
-				remoteAddr := c.String(flags.RemoteAddrFlag.Name)
+				remoteAddr := c.String(flags.RemoteRPCAddrFlag.Name)
 				to := c.String("to")
 				nonce := c.Uint64(flags.NonceFlag.Name)
 
@@ -470,11 +547,11 @@ func getTransactionSubCommands() []*cli.Command {
 
 				if broadcastFlag {
 					txHash := tx.Hash()
-					transfer := view.PlainTransferTransaction{}
-					transfer.TransactionFromPBData(tx.PBData(), txHash[:])
+					transfer := view.PlainTransferTransactionRPC{}
+					transfer.TransactionFromPBData(tx.PBData())
 
-					url := fmt.Sprintf("http://%s/api/broadcast/transfer", remoteAddr)
-					return broadcastTransaction(transfer, url, txHash)
+					url := fmt.Sprintf("%s", remoteAddr)
+					return broadcastTransactionViaRPC(transfer, url, txHash)
 				}
 				return nil
 			},
