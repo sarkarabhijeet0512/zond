@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"encoding/binary"
+
 	"github.com/theQRL/zond/common"
 	"github.com/theQRL/zond/protos"
 	"github.com/theQRL/zond/state"
@@ -18,24 +19,11 @@ func (tx *Stake) Amount() uint64 {
 }
 
 func (tx *Stake) GetSigningHash() common.Hash {
-	tmp := new(bytes.Buffer)
-	binary.Write(tmp, binary.BigEndian, tx.ChainID())
-	binary.Write(tmp, binary.BigEndian, tx.Nonce())
-
-	binary.Write(tmp, binary.BigEndian, tx.Gas())
-	binary.Write(tmp, binary.BigEndian, tx.GasPrice())
-
-	binary.Write(tmp, binary.BigEndian, tx.Amount())
-
-	h := sha256.New()
-	h.Write(tmp.Bytes())
-
-	output := h.Sum(nil)
-	return common.BytesToHash(output)
+	return GetStakeSigningHash(tx.ChainID(), tx.Nonce(), tx.Amount(), tx.Gas(), tx.GasPrice())
 }
 
 func (tx *Stake) GenerateTxHash() common.Hash {
-	return tx.generateTxHash(tx.GetSigningHash())
+	return GenerateTxHash(tx.GetSigningHash(), tx.Signature(), tx.PK())
 }
 
 func (tx *Stake) validateData(stateContext *state.StateContext) bool {
@@ -88,4 +76,21 @@ func StakeTransactionFromPBData(pbData *protos.Transaction) *Stake {
 	default:
 		panic("pbData is not a stake transaction")
 	}
+}
+
+func GetStakeSigningHash(chainID, nonce, value, gas, gasPrice uint64) common.Hash {
+	tmp := new(bytes.Buffer)
+	binary.Write(tmp, binary.BigEndian, chainID)
+	binary.Write(tmp, binary.BigEndian, nonce)
+
+	binary.Write(tmp, binary.BigEndian, gas)
+	binary.Write(tmp, binary.BigEndian, gasPrice)
+
+	binary.Write(tmp, binary.BigEndian, value)
+
+	h := sha256.New()
+	h.Write(tmp.Bytes())
+
+	output := h.Sum(nil)
+	return common.BytesToHash(output)
 }

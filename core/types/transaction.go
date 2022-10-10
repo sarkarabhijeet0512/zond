@@ -28,7 +28,9 @@ import (
 	"github.com/theQRL/zond/common"
 	"github.com/theQRL/zond/common/math"
 	"github.com/theQRL/zond/crypto"
+	"github.com/theQRL/zond/protos"
 	"github.com/theQRL/zond/rlp"
+	"github.com/theQRL/zond/transactions"
 )
 
 var (
@@ -84,12 +86,16 @@ type TxData interface {
 	to() *common.Address
 
 	rawSignatureValues() (v, r, s *big.Int)
-	setSignatureValues(chainID, v, r, s *big.Int)
+	setSignatureValues(signature []byte)
+
+	InnerTXType() transactions.TxType // returns the type stake or transfer
+	pk() []byte
+	signature() []byte
 }
 
 // EncodeRLP implements rlp.Encoder
 func (tx *Transaction) EncodeRLP(w io.Writer) error {
-	if tx.Type() == LegacyTxType {
+	if tx.inner.txType() == LegacyTxType {
 		return rlp.Encode(w, tx.inner)
 	}
 	// It's an EIP-2718 typed TX envelope.
@@ -112,7 +118,7 @@ func (tx *Transaction) encodeTyped(w *bytes.Buffer) error {
 // For legacy transactions, it returns the RLP encoding. For EIP-2718 typed
 // transactions, it returns the type and payload.
 func (tx *Transaction) MarshalBinary() ([]byte, error) {
-	if tx.Type() == LegacyTxType {
+	if tx.inner.txType() == LegacyTxType {
 		return rlp.EncodeToBytes(tx.inner)
 	}
 	var buf bytes.Buffer
@@ -258,6 +264,7 @@ func (tx *Transaction) ChainId() *big.Int {
 // Data returns the input data of the transaction.
 func (tx *Transaction) Data() []byte { return tx.inner.data() }
 
+// TODO: Need to be implemented
 // AccessList returns the access list of the transaction.
 func (tx *Transaction) AccessList() AccessList { return tx.inner.accessList() }
 
@@ -298,6 +305,21 @@ func (tx *Transaction) RawSignatureValues() (v, r, s *big.Int) {
 	return tx.inner.rawSignatureValues()
 }
 
+// InnerTXType returns the tx type whether it is stake or transfer transaction.
+func (tx *Transaction) InnerTXType() transactions.TxType {
+	return tx.inner.InnerTXType()
+}
+
+// PK returns the public key of the transaction.
+func (tx *Transaction) PK() []byte {
+	return tx.inner.pk()
+}
+
+// Signature returns the signature of the transaction.
+func (tx *Transaction) Signature() []byte {
+	return tx.inner.signature()
+}
+
 // GasFeeCapCmp compares the fee cap of two transactions.
 func (tx *Transaction) GasFeeCapCmp(other *Transaction) int {
 	return tx.inner.gasFeeCap().Cmp(other.inner.gasFeeCap())
@@ -311,6 +333,15 @@ func (tx *Transaction) GasFeeCapIntCmp(other *big.Int) int {
 // GasTipCapCmp compares the gasTipCap of two transactions.
 func (tx *Transaction) GasTipCapCmp(other *Transaction) int {
 	return tx.inner.gasTipCap().Cmp(other.inner.gasTipCap())
+}
+func GetTransactionType(protoTX *protos.Transaction) transactions.TxType {
+	switch protoTX.Type.(type) {
+	case *protos.Transaction_Transfer:
+		return transactions.TypeTransfer
+	case *protos.Transaction_Stake:
+		return transactions.TypeStake
+	}
+	panic("invalid transaction type")
 }
 
 // GasTipCapIntCmp compares the gasTipCap of the transaction against the given gasTipCap.
@@ -358,15 +389,23 @@ func (tx *Transaction) EffectiveGasTipIntCmp(other *big.Int, baseFee *big.Int) i
 
 // Hash returns the transaction hash.
 func (tx *Transaction) Hash() common.Hash {
+
 	if hash := tx.hash.Load(); hash != nil {
 		return hash.(common.Hash)
 	}
 
 	var h common.Hash
-	if tx.Type() == LegacyTxType {
-		h = rlpHash(tx.inner)
-	} else {
-		h = prefixedRlpHash(tx.Type(), tx.inner)
+	//if tx.Type() == LegacyTxType {
+	//	h = rlpHash(tx.inner)
+	//} else {
+	//	h = prefixedRlpHash(tx.Type(), tx.inner)
+	//}
+	if tx.InnerTXType() == transactions.TypeTransfer {
+		signingHash := transactions.GetTransferSigningHash(tx.ChainId().Uint64(), tx.Nonce(), tx.Value().Uint64(), tx.Gas(), tx.GasPrice().Uint64(), tx.To(), tx.Data())
+		h = transactions.GenerateTxHash(signingHash, tx.Signature(), tx.PK())
+	} else if tx.InnerTXType() == transactions.TypeStake {
+		signingHash := transactions.GetStakeSigningHash(tx.ChainId().Uint64(), tx.Nonce(), tx.Value().Uint64(), tx.Gas(), tx.GasPrice().Uint64())
+		h = transactions.GenerateTxHash(signingHash, tx.Signature(), tx.PK())
 	}
 	tx.hash.Store(h)
 	return h
@@ -387,12 +426,12 @@ func (tx *Transaction) Size() common.StorageSize {
 // WithSignature returns a new transaction with the given signature.
 // This signature needs to be in the [R || S || V] format where V is 0 or 1.
 func (tx *Transaction) WithSignature(signer Signer, sig []byte) (*Transaction, error) {
-	r, s, v, err := signer.SignatureValues(tx, sig)
-	if err != nil {
-		return nil, err
-	}
+	//r, s, v, err := signer.SignatureValues(tx, sig)
+	//if err != nil {
+	//	return nil, err
+	//}
 	cpy := tx.inner.copy()
-	cpy.setSignatureValues(signer.ChainID(), v, r, s)
+	cpy.setSignatureValues(sig)
 	return &Transaction{inner: cpy, time: tx.time}, nil
 }
 
@@ -426,6 +465,24 @@ func TxDifference(a, b Transactions) Transactions {
 	for _, tx := range a {
 		if _, ok := remove[tx.Hash()]; !ok {
 			keep = append(keep, tx)
+		}
+	}
+
+	return keep
+}
+
+// HashDifference returns a new set which is the difference between a and b.
+func HashDifference(a, b []common.Hash) []common.Hash {
+	keep := make([]common.Hash, 0, len(a))
+
+	remove := make(map[common.Hash]struct{})
+	for _, hash := range b {
+		remove[hash] = struct{}{}
+	}
+
+	for _, hash := range a {
+		if _, ok := remove[hash]; !ok {
+			keep = append(keep, hash)
 		}
 	}
 

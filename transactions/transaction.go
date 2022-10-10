@@ -4,7 +4,10 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"encoding/binary"
+	"reflect"
+
 	"fmt"
+
 	"github.com/golang/protobuf/proto"
 	"github.com/theQRL/go-qrllib/dilithium"
 	"github.com/theQRL/go-qrllib/xmss"
@@ -14,7 +17,6 @@ import (
 	"github.com/theQRL/zond/protos"
 	"github.com/theQRL/zond/state"
 	"google.golang.org/protobuf/encoding/protojson"
-	"reflect"
 )
 
 type CoreTransaction interface {
@@ -195,22 +197,6 @@ func (tx *Transaction) GetSigningHash() common.Hash {
 	panic("Not Implemented")
 }
 
-func (tx *Transaction) generateTxHash(signingHash common.Hash) common.Hash {
-	tmp := new(bytes.Buffer)
-	tmp.Write(signingHash[:])
-	tmp.Write(tx.Signature())
-	tmp.Write(tx.PK())
-
-	h := sha256.New()
-	h.Write(tmp.Bytes())
-
-	output := h.Sum(nil)
-	var hash common.Hash
-	copy(hash[:], output)
-
-	return hash
-}
-
 func (tx *Transaction) SignXMSS(x *xmss.XMSS, signingHash common.Hash) {
 	signature, err := x.Sign(signingHash[:])
 	if err != nil {
@@ -218,7 +204,7 @@ func (tx *Transaction) SignXMSS(x *xmss.XMSS, signingHash common.Hash) {
 	}
 	tx.pbData.Signature = signature
 
-	txHash := tx.generateTxHash(signingHash)
+	txHash := GenerateTxHash(signingHash, tx.Signature(), tx.PK())
 	tx.pbData.Hash = txHash[:]
 }
 
@@ -226,7 +212,7 @@ func (tx *Transaction) SignDilithium(d *dilithium.Dilithium, signingHash common.
 	signature := d.Sign(signingHash[:])
 	tx.pbData.Signature = signature
 
-	txHash := tx.generateTxHash(signingHash)
+	txHash := GenerateTxHash(signingHash, tx.Signature(), tx.PK())
 	tx.pbData.Hash = txHash[:]
 }
 
@@ -279,4 +265,20 @@ func ProtoToTransaction(protoTX *protos.Transaction) TransactionInterface {
 	}
 
 	return tx
+}
+
+func GenerateTxHash(signingHash common.Hash, signature, pk []byte) common.Hash {
+	tmp := new(bytes.Buffer)
+	tmp.Write(signingHash[:])
+	tmp.Write(signature)
+	tmp.Write(pk)
+
+	h := sha256.New()
+	h.Write(tmp.Bytes())
+
+	output := h.Sum(nil)
+	var hash common.Hash
+	copy(hash[:], output)
+
+	return hash
 }
