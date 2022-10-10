@@ -1,0 +1,17 @@
+{
+  "branches": [
+    "master",
+    {
+      "name": "beta",
+      "prerelease": true
+    }
+  ],
+  "plugins": [
+    "@semantic-release/commit-analyzer",
+    "@semantic-release/release-notes-generator",
+    "@semantic-release/github",
+    ["@semantic-release/exec", {
+      "publishCmd": "GOPROXY=proxy.golang.org go list -m github.com/theQRL/zond@v${nextRelease.version}"
+    }]
+  ]
+}
