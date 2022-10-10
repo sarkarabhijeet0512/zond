@@ -22,8 +22,13 @@ import (
 	"fmt"
 	"math/big"
 
+	"github.com/theQRL/zond/transactions"
+
+	"github.com/theQRL/go-qrllib/dilithium"
+	"github.com/theQRL/go-qrllib/xmss"
 	"github.com/theQRL/zond/common"
 	"github.com/theQRL/zond/crypto"
+	"github.com/theQRL/zond/misc"
 	"github.com/theQRL/zond/params"
 )
 
@@ -91,13 +96,49 @@ func LatestSignerForChainID(chainID *big.Int) Signer {
 }
 
 // SignTx signs the transaction using the given signer and private key.
-func SignTx(tx *Transaction, s Signer, prv *ecdsa.PrivateKey) (*Transaction, error) {
-	h := s.Hash(tx)
-	sig, err := crypto.Sign(h[:], prv)
-	if err != nil {
-		return nil, err
+// func SignTx(tx *Transaction, s Signer, prv *ecdsa.PrivateKey) (*Transaction, error) {
+// 	h := s.Hash(tx)
+// 	sig, err := crypto.Sign(h[:], prv)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	return tx.GetSigningHash(s, sig)
+// }
+
+func SignXMSS(tx *Transaction, x *xmss.XMSS) {
+	var signingHash common.Hash
+	if tx.InnerTXType() == transactions.TypeTransfer {
+		signingHash = transactions.GetTransferSigningHash(tx.ChainId().Uint64(),
+			tx.Nonce(), tx.Value().Uint64(), tx.Gas(), tx.GasPrice().Uint64(), tx.To(), tx.Data())
+	} else if tx.InnerTXType() == transactions.TypeStake {
+		signingHash = transactions.GetStakeSigningHash(tx.ChainId().Uint64(),
+			tx.Nonce(), tx.Value().Uint64(), tx.Gas(), tx.GasPrice().Uint64())
 	}
-	return tx.WithSignature(s, sig)
+
+	signature, err := x.Sign(signingHash[:])
+	if err != nil {
+		panic("Failed To Sign")
+	}
+	tx.inner.setSignatureValues(signature)
+
+	txHash := transactions.GenerateTxHash(signingHash, tx.Signature(), tx.PK())
+	tx.hash.Store(txHash)
+}
+
+func SignDilithium(tx *Transaction, d *dilithium.Dilithium) {
+	var signingHash common.Hash
+	if tx.InnerTXType() == transactions.TypeTransfer {
+		signingHash = transactions.GetTransferSigningHash(tx.ChainId().Uint64(),
+			tx.Nonce(), tx.Value().Uint64(), tx.Gas(), tx.GasPrice().Uint64(), tx.To(), tx.Data())
+	} else if tx.InnerTXType() == transactions.TypeStake {
+		signingHash = transactions.GetStakeSigningHash(tx.ChainId().Uint64(),
+			tx.Nonce(), tx.Value().Uint64(), tx.Gas(), tx.GasPrice().Uint64())
+	}
+	signature := d.Sign(signingHash[:])
+	tx.inner.setSignatureValues(signature)
+
+	txHash := transactions.GenerateTxHash(signingHash, tx.Signature(), tx.PK())
+	tx.hash.Store(txHash)
 }
 
 // SignNewTx creates a transaction and signs it.
@@ -129,22 +170,16 @@ func MustSignNewTx(prv *ecdsa.PrivateKey, s Signer, txdata TxData) *Transaction 
 // signing method. The cache is invalidated if the cached signer does
 // not match the signer used in the current call.
 func Sender(signer Signer, tx *Transaction) (common.Address, error) {
-	if sc := tx.from.Load(); sc != nil {
-		sigCache := sc.(sigCache)
-		// If the signer used to derive from in a previous
-		// call is not the same as used current, invalidate
-		// the cache.
-		if sigCache.signer.Equal(signer) {
-			return sigCache.from, nil
-		}
-	}
-
-	addr, err := signer.Sender(tx)
-	if err != nil {
-		return common.Address{}, err
-	}
-	tx.from.Store(sigCache{signer: signer, from: addr})
-	return addr, nil
+	//
+	tx.Nonce()
+	sender := misc.GetAddressFromUnSizedPK(tx.PK())
+	return sender, nil
+	// addr, err := signer.Sender(tx)
+	// if err != nil {
+	// 	return common.Address{}, err
+	// }
+	// tx.from.Store(sigCache{signer: signer, from: addr})
+	// return sender, nil
 }
 
 // Signer encapsulates transaction signature handling. The name of this type is slightly
@@ -182,17 +217,8 @@ func NewLondonSigner(chainId *big.Int) Signer {
 }
 
 func (s londonSigner) Sender(tx *Transaction) (common.Address, error) {
-	if tx.Type() != DynamicFeeTxType {
-		return s.eip2930Signer.Sender(tx)
-	}
-	V, R, S := tx.RawSignatureValues()
-	// DynamicFee txs are defined to use 0 and 1 as their recovery
-	// id, add 27 to become equivalent to unprotected Homestead signatures.
-	V = new(big.Int).Add(V, big.NewInt(27))
-	if tx.ChainId().Cmp(s.chainId) != 0 {
-		return common.Address{}, ErrInvalidChainId
-	}
-	return recoverPlain(s.Hash(tx), R, S, V, true)
+	sender := misc.GetAddressFromUnSizedPK(tx.PK())
+	return sender, nil
 }
 
 func (s londonSigner) Equal(s2 Signer) bool {
@@ -419,13 +445,13 @@ func (hs HomesteadSigner) SignatureValues(tx *Transaction, sig []byte) (r, s, v 
 	return hs.FrontierSigner.SignatureValues(tx, sig)
 }
 
-func (hs HomesteadSigner) Sender(tx *Transaction) (common.Address, error) {
-	if tx.Type() != LegacyTxType {
-		return common.Address{}, ErrTxTypeNotSupported
-	}
-	v, r, s := tx.RawSignatureValues()
-	return recoverPlain(hs.Hash(tx), r, s, v, true)
-}
+// func (hs HomesteadSigner) Sender(tx *Transaction) (common.Address, error) {
+// 	if tx.PbTx.GetType() != tx.PbTx.Type {
+// 		return common.Address{}, ErrTxTypeNotSupported
+// 	}
+// 	v, r, s := tx.RawSignatureValues()
+// 	return recoverPlain(hs.Hash(tx), r, s, v, true)
+// }
 
 type FrontierSigner struct{}
 

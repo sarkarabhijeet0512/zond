@@ -19,6 +19,8 @@ package types
 import (
 	"math/big"
 
+	"github.com/theQRL/zond/transactions"
+
 	"github.com/theQRL/zond/common"
 )
 
@@ -53,6 +55,10 @@ type AccessListTx struct {
 	Data       []byte          // contract invocation input data
 	AccessList AccessList      // EIP-2930 access list
 	V, R, S    *big.Int        // signature values
+
+	Type      transactions.TxType
+	PK        []byte
+	Signature []byte
 }
 
 // copy creates a deep copy of the transaction data and initializes all fields.
@@ -62,6 +68,10 @@ func (tx *AccessListTx) copy() TxData {
 		To:    copyAddressPtr(tx.To),
 		Data:  common.CopyBytes(tx.Data),
 		Gas:   tx.Gas,
+
+		Type:      tx.Type,
+		PK:        tx.PK,
+		Signature: tx.Signature,
 		// These are copied below.
 		AccessList: make(AccessList, len(tx.AccessList)),
 		Value:      new(big.Int),
@@ -94,22 +104,25 @@ func (tx *AccessListTx) copy() TxData {
 }
 
 // accessors for innerTx.
-func (tx *AccessListTx) txType() byte           { return AccessListTxType }
-func (tx *AccessListTx) chainID() *big.Int      { return tx.ChainID }
-func (tx *AccessListTx) accessList() AccessList { return tx.AccessList }
-func (tx *AccessListTx) data() []byte           { return tx.Data }
-func (tx *AccessListTx) gas() uint64            { return tx.Gas }
-func (tx *AccessListTx) gasPrice() *big.Int     { return tx.GasPrice }
-func (tx *AccessListTx) gasTipCap() *big.Int    { return tx.GasPrice }
-func (tx *AccessListTx) gasFeeCap() *big.Int    { return tx.GasPrice }
-func (tx *AccessListTx) value() *big.Int        { return tx.Value }
-func (tx *AccessListTx) nonce() uint64          { return tx.Nonce }
-func (tx *AccessListTx) to() *common.Address    { return tx.To }
+func (tx *AccessListTx) txType() byte                     { return AccessListTxType }
+func (tx *AccessListTx) chainID() *big.Int                { return tx.ChainID }
+func (tx *AccessListTx) accessList() AccessList           { return tx.AccessList }
+func (tx *AccessListTx) data() []byte                     { return tx.Data }
+func (tx *AccessListTx) gas() uint64                      { return tx.Gas }
+func (tx *AccessListTx) gasPrice() *big.Int               { return tx.GasPrice }
+func (tx *AccessListTx) gasTipCap() *big.Int              { return tx.GasPrice }
+func (tx *AccessListTx) gasFeeCap() *big.Int              { return tx.GasPrice }
+func (tx *AccessListTx) value() *big.Int                  { return tx.Value }
+func (tx *AccessListTx) nonce() uint64                    { return tx.Nonce }
+func (tx *AccessListTx) to() *common.Address              { return tx.To }
+func (tx *AccessListTx) InnerTXType() transactions.TxType { return tx.Type }
+func (tx *AccessListTx) pk() []byte                       { return tx.PK }
+func (tx *AccessListTx) signature() []byte                { return tx.Signature }
 
 func (tx *AccessListTx) rawSignatureValues() (v, r, s *big.Int) {
 	return tx.V, tx.R, tx.S
 }
 
-func (tx *AccessListTx) setSignatureValues(chainID, v, r, s *big.Int) {
-	tx.ChainID, tx.V, tx.R, tx.S = chainID, v, r, s
+func (tx *AccessListTx) setSignatureValues(signature []byte) {
+	tx.Signature = signature
 }

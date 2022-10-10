@@ -19,11 +19,15 @@ package types
 import (
 	"math/big"
 
+	"github.com/theQRL/zond/transactions"
+
 	"github.com/theQRL/zond/common"
+	"github.com/theQRL/zond/protos"
 )
 
 // LegacyTx is the transaction data of regular Ethereum transactions.
 type LegacyTx struct {
+	ChainID  *big.Int
 	Nonce    uint64          // nonce of sender account
 	GasPrice *big.Int        // wei per gas
 	Gas      uint64          // gas limit
@@ -31,24 +35,49 @@ type LegacyTx struct {
 	Value    *big.Int        // wei amount
 	Data     []byte          // contract invocation input data
 	V, R, S  *big.Int        // signature values
+
+	Type      transactions.TxType
+	PK        []byte
+	Signature []byte
 }
 
 // NewTransaction creates an unsigned legacy transaction.
+//func NewTransaction(nonce uint64, to common.Address, amount *big.Int, gasLimit uint64, gasPrice *big.Int, data []byte, pbTx *protos.Transaction) *Transaction {
 // Deprecated: use NewTx instead.
-func NewTransaction(nonce uint64, to common.Address, amount *big.Int, gasLimit uint64, gasPrice *big.Int, data []byte) *Transaction {
+func NewTransaction(pbTx *protos.Transaction) *Transaction {
+	txType := transactions.GetTransactionType(pbTx)
+	var to *common.Address
+	var data []byte
+	value := uint64(0)
+
+	if txType == transactions.TypeTransfer {
+		toAddr := common.BytesToAddress(pbTx.GetTransfer().GetTo())
+		to = &toAddr
+		value = pbTx.GetTransfer().GetValue()
+		data = pbTx.GetTransfer().GetData()
+	} else if txType == transactions.TypeStake {
+		to = nil
+		value = pbTx.GetStake().GetAmount()
+	}
+
 	return NewTx(&LegacyTx{
-		Nonce:    nonce,
-		To:       &to,
-		Value:    amount,
-		Gas:      gasLimit,
-		GasPrice: gasPrice,
+		Nonce:    pbTx.GetNonce(),
+		To:       to,
+		Value:    big.NewInt(int64(value)),
+		Gas:      pbTx.GetGas(),
+		GasPrice: big.NewInt(int64(pbTx.GetGasPrice())),
 		Data:     data,
+
+		Type:      transactions.GetTransactionType(pbTx),
+		ChainID:   new(big.Int).SetUint64(pbTx.ChainId),
+		PK:        pbTx.Pk,
+		Signature: pbTx.Signature,
 	})
 }
 
 // NewContractCreation creates an unsigned legacy transaction.
 // Deprecated: use NewTx instead.
-func NewContractCreation(nonce uint64, amount *big.Int, gasLimit uint64, gasPrice *big.Int, data []byte) *Transaction {
+func NewContractCreation(nonce uint64, amount *big.Int, gasLimit uint64, gasPrice *big.Int, data []byte, pbTx *protos.Transaction) *Transaction {
 	return NewTx(&LegacyTx{
 		Nonce:    nonce,
 		Value:    amount,
@@ -65,8 +94,13 @@ func (tx *LegacyTx) copy() TxData {
 		To:    copyAddressPtr(tx.To),
 		Data:  common.CopyBytes(tx.Data),
 		Gas:   tx.Gas,
+
+		Type:      tx.Type,
+		PK:        common.CopyBytes(tx.PK),
+		Signature: common.CopyBytes(tx.Signature),
 		// These are initialized below.
 		Value:    new(big.Int),
+		ChainID:  new(big.Int),
 		GasPrice: new(big.Int),
 		V:        new(big.Int),
 		R:        new(big.Int),
@@ -74,6 +108,9 @@ func (tx *LegacyTx) copy() TxData {
 	}
 	if tx.Value != nil {
 		cpy.Value.Set(tx.Value)
+	}
+	if tx.ChainID != nil {
+		cpy.ChainID.Set(tx.ChainID)
 	}
 	if tx.GasPrice != nil {
 		cpy.GasPrice.Set(tx.GasPrice)
@@ -87,26 +124,31 @@ func (tx *LegacyTx) copy() TxData {
 	if tx.S != nil {
 		cpy.S.Set(tx.S)
 	}
+
 	return cpy
 }
 
 // accessors for innerTx.
-func (tx *LegacyTx) txType() byte           { return LegacyTxType }
-func (tx *LegacyTx) chainID() *big.Int      { return deriveChainId(tx.V) }
-func (tx *LegacyTx) accessList() AccessList { return nil }
-func (tx *LegacyTx) data() []byte           { return tx.Data }
-func (tx *LegacyTx) gas() uint64            { return tx.Gas }
-func (tx *LegacyTx) gasPrice() *big.Int     { return tx.GasPrice }
-func (tx *LegacyTx) gasTipCap() *big.Int    { return tx.GasPrice }
-func (tx *LegacyTx) gasFeeCap() *big.Int    { return tx.GasPrice }
-func (tx *LegacyTx) value() *big.Int        { return tx.Value }
-func (tx *LegacyTx) nonce() uint64          { return tx.Nonce }
-func (tx *LegacyTx) to() *common.Address    { return tx.To }
+//func (tx *LegacyTx) chainID() *big.Int         { return deriveChainId(tx.V) }
+func (tx *LegacyTx) txType() byte                     { return LegacyTxType }
+func (tx *LegacyTx) accessList() AccessList           { return nil }
+func (tx *LegacyTx) data() []byte                     { return tx.Data }
+func (tx *LegacyTx) gas() uint64                      { return tx.Gas }
+func (tx *LegacyTx) gasPrice() *big.Int               { return tx.GasPrice }
+func (tx *LegacyTx) gasTipCap() *big.Int              { return tx.GasPrice }
+func (tx *LegacyTx) gasFeeCap() *big.Int              { return tx.GasPrice }
+func (tx *LegacyTx) value() *big.Int                  { return tx.Value }
+func (tx *LegacyTx) nonce() uint64                    { return tx.Nonce }
+func (tx *LegacyTx) to() *common.Address              { return tx.To }
+func (tx *LegacyTx) InnerTXType() transactions.TxType { return tx.Type }
+func (tx *LegacyTx) chainID() *big.Int                { return tx.ChainID }
+func (tx *LegacyTx) pk() []byte                       { return tx.PK }
+func (tx *LegacyTx) signature() []byte                { return tx.Signature }
 
 func (tx *LegacyTx) rawSignatureValues() (v, r, s *big.Int) {
 	return tx.V, tx.R, tx.S
 }
 
-func (tx *LegacyTx) setSignatureValues(chainID, v, r, s *big.Int) {
-	tx.V, tx.R, tx.S = v, r, s
+func (tx *LegacyTx) setSignatureValues(signature []byte) {
+	tx.Signature = signature
 }

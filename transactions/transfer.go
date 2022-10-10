@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"encoding/binary"
+
 	"github.com/theQRL/zond/common"
 	"github.com/theQRL/zond/misc"
 	"github.com/theQRL/zond/protos"
@@ -31,31 +32,11 @@ func (tx *Transfer) Data() []byte {
 }
 
 func (tx *Transfer) GetSigningHash() common.Hash {
-	tmp := new(bytes.Buffer)
-	binary.Write(tmp, binary.BigEndian, tx.ChainID())
-	binary.Write(tmp, binary.BigEndian, tx.Nonce())
-	binary.Write(tmp, binary.BigEndian, tx.Gas())
-	binary.Write(tmp, binary.BigEndian, tx.GasPrice())
-
-	to := tx.To()
-	if to != nil {
-		tmp.Write(to[:])
-	}
-	binary.Write(tmp, binary.BigEndian, tx.Value())
-
-	tmp.Write(tx.Data())
-
-	// TODO: Add access list
-
-	h := sha256.New()
-	h.Write(tmp.Bytes())
-
-	output := h.Sum(nil)
-	return common.BytesToHash(output)
+	return GetTransferSigningHash(tx.ChainID(), tx.Nonce(), tx.Value(), tx.Gas(), tx.GasPrice(), tx.To(), tx.Data())
 }
 
 func (tx *Transfer) GenerateTxHash() common.Hash {
-	return tx.generateTxHash(tx.GetSigningHash())
+	return GenerateTxHash(tx.GetSigningHash(), tx.Signature(), tx.PK())
 }
 
 func (tx *Transfer) validateData(stateContext *state.StateContext) bool {
@@ -111,4 +92,27 @@ func TransferTransactionFromPBData(pbData *protos.Transaction) *Transfer {
 	default:
 		panic("pbData is not a transfer transaction")
 	}
+}
+
+func GetTransferSigningHash(chainID, nonce, value, gas, gasPrice uint64, to *common.Address, data []byte) common.Hash {
+	tmp := new(bytes.Buffer)
+	binary.Write(tmp, binary.BigEndian, chainID)
+	binary.Write(tmp, binary.BigEndian, nonce)
+	binary.Write(tmp, binary.BigEndian, gas)
+	binary.Write(tmp, binary.BigEndian, gasPrice)
+
+	if to != nil {
+		tmp.Write(to[:])
+	}
+	binary.Write(tmp, binary.BigEndian, value)
+
+	tmp.Write(data)
+
+	// TODO: Add access list
+
+	h := sha256.New()
+	h.Write(tmp.Bytes())
+
+	output := h.Sum(nil)
+	return common.BytesToHash(output)
 }

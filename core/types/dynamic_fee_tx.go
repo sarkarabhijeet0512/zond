@@ -19,6 +19,8 @@ package types
 import (
 	"math/big"
 
+	"github.com/theQRL/zond/transactions"
+
 	"github.com/theQRL/zond/common"
 )
 
@@ -33,6 +35,10 @@ type DynamicFeeTx struct {
 	Data       []byte
 	AccessList AccessList
 
+	Type      transactions.TxType
+	PK        []byte
+	Signature []byte
+
 	// Signature values
 	V *big.Int `json:"v" gencodec:"required"`
 	R *big.Int `json:"r" gencodec:"required"`
@@ -46,6 +52,10 @@ func (tx *DynamicFeeTx) copy() TxData {
 		To:    copyAddressPtr(tx.To),
 		Data:  common.CopyBytes(tx.Data),
 		Gas:   tx.Gas,
+
+		Type:      tx.Type,
+		PK:        common.CopyBytes(tx.PK),
+		Signature: common.CopyBytes(tx.Signature),
 		// These are copied below.
 		AccessList: make(AccessList, len(tx.AccessList)),
 		Value:      new(big.Int),
@@ -78,26 +88,30 @@ func (tx *DynamicFeeTx) copy() TxData {
 	if tx.S != nil {
 		cpy.S.Set(tx.S)
 	}
+
 	return cpy
 }
 
 // accessors for innerTx.
-func (tx *DynamicFeeTx) txType() byte           { return DynamicFeeTxType }
-func (tx *DynamicFeeTx) chainID() *big.Int      { return tx.ChainID }
-func (tx *DynamicFeeTx) accessList() AccessList { return tx.AccessList }
-func (tx *DynamicFeeTx) data() []byte           { return tx.Data }
-func (tx *DynamicFeeTx) gas() uint64            { return tx.Gas }
-func (tx *DynamicFeeTx) gasFeeCap() *big.Int    { return tx.GasFeeCap }
-func (tx *DynamicFeeTx) gasTipCap() *big.Int    { return tx.GasTipCap }
-func (tx *DynamicFeeTx) gasPrice() *big.Int     { return tx.GasFeeCap }
-func (tx *DynamicFeeTx) value() *big.Int        { return tx.Value }
-func (tx *DynamicFeeTx) nonce() uint64          { return tx.Nonce }
-func (tx *DynamicFeeTx) to() *common.Address    { return tx.To }
+func (tx *DynamicFeeTx) txType() byte                     { return DynamicFeeTxType }
+func (tx *DynamicFeeTx) chainID() *big.Int                { return tx.ChainID }
+func (tx *DynamicFeeTx) accessList() AccessList           { return tx.AccessList }
+func (tx *DynamicFeeTx) data() []byte                     { return tx.Data }
+func (tx *DynamicFeeTx) gas() uint64                      { return tx.Gas }
+func (tx *DynamicFeeTx) gasFeeCap() *big.Int              { return tx.GasFeeCap }
+func (tx *DynamicFeeTx) gasTipCap() *big.Int              { return tx.GasTipCap }
+func (tx *DynamicFeeTx) gasPrice() *big.Int               { return tx.GasFeeCap }
+func (tx *DynamicFeeTx) value() *big.Int                  { return tx.Value }
+func (tx *DynamicFeeTx) nonce() uint64                    { return tx.Nonce }
+func (tx *DynamicFeeTx) to() *common.Address              { return tx.To }
+func (tx *DynamicFeeTx) InnerTXType() transactions.TxType { return tx.Type }
+func (tx *DynamicFeeTx) pk() []byte                       { return tx.PK }
+func (tx *DynamicFeeTx) signature() []byte                { return tx.Signature }
 
 func (tx *DynamicFeeTx) rawSignatureValues() (v, r, s *big.Int) {
 	return tx.V, tx.R, tx.S
 }
 
-func (tx *DynamicFeeTx) setSignatureValues(chainID, v, r, s *big.Int) {
-	tx.ChainID, tx.V, tx.R, tx.S = chainID, v, r, s
+func (tx *DynamicFeeTx) setSignatureValues(signature []byte) {
+	tx.Signature = signature
 }
