@@ -2,6 +2,8 @@ package transactions
 
 import (
 	"encoding/hex"
+	"math/big"
+	"reflect"
 	"testing"
 
 	"github.com/theQRL/go-qrllib/dilithium"
@@ -34,12 +36,42 @@ func TestGenerateTxHash(t *testing.T) {
 	message := []byte("message")
 	nonce := uint64(10)
 	networkID := uint64(1)
-	transfer := NewTransfer(networkID, addrTo[:], amount, fee, 0, message, nonce, masterDilithiumPK[:])
+	transfer := NewTransfer(networkID, addrTo[:], amount, 100000, big.NewInt(int64(fee)), big.NewInt(int64(0)), message, nonce, masterDilithiumPK[:])
 
 	expectedHash, _ := hex.DecodeString("14efaf472130509ed0cf5b42d61017d69ca7824638540c2f54b257273ce2eef6")
 
 	output := transfer.GenerateTxHash()
 	if hex.EncodeToString(output.Bytes()) != hex.EncodeToString(expectedHash) {
 		t.Errorf("expected transaction hash (%v), got (%v)", hex.EncodeToString(expectedHash), hex.EncodeToString(output.Bytes()))
+	}
+}
+func TestTransaction_GasTipCap(t *testing.T) {
+	type fields struct {
+		pbData *protos.Transaction
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   *big.Int
+	}{
+		{
+			name: "GasTipCap",
+			fields: fields{
+				pbData: &protos.Transaction{
+					GasFeeTip: nil,
+					GasFeeCap: nil,
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tx := &Transaction{
+				pbData: tt.fields.pbData,
+			}
+			if got := tx.GasTipCap(); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Transaction.GasTipCap() = %v, want %v", got, tt.want)
+			}
+		})
 	}
 }

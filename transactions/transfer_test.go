@@ -2,6 +2,7 @@ package transactions
 
 import (
 	"encoding/hex"
+	"math/big"
 	"testing"
 
 	"github.com/theQRL/go-qrllib/xmss"
@@ -17,7 +18,7 @@ func TestNewTransfer(t *testing.T) {
 	message := []byte("message")
 	nonce := uint64(30)
 	networkID := uint64(1)
-	transfer := NewTransfer(networkID, addrTo[:], amount, fee, 0, message, nonce, masterXmssPK[:])
+	transfer := NewTransfer(networkID, addrTo[:], amount, 100000, big.NewInt(int64(fee)), big.NewInt(int64(0)), message, nonce, masterXmssPK[:])
 
 	if transfer.Value() != uint64(30) {
 		t.Error("the total amount of transfer is incorrect")
@@ -387,7 +388,7 @@ func TestGetSigningHash(t *testing.T) {
 	message := []byte("message")
 	nonce := uint64(30)
 	networkID := uint64(1)
-	transfer := NewTransfer(networkID, addrTo[:], amount, fee, 0, message, nonce, masterXmssPK[:])
+	transfer := NewTransfer(networkID, addrTo[:], amount, 100000, big.NewInt(int64(fee)), big.NewInt(int64(0)), message, nonce, masterXmssPK[:])
 
 	expectedHash, _ := hex.DecodeString("f29eff1776c6f3ec6fd987fb1af4f814c0b9d77f8edb09a2c167937421d277e7")
 

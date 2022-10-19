@@ -30,12 +30,10 @@ import (
 func TestStrictTxListAdd(t *testing.T) {
 	// Generate a list of transactions to insert
 	key := dilithium.New()
-	pk := key.GetPK()
-
 	txs := make(types.Transactions, 1024)
 	for i := 0; i < len(txs); i++ {
 
-		txs[i] = TransferTransaction(1, uint64(i), 100, 0, 1, nil, pk[:], key)
+		txs[i] = TransferTransaction(uint64(i), 0, big.NewInt(1), big.NewInt(1), nil, key)
 	}
 	// Insert the transactions in a random order
 	list := newTxList(true)
@@ -56,11 +54,10 @@ func TestStrictTxListAdd(t *testing.T) {
 func BenchmarkTxListAdd(b *testing.B) {
 	// Generate a list of transactions to insert
 	key := dilithium.New()
-	pk := key.GetPK()
 
 	txs := make(types.Transactions, 100000)
 	for i := 0; i < len(txs); i++ {
-		txs[i] = TransferTransaction(1, uint64(i), 100, 0, 1, nil, pk[:], key)
+		txs[i] = TransferTransaction(uint64(i), 0, big.NewInt(1), big.NewInt(1), nil, key)
 	}
 	// Insert the transactions in a random order
 	priceLimit := big.NewInt(int64(DefaultTxPoolConfig.PriceLimit))

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"encoding/binary"
+	"math/big"
 
 	"github.com/theQRL/zond/common"
 	"github.com/theQRL/zond/misc"
@@ -32,7 +33,7 @@ func (tx *Transfer) Data() []byte {
 }
 
 func (tx *Transfer) GetSigningHash() common.Hash {
-	return GetTransferSigningHash(tx.ChainID(), tx.Nonce(), tx.Value(), tx.Gas(), tx.GasPrice(), tx.To(), tx.Data())
+	return GetTransferSigningHash(tx.ChainID(), tx.Nonce(), tx.Value(), tx.Gas(), tx.GasFeeCap(), tx.GasTipCap(), tx.To(), tx.Data())
 }
 
 func (tx *Transfer) GenerateTxHash() common.Hash {
@@ -51,8 +52,8 @@ func (tx *Transfer) ApplyStateChanges(stateContext *state.StateContext) error {
 	return nil
 }
 
-func NewTransfer(chainID uint64, to []byte, value uint64, gas uint64, gasPrice uint64,
-	data []byte, nonce uint64, pk []byte) *Transfer {
+func NewTransfer(chainID uint64, to []byte, value uint64, gas uint64, gasFeeCap *big.Int,
+	gasFeeTip *big.Int, data []byte, nonce uint64, pk []byte) *Transfer {
 	tx := &Transfer{}
 
 	tx.pbData = &protos.Transaction{}
@@ -61,7 +62,9 @@ func NewTransfer(chainID uint64, to []byte, value uint64, gas uint64, gasPrice u
 
 	tx.pbData.Pk = pk
 	tx.pbData.Gas = gas
-	tx.pbData.GasPrice = gasPrice
+	// tx.pbData.GasPrice = gasFeeCap
+	tx.pbData.GasFeeCap = gasFeeCap.Bytes()
+	tx.pbData.GasFeeTip = gasFeeTip.Bytes()
 	tx.pbData.Nonce = nonce
 	transferPBData := tx.pbData.GetTransfer()
 	transferPBData.To = to
@@ -94,13 +97,13 @@ func TransferTransactionFromPBData(pbData *protos.Transaction) *Transfer {
 	}
 }
 
-func GetTransferSigningHash(chainID, nonce, value, gas, gasPrice uint64, to *common.Address, data []byte) common.Hash {
+func GetTransferSigningHash(chainID, nonce, value, gas uint64, gasFeeCap, gasTipCap *big.Int, to *common.Address, data []byte) common.Hash {
 	tmp := new(bytes.Buffer)
 	binary.Write(tmp, binary.BigEndian, chainID)
 	binary.Write(tmp, binary.BigEndian, nonce)
 	binary.Write(tmp, binary.BigEndian, gas)
-	binary.Write(tmp, binary.BigEndian, gasPrice)
-
+	binary.Write(tmp, binary.BigEndian, gasFeeCap.Bytes())
+	binary.Write(tmp, binary.BigEndian, gasTipCap.Bytes())
 	if to != nil {
 		tmp.Write(to[:])
 	}

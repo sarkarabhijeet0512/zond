@@ -2,6 +2,7 @@ package view
 
 import (
 	"errors"
+	"math/big"
 
 	"github.com/theQRL/zond/common/hexutil"
 	"github.com/theQRL/zond/misc"
@@ -10,14 +11,16 @@ import (
 )
 
 type PlainTransferTransaction struct {
-	ChainID         uint64 `json:"chainID"`
-	Gas             uint64 `json:"gas"`
-	GasPrice        uint64 `json:"gasPrice"`
-	PublicKey       string `json:"publicKey"`
-	Signature       string `json:"signature"`
-	Nonce           uint64 `json:"nonce"`
-	TransactionHash string `json:"transactionHash"`
-	TransactionType string `json:"transactionType"`
+	ChainID uint64 `json:"chainID"`
+	Gas     uint64 `json:"gas"`
+	// GasPrice        uint64   `json:"gasPrice"`
+	GasFeeCap       *big.Int `json:"gasFeeCap"`
+	GasTipCap       *big.Int `json:"gasTipCap"`
+	PublicKey       string   `json:"publicKey"`
+	Signature       string   `json:"signature"`
+	Nonce           uint64   `json:"nonce"`
+	TransactionHash string   `json:"transactionHash"`
+	TransactionType string   `json:"transactionType"`
 
 	To    string `json:"to"`
 	Value uint64 `json:"value"`
@@ -27,7 +30,8 @@ type PlainTransferTransaction struct {
 func (t *PlainTransferTransaction) TransactionFromPBData(tx *protos.Transaction, txHash []byte) {
 	t.ChainID = tx.ChainId
 	t.Gas = tx.Gas
-	t.GasPrice = tx.GasPrice
+	t.GasFeeCap = new(big.Int).SetBytes(tx.GasFeeCap)
+	t.GasTipCap = new(big.Int).SetBytes(tx.GasFeeTip)
 	t.PublicKey = misc.BytesToHexStr(tx.Pk)
 	t.Signature = misc.BytesToHexStr(tx.Signature)
 	t.Nonce = tx.Nonce
@@ -43,6 +47,8 @@ type PlainTransferTransactionRPC struct {
 	ChainID   string `json:"chainId"`
 	Gas       string `json:"gas"`
 	GasPrice  string `json:"gasPrice"`
+	GasFeeCap string `json:"gasFeeCap"`
+	GasTipCap string `json:"gasTipCap"`
 	PublicKey string `json:"pk"`
 	Signature string `json:"signature"`
 	Nonce     string `json:"nonce"`
@@ -53,7 +59,8 @@ type PlainTransferTransactionRPC struct {
 func (t *PlainTransferTransactionRPC) TransactionFromPBData(tx *protos.Transaction) {
 	t.ChainID = hexutil.EncodeUint64(tx.GetChainId()) //tx.ChainId
 	t.Gas = hexutil.EncodeUint64(tx.GetGas())
-	t.GasPrice = hexutil.EncodeUint64(tx.GetGasPrice())
+	t.GasFeeCap = hexutil.EncodeBig(new(big.Int).SetBytes(tx.GasFeeCap))
+	t.GasTipCap = hexutil.EncodeBig(new(big.Int).SetBytes(tx.GasFeeTip))
 	t.PublicKey = misc.BytesToHexStr(tx.GetPk())
 	t.Signature = misc.BytesToHexStr(tx.GetSignature())
 	t.Nonce = hexutil.EncodeUint64(tx.GetNonce())
@@ -82,7 +89,8 @@ func (t *PlainTransferTransaction) ToTransferTransactionObject() (*transactions.
 		to,
 		t.Value,
 		t.Gas,
-		t.GasPrice,
+		t.GasFeeCap,
+		t.GasTipCap,
 		data,
 		t.Nonce,
 		pk)

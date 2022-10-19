@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"encoding/binary"
+	"math/big"
 	"reflect"
 
 	"fmt"
@@ -54,7 +55,12 @@ type TransactionInterface interface {
 
 	Gas() uint64
 
-	GasPrice() uint64
+	//use gasFeeCap
+	// GasPrice() uint64
+
+	GasFeeCap() *big.Int
+
+	GasTipCap() *big.Int
 
 	Nonce() uint64
 
@@ -114,16 +120,16 @@ func (tx *Transaction) ChainID() uint64 {
 	return tx.pbData.ChainId
 }
 
-func (tx *Transaction) GasPrice() uint64 {
-	return tx.pbData.GasPrice
+// func (tx *Transaction) GasPrice() uint64 {
+// 	return tx.pbData.GasPrice
+// }
+
+func (tx *Transaction) GasTipCap() *big.Int {
+	return new(big.Int).SetBytes(tx.pbData.GasFeeTip)
 }
 
-func (tx *Transaction) GasTipCap() uint64 {
-	return tx.pbData.GasPrice
-}
-
-func (tx *Transaction) GasFeeCap() uint64 {
-	return tx.pbData.GasPrice
+func (tx *Transaction) GasFeeCap() *big.Int {
+	return new(big.Int).SetBytes(tx.pbData.GasFeeCap)
 }
 
 func (tx *Transaction) Gas() uint64 {

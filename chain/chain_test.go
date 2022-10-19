@@ -273,11 +273,12 @@ func TestGetSlotLeaderDilithiumPKBySlotNumber(t *testing.T) {
 	//txnHash := sha256.Sum256([]byte("txHash"))
 	var txs []*protos.Transaction
 	amount := uint64(30)
-	fee := uint64(1)
+	fee := big.NewInt(1)
 	message := []byte("message")
 	nonce := uint64(30)
 	networkID := uint64(1)
-	txn1 := transactions.NewTransfer(networkID, addrTo[:], amount, fee, 0, message, nonce, masterXmssPK[:])
+	gas := uint64(100000)
+	txn1 := transactions.NewTransfer(networkID, addrTo[:], amount, gas, fee, big.NewInt(0), message, nonce, masterXmssPK[:])
 	txs = append(txs, txn1.PBData())
 
 	protocolTxs := make([]*protos.ProtocolTransaction, 0)

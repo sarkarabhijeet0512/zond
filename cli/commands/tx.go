@@ -4,6 +4,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"math/big"
+	"net/http"
+
 	"github.com/theQRL/zond/api"
 	"github.com/theQRL/zond/api/view"
 	"github.com/theQRL/zond/cli/flags"
@@ -15,8 +19,6 @@ import (
 	"github.com/theQRL/zond/transactions"
 	"github.com/theQRL/zond/wallet"
 	"github.com/urfave/cli/v2"
-	"io/ioutil"
-	"net/http"
 )
 
 func broadcastTransaction(transaction interface{}, url string, txHash common.Hash) error {
@@ -174,7 +176,8 @@ func getTransactionSubCommands() []*cli.Command {
 				},
 				flags.AmountFlag,
 				flags.GasFlag,
-				flags.GasPriceFlag,
+				flags.GasFeeCapFlag,
+				flags.GasTipCapFlag,
 				flags.NonceFlag,
 				flags.TransactionStdOut,
 				flags.BroadcastFlag,
@@ -225,7 +228,7 @@ func getTransactionSubCommands() []*cli.Command {
 				tx := transactions.NewStake(c.Uint64(flags.ChainIDFlag.Name),
 					stakeAmount,
 					c.Uint64(flags.GasFlag.Name),
-					c.Uint64(flags.GasPriceFlag.Name),
+					big.NewInt(c.Int64(flags.GasFeeCapFlag.Name)),
 					c.Uint64(flags.NonceFlag.Name),
 					pk[:])
 				tx.SignDilithium(a, tx.GetSigningHash())
@@ -276,7 +279,7 @@ func getTransactionSubCommands() []*cli.Command {
 				},
 				flags.AmountFlag,
 				flags.GasFlag,
-				flags.GasPriceFlag,
+				flags.GasFeeCapFlag,
 			},
 			Action: func(c *cli.Context) error {
 				data, err := misc.HexStrToBytes(c.String(flags.DataFlag.Name))
@@ -307,7 +310,8 @@ func getTransactionSubCommands() []*cli.Command {
 					binAddressTo,
 					c.Uint64(flags.AmountFlag.Name),
 					c.Uint64(flags.GasFlag.Name),
-					c.Uint64(flags.GasPriceFlag.Name),
+					big.NewInt(c.Int64(flags.GasFeeCapFlag.Name)),
+					big.NewInt(c.Int64(flags.GasTipCapFlag.Name)),
 					data,
 					c.Uint64(flags.NonceFlag.Name),
 					pk[:])
@@ -352,7 +356,7 @@ func getTransactionSubCommands() []*cli.Command {
 				},
 				flags.AmountFlag,
 				flags.GasFlag,
-				flags.GasPriceFlag,
+				flags.GasFeeCapFlag,
 			},
 			Action: func(c *cli.Context) error {
 				data, err := misc.HexStrToBytes(c.String(flags.DataFlag.Name))
@@ -382,7 +386,8 @@ func getTransactionSubCommands() []*cli.Command {
 					binAddressTo,
 					c.Uint64(flags.AmountFlag.Name),
 					c.Uint64(flags.GasFlag.Name),
-					c.Uint64(flags.GasPriceFlag.Name),
+					big.NewInt(c.Int64(flags.GasFeeCapFlag.Name)),
+					big.NewInt(c.Int64(flags.GasTipCapFlag.Name)),
 					data,
 					c.Uint64(flags.NonceFlag.Name),
 					pk[:])
@@ -419,7 +424,7 @@ func getTransactionSubCommands() []*cli.Command {
 				flags.NonceFlag,
 				flags.AmountFlag,
 				flags.GasFlag,
-				flags.GasPriceFlag,
+				flags.GasFeeCapFlag,
 				flags.TransactionStdOut,
 				flags.BroadcastFlag,
 				flags.RemoteAddrFlag,
@@ -449,7 +454,8 @@ func getTransactionSubCommands() []*cli.Command {
 					nil,
 					c.Uint64(flags.AmountFlag.Name),
 					c.Uint64(flags.GasFlag.Name),
-					c.Uint64(flags.GasPriceFlag.Name),
+					big.NewInt(c.Int64(flags.GasFeeCapFlag.Name)),
+					big.NewInt(c.Int64(flags.GasTipCapFlag.Name)),
 					data,
 					nonce,
 					pk[:])
@@ -494,7 +500,7 @@ func getTransactionSubCommands() []*cli.Command {
 				},
 				flags.AmountFlag,
 				flags.GasFlag,
-				flags.GasPriceFlag,
+				flags.GasFeeCapFlag,
 				flags.TransactionStdOut,
 				flags.BroadcastFlag,
 				flags.RemoteAddrFlag,
@@ -530,7 +536,8 @@ func getTransactionSubCommands() []*cli.Command {
 					binTo,
 					c.Uint64(flags.AmountFlag.Name),
 					c.Uint64(flags.GasFlag.Name),
-					c.Uint64(flags.GasPriceFlag.Name),
+					big.NewInt(c.Int64(flags.GasFeeCapFlag.Name)),
+					big.NewInt(c.Int64(flags.GasTipCapFlag.Name)),
 					data,
 					nonce,
 					pk[:])

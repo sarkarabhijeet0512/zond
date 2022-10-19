@@ -2,6 +2,7 @@ package transactions
 
 import (
 	"encoding/hex"
+	"math/big"
 	"testing"
 
 	"github.com/theQRL/go-qrllib/dilithium"
@@ -15,7 +16,7 @@ func TestNewStake(t *testing.T) {
 	fee := uint64(1)
 	nonce := uint64(10)
 
-	staking := NewStake(networkID, stake, fee, uint64(0), nonce, masterDilithiumPK[:])
+	staking := NewStake(networkID, stake, fee, big.NewInt(0), nonce, masterDilithiumPK[:])
 	if staking.Amount() != stake {
 		t.Error("the stake is incorrectly set")
 	}
@@ -385,9 +386,9 @@ func TestStakeGetSigningHash(t *testing.T) {
 	fee := uint64(1)
 	nonce := uint64(10)
 
-	staking := NewStake(networkID, stake, fee, 0, nonce, masterDilithiumPK[:])
+	staking := NewStake(networkID, stake, fee, big.NewInt(0), nonce, masterDilithiumPK[:])
 
-	expectedSigningHash, _ := hex.DecodeString("4648ce1859c445e5e9ad0f64f252c5a7690b997923a0ff76006e73fd1f06d35b")
+	expectedSigningHash, _ := hex.DecodeString("18c4f56f0e4a69a7368fdea8b665d98f17584b8cca80aa1344aeb99f007237af")
 	output := staking.GetSigningHash()
 	if hex.EncodeToString(output.Bytes()) != hex.EncodeToString(expectedSigningHash) {
 		t.Errorf("expected stake signing hash (%v), got (%v)", hex.EncodeToString(expectedSigningHash), hex.EncodeToString(output.Bytes()))

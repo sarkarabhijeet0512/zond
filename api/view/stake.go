@@ -2,6 +2,7 @@ package view
 
 import (
 	"errors"
+	"math/big"
 
 	"github.com/theQRL/zond/common/hexutil"
 	"github.com/theQRL/zond/misc"
@@ -10,14 +11,14 @@ import (
 )
 
 type PlainStakeTransaction struct {
-	ChainID         uint64 `json:"chainID"`
-	Gas             uint64 `json:"gas"`
-	GasPrice        uint64 `json:"gasPrice"`
-	PublicKey       string `json:"publicKey"`
-	Signature       string `json:"signature"`
-	Nonce           uint64 `json:"nonce"`
-	TransactionHash string `json:"transactionHash"`
-	TransactionType string `json:"transactionType"`
+	ChainID         uint64   `json:"chainID"`
+	Gas             uint64   `json:"gas"`
+	GasFeeCap       *big.Int `json:"gasFeeCap"`
+	PublicKey       string   `json:"publicKey"`
+	Signature       string   `json:"signature"`
+	Nonce           uint64   `json:"nonce"`
+	TransactionHash string   `json:"transactionHash"`
+	TransactionType string   `json:"transactionType"`
 
 	Amount uint64 `json:"amount"`
 }
@@ -25,7 +26,7 @@ type PlainStakeTransaction struct {
 type PlainStakeTransactionRPC struct {
 	ChainID   string `json:"chainId"`
 	Gas       string `json:"gas"`
-	GasPrice  string `json:"gasPrice"`
+	GasfeeCap string `json:"gasFeeCap"`
 	PublicKey string `json:"pk"`
 	Signature string `json:"signature"`
 	Nonce     string `json:"nonce"`
@@ -35,7 +36,7 @@ type PlainStakeTransactionRPC struct {
 func (t *PlainStakeTransactionRPC) TransactionFromPBData(tx *protos.Transaction) {
 	t.ChainID = hexutil.EncodeUint64(tx.GetChainId()) //tx.ChainId
 	t.Gas = hexutil.EncodeUint64(tx.GetGas())
-	t.GasPrice = hexutil.EncodeUint64(tx.GetGasPrice())
+	t.GasfeeCap = hexutil.EncodeBig(new(big.Int).SetBytes(tx.GasFeeCap))
 	t.PublicKey = misc.BytesToHexStr(tx.GetPk())
 	t.Signature = misc.BytesToHexStr(tx.GetSignature())
 	t.Nonce = hexutil.EncodeUint64(tx.GetNonce())
@@ -46,7 +47,7 @@ func (t *PlainStakeTransaction) TransactionFromPBData(tx *protos.Transaction, tx
 	t.ChainID = tx.ChainId
 
 	t.Gas = tx.Gas
-	t.GasPrice = tx.GasPrice
+	t.GasFeeCap = new(big.Int).SetBytes(tx.GasFeeCap)
 	t.PublicKey = misc.BytesToHexStr(tx.Pk)
 	t.Signature = misc.BytesToHexStr(tx.Signature)
 	t.Nonce = tx.Nonce
@@ -66,7 +67,7 @@ func (t *PlainStakeTransaction) ToStakeTransactionObject() (*transactions.Stake,
 		t.ChainID,
 		t.Amount,
 		t.Gas,
-		t.GasPrice,
+		t.GasFeeCap,
 		t.Nonce,
 		pk)
 

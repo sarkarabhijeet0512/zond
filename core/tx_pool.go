@@ -621,9 +621,9 @@ func (pool *TxPool) validateTx(tx *types.Transaction, local bool) error {
 		return ErrTipVeryHigh
 	}
 	// // Ensure gasFeeCap is greater than or equal to gasTipCap.
-	// if tx.GasFeeCapIntCmp(tx.GasTipCap()) < 0 {
-	// 	return ErrTipAboveFeeCap
-	// }
+	if tx.GasFeeCapIntCmp(tx.GasTipCap()) < 0 {
+		return ErrTipAboveFeeCap
+	}
 	// Make sure the transaction is signed properly.
 	from, err := types.Sender(pool.signer, tx)
 	if err != nil {
