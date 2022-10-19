@@ -19,6 +19,7 @@ package types
 import (
 	"math/big"
 
+	"github.com/theQRL/zond/protos"
 	"github.com/theQRL/zond/transactions"
 
 	"github.com/theQRL/zond/common"
@@ -43,6 +44,37 @@ type DynamicFeeTx struct {
 	V *big.Int `json:"v" gencodec:"required"`
 	R *big.Int `json:"r" gencodec:"required"`
 	S *big.Int `json:"s" gencodec:"required"`
+}
+
+func NewDynamicTransaction(pbTx *protos.Transaction) *Transaction {
+	txType := transactions.GetTransactionType(pbTx)
+	var to *common.Address
+	var data []byte
+	value := uint64(0)
+
+	if txType == transactions.TypeTransfer {
+		toAddr := common.BytesToAddress(pbTx.GetTransfer().GetTo())
+		to = &toAddr
+		value = pbTx.GetTransfer().GetValue()
+		data = pbTx.GetTransfer().GetData()
+	} else if txType == transactions.TypeStake {
+		to = nil
+		value = pbTx.GetStake().GetAmount()
+	}
+
+	return NewTx(&DynamicFeeTx{
+		Nonce:     pbTx.GetNonce(),
+		To:        to,
+		Value:     big.NewInt(int64(value)),
+		GasFeeCap: new(big.Int).SetBytes(pbTx.GetGasFeeCap()),
+		GasTipCap: new(big.Int).SetBytes(pbTx.GetGasFeeTip()),
+		Gas:       pbTx.GetGas(),
+		Data:      data,
+		Type:      transactions.GetTransactionType(pbTx),
+		ChainID:   new(big.Int).SetUint64(pbTx.ChainId),
+		PK:        pbTx.Pk,
+		Signature: pbTx.Signature,
+	})
 }
 
 // copy creates a deep copy of the transaction data and initializes all fields.

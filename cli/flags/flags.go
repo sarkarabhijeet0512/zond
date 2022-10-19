@@ -2,6 +2,7 @@ package flags
 
 import (
 	"fmt"
+
 	"github.com/theQRL/zond/config"
 	"github.com/urfave/cli/v2"
 )
@@ -76,13 +77,22 @@ var GasFlag = &cli.Uint64Flag{
 	Value:    0,
 	Required: true,
 }
-
-var GasPriceFlag = &cli.Uint64Flag{
-	Name:     "gas-price",
+var GasTipCapFlag = &cli.Uint64Flag{
+	Name:     "gas-tip-cap",
 	Value:    0,
 	Required: true,
 }
 
+// var GasPriceFlag = &cli.Uint64Flag{
+// 	Name:     "gas-price",
+// 	Value:    0,
+// 	Required: true,
+// }
+var GasFeeCapFlag = &cli.Uint64Flag{
+	Name:     "gas-fee-cap",
+	Value:    0,
+	Required: true,
+}
 var TransactionStdOut = &cli.BoolFlag{
 	Name:  "std-out",
 	Value: true,

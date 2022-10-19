@@ -2,6 +2,10 @@ package commands
 
 import (
 	"fmt"
+	"math/big"
+	"os"
+	"path"
+
 	"github.com/theQRL/zond/block/genesis"
 	"github.com/theQRL/zond/config"
 	"github.com/theQRL/zond/keys"
@@ -10,8 +14,6 @@ import (
 	"github.com/theQRL/zond/wallet"
 	"github.com/urfave/cli/v2"
 	"google.golang.org/protobuf/encoding/protojson"
-	"os"
-	"path"
 )
 
 func getDevSubCommands() []*cli.Command {
@@ -58,7 +60,8 @@ func getDevSubCommands() []*cli.Command {
 
 				stakeAmount := 110000 * config.GetDevConfig().ShorPerQuanta
 				gas := uint64(30000)
-				gasPrice := uint64(10000)
+				gasFeeCap := big.NewInt(10000)
+				gasTipCap := big.NewInt(0)
 
 				binAddress := foundationDilithiumAccount.GetAddress()
 				address := misc.BytesToHexStr(binAddress[:])
@@ -80,7 +83,8 @@ func getDevSubCommands() []*cli.Command {
 						binStakeDilithiumAddress[:],
 						stakeAmount,
 						gas,
-						gasPrice,
+						gasFeeCap,
+						gasTipCap,
 						nil,
 						foundationAccountNonce,
 						foundationDilithiumPK[:])
@@ -94,7 +98,7 @@ func getDevSubCommands() []*cli.Command {
 				foundationStakeTx := transactions.NewStake(config.GetDevConfig().ChainID.Uint64(),
 					config.GetDevConfig().StakeAmount,
 					gas,
-					gasPrice,
+					gasFeeCap,
 					foundationAccountNonce,
 					foundationDilithiumPK[:])
 				foundationStakeTx.SignDilithium(foundationDilithiumAccount, foundationStakeTx.GetSigningHash())
@@ -113,7 +117,7 @@ func getDevSubCommands() []*cli.Command {
 					tx := transactions.NewStake(config.GetDevConfig().ChainID.Uint64(),
 						config.GetDevConfig().StakeAmount,
 						gas,
-						gasPrice,
+						gasFeeCap,
 						0,
 						stakeDilithiumPK[:])
 					tx.SignDilithium(stakeDilithiumAccount, tx.GetSigningHash())

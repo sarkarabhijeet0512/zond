@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"encoding/binary"
+	"math/big"
 
 	"github.com/theQRL/zond/common"
 	"github.com/theQRL/zond/protos"
@@ -19,7 +20,7 @@ func (tx *Stake) Amount() uint64 {
 }
 
 func (tx *Stake) GetSigningHash() common.Hash {
-	return GetStakeSigningHash(tx.ChainID(), tx.Nonce(), tx.Amount(), tx.Gas(), tx.GasPrice())
+	return GetStakeSigningHash(tx.ChainID(), tx.Nonce(), tx.Amount(), tx.Gas(), tx.GasFeeCap())
 }
 
 func (tx *Stake) GenerateTxHash() common.Hash {
@@ -44,7 +45,7 @@ func (tx *Stake) ApplyStateChanges(stateContext *state.StateContext) error {
 	future, we may allow other signature schemes like XMSS for staking
 */
 func NewStake(chainID uint64, amount uint64,
-	gas uint64, gasPrice uint64, nonce uint64, dilithiumPK []byte) *Stake {
+	gas uint64, gasFeeCap *big.Int, nonce uint64, dilithiumPK []byte) *Stake {
 	tx := &Stake{}
 
 	tx.pbData = &protos.Transaction{}
@@ -53,7 +54,7 @@ func NewStake(chainID uint64, amount uint64,
 
 	tx.pbData.Pk = dilithiumPK
 	tx.pbData.Gas = gas
-	tx.pbData.GasPrice = gasPrice
+	tx.pbData.GasFeeCap = gasFeeCap.Bytes()
 	tx.pbData.Nonce = nonce
 	tx.pbData.GetStake().Amount = amount
 
@@ -78,13 +79,13 @@ func StakeTransactionFromPBData(pbData *protos.Transaction) *Stake {
 	}
 }
 
-func GetStakeSigningHash(chainID, nonce, value, gas, gasPrice uint64) common.Hash {
+func GetStakeSigningHash(chainID, nonce, value, gas uint64, gasFeeCap *big.Int) common.Hash {
 	tmp := new(bytes.Buffer)
 	binary.Write(tmp, binary.BigEndian, chainID)
 	binary.Write(tmp, binary.BigEndian, nonce)
 
 	binary.Write(tmp, binary.BigEndian, gas)
-	binary.Write(tmp, binary.BigEndian, gasPrice)
+	binary.Write(tmp, binary.BigEndian, gasFeeCap.Bytes())
 
 	binary.Write(tmp, binary.BigEndian, value)
 

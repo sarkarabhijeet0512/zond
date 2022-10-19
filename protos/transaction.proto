@@ -40,6 +40,8 @@ message Transaction {
         Stake stake = 8;
         Transfer transfer = 9;
     }
+    bytes gas_fee_tip = 10;
+    bytes gas_fee_cap = 11;
 }
 
 message TransactionList {

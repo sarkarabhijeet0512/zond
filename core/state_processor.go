@@ -4,6 +4,9 @@ import (
 	"crypto/md5"
 	"encoding/binary"
 	"fmt"
+	"math/big"
+	"reflect"
+
 	log "github.com/sirupsen/logrus"
 	"github.com/theQRL/go-qrllib/dilithium"
 	"github.com/theQRL/go-qrllib/xmss"
@@ -27,8 +30,6 @@ import (
 	"github.com/theQRL/zond/storagekeys"
 	"github.com/theQRL/zond/transactions"
 	"go.etcd.io/bbolt"
-	"math/big"
-	"reflect"
 )
 
 // StateProcessor is a basic Processor, which takes care of transitioning
@@ -637,7 +638,7 @@ func applyStakeTransaction(gp *GasPool, statedb *state.StateDB, blockNumber *big
 	accountState.SetNonce(statedb.GetNonce(address) + 1)
 
 	// Calculate and Subtract Fee
-	fee := tx.Gas() * tx.GasPrice()
+	fee := tx.Gas() * tx.GasFeeCap().Uint64()
 	accountState.SubBalance(big.NewInt(int64(fee)))
 
 	bigAmount := big.NewInt(int64(tx.Amount()))
@@ -652,9 +653,9 @@ func applyStakeTransaction(gp *GasPool, statedb *state.StateDB, blockNumber *big
 	accountState.SetPendingStakeBalance(bigAmount)
 
 	// refund remaining gas
-	accountState.AddBalance(big.NewInt(int64(tx.Gas()-(StakeTxGas)) * int64(tx.GasPrice())))
+	accountState.AddBalance(big.NewInt(int64(tx.Gas()-(StakeTxGas)) * int64(tx.GasFeeCap().Uint64())))
 	// add gas fee to the block proposer address
-	statedb.AddBalance(*minter, big.NewInt(int64((StakeTxGas)*tx.GasPrice())))
+	statedb.AddBalance(*minter, big.NewInt(int64((StakeTxGas)*tx.GasFeeCap().Uint64())))
 
 	if err := gp.SubGas(StakeTxGas); err != nil {
 		return nil, err
@@ -781,7 +782,7 @@ func ValidateTransferTxn(tx *transactions.Transfer, statedb *state.StateDB) erro
 	}
 
 	balance := accountState.Balance().Uint64()
-	requiredBalance := tx.Value() + tx.Gas()*tx.GasPrice()
+	requiredBalance := tx.Value() + tx.Gas()*tx.GasFeeCap().Uint64()
 	if balance < requiredBalance {
 		return fmt.Errorf(errmsg.TXInsufficientBalance, "transfer", tx.Hash(), addrFrom, requiredBalance, balance)
 	}
@@ -857,7 +858,7 @@ func ValidateStakeTxn(tx *transactions.Stake, statedb *state.StateDB) error {
 	}
 
 	balance := accountState.Balance()
-	requiredBalance := tx.Gas()*tx.GasPrice() + tx.Amount()
+	requiredBalance := tx.Gas()*tx.GasFeeCap().Uint64() + tx.Amount()
 
 	if balance.Cmp(big.NewInt(int64(requiredBalance))) < 0 {
 		return fmt.Errorf(errmsg.TXInsufficientBalance,
@@ -1110,9 +1111,9 @@ func Re(receipts types.Receipts) ([]byte, error) {
 }
 
 func TransferTxAsMessage(tx *transactions.Transfer, baseFee *big.Int) (types.Message, error) {
-	bigIntGasPrice := big.NewInt(int64(tx.GasPrice()))
-	bigIntGasFeeCap := big.NewInt(int64(tx.GasFeeCap()))
-	bigIntGasTipCap := big.NewInt(int64(tx.GasTipCap()))
+	bigIntGasPrice := tx.GasFeeCap()
+	bigIntGasFeeCap := tx.GasFeeCap()
+	bigIntGasTipCap := tx.GasTipCap()
 	bigIntValue := big.NewInt(int64(tx.Value()))
 	// If baseFee provided, set gasPrice to effectiveGasPrice.
 	if baseFee != nil {

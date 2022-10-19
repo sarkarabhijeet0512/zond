@@ -401,10 +401,10 @@ func (tx *Transaction) Hash() common.Hash {
 	//	h = prefixedRlpHash(tx.Type(), tx.inner)
 	//}
 	if tx.InnerTXType() == transactions.TypeTransfer {
-		signingHash := transactions.GetTransferSigningHash(tx.ChainId().Uint64(), tx.Nonce(), tx.Value().Uint64(), tx.Gas(), tx.GasPrice().Uint64(), tx.To(), tx.Data())
+		signingHash := transactions.GetTransferSigningHash(tx.ChainId().Uint64(), tx.Nonce(), tx.Value().Uint64(), tx.Gas(), tx.GasFeeCap(), tx.GasTipCap(), tx.To(), tx.Data())
 		h = transactions.GenerateTxHash(signingHash, tx.Signature(), tx.PK())
 	} else if tx.InnerTXType() == transactions.TypeStake {
-		signingHash := transactions.GetStakeSigningHash(tx.ChainId().Uint64(), tx.Nonce(), tx.Value().Uint64(), tx.Gas(), tx.GasPrice().Uint64())
+		signingHash := transactions.GetStakeSigningHash(tx.ChainId().Uint64(), tx.Nonce(), tx.Value().Uint64(), tx.Gas(), tx.GasFeeCap())
 		h = transactions.GenerateTxHash(signingHash, tx.Signature(), tx.PK())
 	}
 	tx.hash.Store(h)
