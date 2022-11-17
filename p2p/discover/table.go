@@ -461,6 +461,7 @@ func (tab *Table) addSeenNode(n *node) {
 	}
 	// Add to end of bucket:
 	b.entries = append(b.entries, n)
+
 	b.replacements = deletznode(b.replacements, n)
 	n.addedAt = time.Now()
 	if tab.nodeAddedHook != nil {

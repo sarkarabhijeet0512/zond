@@ -3,8 +3,14 @@ package p2p
 import (
 	"errors"
 	"fmt"
+	"io"
+	"reflect"
+	"strconv"
+	"sync"
+	"time"
+
 	"github.com/golang/protobuf/proto"
-	"github.com/libp2p/go-libp2p-core/network"
+	"github.com/libp2p/go-libp2p/core/network"
 	log "github.com/sirupsen/logrus"
 	"github.com/theQRL/zond/block"
 	"github.com/theQRL/zond/chain"
@@ -18,11 +24,6 @@ import (
 	"github.com/theQRL/zond/transactions"
 	"github.com/theQRL/zond/transactions/pool"
 	"github.com/willf/bloom"
-	"io"
-	"reflect"
-	"strconv"
-	"sync"
-	"time"
 )
 
 type MRDataConn struct {

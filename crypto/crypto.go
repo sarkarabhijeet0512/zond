@@ -22,7 +22,9 @@ import (
 	"crypto/elliptic"
 	"crypto/rand"
 	"encoding/hex"
-	"errors"
+	"path"
+
+	//"errors"
 	"fmt"
 	"hash"
 	"io"
@@ -30,8 +32,14 @@ import (
 	"math/big"
 	"os"
 
+	"github.com/btcsuite/btcd/btcec/v2"
+	crypto "github.com/libp2p/go-libp2p/core/crypto"
+	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 	"github.com/theQRL/zond/common"
 	"github.com/theQRL/zond/common/math"
+	"github.com/theQRL/zond/config"
+	"github.com/theQRL/zond/crypto/secp256k1"
 	"github.com/theQRL/zond/rlp"
 	"golang.org/x/crypto/sha3"
 )
@@ -50,7 +58,11 @@ var (
 	secp256k1halfN = new(big.Int).Div(secp256k1N, big.NewInt(2))
 )
 
+var log = logrus.WithField("prefix", "p2p")
+
 var errInvalidPubkey = errors.New("invalid secp256k1 public key")
+
+var keyPath = "network-keys"
 
 // KeccakState wraps sha3.state. In addition to the usual hash methods, it also supports
 // Read to get a variable amount of data from the hash state. Read is faster than Sum
@@ -282,4 +294,80 @@ func zeroBytes(bytes []byte) {
 	for i := range bytes {
 		bytes[i] = 0
 	}
+}
+
+func ConvertToInterfacePubkey(pubkey *ecdsa.PublicKey) (crypto.PubKey, error) {
+	xVal, yVal := new(btcec.FieldVal), new(btcec.FieldVal)
+	if xVal.SetByteSlice(pubkey.X.Bytes()) {
+		return nil, errors.Errorf("X value overflows")
+	}
+	if yVal.SetByteSlice(pubkey.Y.Bytes()) {
+		return nil, errors.Errorf("Y value overflows")
+	}
+	newKey := crypto.PubKey((*crypto.Secp256k1PublicKey)(btcec.NewPublicKey(xVal, yVal)))
+	// Zero out temporary values.
+	xVal.Zero()
+	yVal.Zero()
+	return newKey, nil
+}
+
+func ConvertFromInterfacePrivKey(privkey crypto.PrivKey) (*ecdsa.PrivateKey, error) {
+	secpKey, ok := privkey.(*crypto.Secp256k1PrivateKey)
+	if !ok {
+		return nil, errors.New("could not cast to Secp256k1PrivateKey")
+	}
+	rawKey, err := secpKey.Raw()
+	if err != nil {
+		return nil, err
+	}
+	privKey := new(ecdsa.PrivateKey)
+	k := new(big.Int).SetBytes(rawKey)
+	privKey.D = k
+	privKey.Curve = secp256k1.S256() // Temporary hack, so libp2p Secp256k1 is recognized as geth Secp256k1 in disc v5.1.
+	privKey.X, privKey.Y = secp256k1.S256().ScalarBaseMult(rawKey)
+	return privKey, nil
+}
+
+// Determines a private key for p2p networking from the p2p service's
+// configuration struct. If no key is found, it generates a new one.
+func PrivKey(cfg *config.Config) (*ecdsa.PrivateKey, error) {
+	defaultKeyPath := path.Join(cfg.User.DataDir(), keyPath)
+	privateKeyPath := cfg.User.NodeECDSAKeyFileName
+
+	_, err := os.Stat(defaultKeyPath)
+	defaultKeysExist := !os.IsNotExist(err)
+	if err != nil && defaultKeysExist {
+		return nil, err
+	}
+
+	if privateKeyPath == "" && !defaultKeysExist {
+		priv, _, err := crypto.GenerateSecp256k1Key(rand.Reader)
+		if err != nil {
+			return nil, err
+		}
+		return ConvertFromInterfacePrivKey(priv)
+	}
+	if defaultKeysExist && privateKeyPath == "" {
+		privateKeyPath = defaultKeyPath
+	}
+	return privKeyFromFile(privateKeyPath)
+}
+
+// Retrieves a p2p networking private key from a file path.
+func privKeyFromFile(path string) (*ecdsa.PrivateKey, error) {
+	src, err := os.ReadFile(path) // #nosec G304
+	if err != nil {
+		log.WithError(err).Error("Error reading private key from file")
+		return nil, err
+	}
+	dst := make([]byte, hex.DecodedLen(len(src)))
+	_, err = hex.Decode(dst, src)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to decode hex string")
+	}
+	unmarshalledKey, err := crypto.UnmarshalSecp256k1PrivateKey(dst)
+	if err != nil {
+		return nil, err
+	}
+	return ConvertFromInterfacePrivKey(unmarshalledKey)
 }
