@@ -702,11 +702,11 @@ func (p *Status) BestNonFinalized(minPeers int, ourHeadEpoch types.Epoch) (types
 	pidHead := make(map[peer.ID]types.Slot, len(connected))
 	potentialPIDs := make([]peer.ID, 0, len(connected))
 
-	ourHeadSlot := types.Slot(config.GetDevConfig().BlocksPerEpoch).Mul(uint64(ourHeadEpoch))
+	ourHeadSlot := types.Slot(config.GetDevConfig().SlotsPerEpoch).Mul(uint64(ourHeadEpoch))
 	for _, pid := range connected {
 		peerChainState, err := p.ChainState(pid)
 		if err == nil && peerChainState != nil && types.Slot(peerChainState.HeadSlot) > ourHeadSlot {
-			epoch := types.Epoch(types.Slot(peerChainState.HeadSlot).DivSlot(types.Slot(config.GetDevConfig().BlocksPerEpoch)))
+			epoch := types.Epoch(types.Slot(peerChainState.HeadSlot).DivSlot(types.Slot(config.GetDevConfig().SlotsPerEpoch)))
 			epochVotes[epoch]++
 			pidEpoch[pid] = epoch
 			pidHead[pid] = types.Slot(peerChainState.HeadSlot)
@@ -885,7 +885,7 @@ func (p *Status) HighestEpoch() types.Epoch {
 			highestSlot = types.Slot(peerData.ChainState.HeadSlot)
 		}
 	}
-	return types.Epoch(types.Slot(highestSlot).DivSlot(types.Slot(config.GetDevConfig().BlocksPerEpoch)))
+	return types.Epoch(types.Slot(highestSlot).DivSlot(types.Slot(config.GetDevConfig().SlotsPerEpoch)))
 }
 
 // ConnectedPeerLimit returns the peer limit of

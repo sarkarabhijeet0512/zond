@@ -4,6 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"math/big"
+	"time"
+
 	log "github.com/sirupsen/logrus"
 	"github.com/theQRL/zond/accounts/abi"
 	"github.com/theQRL/zond/common"
@@ -19,8 +22,6 @@ import (
 	"github.com/theQRL/zond/protos"
 	"github.com/theQRL/zond/rpc"
 	"github.com/theQRL/zond/transactions"
-	"math/big"
-	"time"
 )
 
 // BlockChainAPI provides an API to access Ethereum blockchain data.
@@ -157,7 +158,7 @@ func (s *BlockChainAPI) GetValidators(ctx context.Context) (*ValidatorsResult, e
 
 	var validatorsBySlotNumber []SlotValidators
 	validatorsPK := epochMetaData.Validators()
-	offsetSlotNumber := epochMetaData.Epoch() * config.GetDevConfig().BlocksPerEpoch
+	offsetSlotNumber := epochMetaData.Epoch() * config.GetDevConfig().SlotsPerEpoch
 	for slotNumber, slotInfo := range epochMetaData.SlotInfo() {
 		slotLeaderDilithiumPK := validatorsPK[slotInfo.SlotLeader]
 		var attestors []common.Address

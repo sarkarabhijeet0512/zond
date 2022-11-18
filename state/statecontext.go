@@ -3,6 +3,9 @@ package state
 import (
 	"errors"
 	"fmt"
+	"math/big"
+	"reflect"
+
 	log "github.com/sirupsen/logrus"
 	"github.com/theQRL/zond/common"
 	"github.com/theQRL/zond/config"
@@ -10,8 +13,6 @@ import (
 	"github.com/theQRL/zond/metadata"
 	"github.com/theQRL/zond/misc"
 	"go.etcd.io/bbolt"
-	"math/big"
-	"reflect"
 )
 
 type StateContext struct {
@@ -133,7 +134,7 @@ func (s *StateContext) ProcessBlockProposerFlag(blockProposerDilithiumPK []byte,
 	if s.slotNumber == 0 {
 		return nil
 	}
-	slotInfo := s.epochMetaData.SlotInfo()[s.slotNumber%config.GetDevConfig().BlocksPerEpoch]
+	slotInfo := s.epochMetaData.SlotInfo()[s.slotNumber%config.GetDevConfig().SlotsPerEpoch]
 	slotLeader := s.epochMetaData.Validators()[slotInfo.SlotLeader]
 	if !reflect.DeepEqual(slotLeader, blockProposerDilithiumPK) {
 		return errors.New("unexpected block proposer")
@@ -226,7 +227,7 @@ func NewStateContext(db *db.DB, slotNumber uint64,
 		return nil, err
 	}
 
-	epoch := slotNumber / config.GetDevConfig().BlocksPerEpoch
+	epoch := slotNumber / config.GetDevConfig().SlotsPerEpoch
 	epochBlockHashes, err := metadata.GetEpochBlockHashes(db, epoch)
 	if err != nil {
 		epochBlockHashes = metadata.NewEpochBlockHashes(epoch)
@@ -234,7 +235,7 @@ func NewStateContext(db *db.DB, slotNumber uint64,
 
 	validatorsFlag := make(map[string]bool)
 	if slotNumber > 0 {
-		slotInfo := epochMetaData.SlotInfo()[slotNumber%config.GetDevConfig().BlocksPerEpoch]
+		slotInfo := epochMetaData.SlotInfo()[slotNumber%config.GetDevConfig().SlotsPerEpoch]
 		for _, attestorsIndex := range slotInfo.Attestors {
 			validatorsFlag[misc.BytesToHexStr(epochMetaData.Validators()[attestorsIndex])] = false
 		}

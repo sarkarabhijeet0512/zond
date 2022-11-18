@@ -328,10 +328,10 @@ func (c *Chain) GetStartingNonFinalizedEpoch() (uint64, error) {
 		return 0, err
 	}
 	// Special condition for epoch 0, to start syncing from epoch 0
-	if mainChainMetaData.FinalizedBlockSlotNumber() < config.GetDevConfig().BlocksPerEpoch-1 {
+	if mainChainMetaData.FinalizedBlockSlotNumber() < config.GetDevConfig().SlotsPerEpoch-1 {
 		return 0, nil
 	}
-	finalizedEpoch := mainChainMetaData.FinalizedBlockSlotNumber() / config.GetDevConfig().BlocksPerEpoch
+	finalizedEpoch := mainChainMetaData.FinalizedBlockSlotNumber() / config.GetDevConfig().SlotsPerEpoch
 
 	return finalizedEpoch + 1, nil
 
@@ -456,7 +456,7 @@ func (c *Chain) GetSlotLeaderDilithiumPKBySlotNumber(trieRoot common.Hash,
 		return nil, err
 	}
 
-	slotLeaderIndex := epochMetaData.SlotInfo()[slotNumber%c.config.Dev.BlocksPerEpoch].SlotLeader
+	slotLeaderIndex := epochMetaData.SlotInfo()[slotNumber%c.config.Dev.SlotsPerEpoch].SlotLeader
 	return epochMetaData.Validators()[slotLeaderIndex], nil
 }
 
@@ -467,7 +467,7 @@ func (c *Chain) GetAttestorsBySlotNumber(trieRoot common.Hash,
 		return nil, err
 	}
 
-	attestorsIndex := epochMetaData.SlotInfo()[slotNumber%c.config.Dev.BlocksPerEpoch].Attestors
+	attestorsIndex := epochMetaData.SlotInfo()[slotNumber%c.config.Dev.SlotsPerEpoch].Attestors
 	validators := epochMetaData.Validators()
 
 	var attestors [][]byte
@@ -894,7 +894,7 @@ func (c *Chain) CalculateEpochMetaData(statedb *state2.StateDB, slotNumber uint6
 	parentHeaderHash common.Hash) (*metadata.EpochMetaData, error) {
 
 	db := c.state.DB()
-	blocksPerEpoch := config.GetDevConfig().BlocksPerEpoch
+	blocksPerEpoch := config.GetDevConfig().SlotsPerEpoch
 	parentBlockMetaData, err := metadata.GetBlockMetaData(db, parentHeaderHash)
 	if err != nil {
 		return nil, err

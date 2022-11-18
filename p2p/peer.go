@@ -161,7 +161,7 @@ func (p *Peer) IncreaseEpochToBeRequested() {
 	defer p.lock.Unlock()
 
 	maxSlotNumber := p.chain.GetMaxPossibleSlotNumber()
-	maxEpoch := maxSlotNumber / config.GetDevConfig().BlocksPerEpoch
+	maxEpoch := maxSlotNumber / config.GetDevConfig().SlotsPerEpoch
 
 	p.epochToBeRequested += 1
 

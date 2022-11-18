@@ -3,6 +3,8 @@ package metadata
 import (
 	"errors"
 	"fmt"
+	"reflect"
+
 	"github.com/golang/protobuf/proto"
 	log "github.com/sirupsen/logrus"
 	"github.com/theQRL/zond/common"
@@ -11,7 +13,6 @@ import (
 	"github.com/theQRL/zond/misc"
 	"github.com/theQRL/zond/protos"
 	"go.etcd.io/bbolt"
-	"reflect"
 )
 
 type EpochBlockHashes struct {
@@ -41,12 +42,12 @@ func (e *EpochBlockHashes) DeSerialize(data []byte) error {
 func (e *EpochBlockHashes) AddHeaderHashBySlotNumber(headerHash common.Hash,
 	slotNumber uint64) error {
 	c := config.GetDevConfig()
-	if slotNumber/c.BlocksPerEpoch != e.Epoch() {
+	if slotNumber/c.SlotsPerEpoch != e.Epoch() {
 		return errors.New(
 			fmt.Sprintf("SlotNumber %d doesn't belong to epoch %d",
 				slotNumber, e.Epoch()))
 	}
-	startSlotNumber := e.Epoch() * c.BlocksPerEpoch
+	startSlotNumber := e.Epoch() * c.SlotsPerEpoch
 	index := slotNumber - startSlotNumber
 	if e.BlockHashesBySlotNumber()[index].SlotNumber != slotNumber {
 		return errors.New(
@@ -80,8 +81,8 @@ func NewEpochBlockHashes(epoch uint64) *EpochBlockHashes {
 	pbData := &protos.EpochBlockHashesMetaData{
 		Epoch: epoch,
 	}
-	startSlotNumber := epoch * config.GetDevConfig().BlocksPerEpoch
-	for i := uint64(0); i < config.GetDevConfig().BlocksPerEpoch; i++ {
+	startSlotNumber := epoch * config.GetDevConfig().SlotsPerEpoch
+	for i := uint64(0); i < config.GetDevConfig().SlotsPerEpoch; i++ {
 		blockHashesBySlotNumber := &protos.BlockHashesBySlotNumber{
 			SlotNumber: startSlotNumber + i,
 		}

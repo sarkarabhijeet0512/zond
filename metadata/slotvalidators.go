@@ -39,7 +39,7 @@ func (s *SlotValidatorsMetaData) IsSlotLeader(dilithiumPK string) bool {
 }
 
 func NewSlotValidatorsMetaData(slotNumber uint64, epochMetaData *EpochMetaData) *SlotValidatorsMetaData {
-	blocksPerEpoch := config.GetDevConfig().BlocksPerEpoch
+	blocksPerEpoch := config.GetDevConfig().SlotsPerEpoch
 	slotLeaderIndex := epochMetaData.SlotInfo()[slotNumber%blocksPerEpoch].SlotLeader
 	attestorsIndex := epochMetaData.SlotInfo()[slotNumber%blocksPerEpoch].Attestors
 	validators := epochMetaData.Validators()

@@ -2,6 +2,7 @@ package metadata
 
 import (
 	"fmt"
+
 	"github.com/golang/protobuf/proto"
 	log "github.com/sirupsen/logrus"
 	"github.com/theQRL/zond/common"
@@ -45,7 +46,7 @@ func (bm *BlockMetaData) TotalStakeAmount() []byte {
 }
 
 func (bm *BlockMetaData) Epoch() uint64 {
-	return bm.pbData.SlotNumber / config.GetDevConfig().BlocksPerEpoch
+	return bm.pbData.SlotNumber / config.GetDevConfig().SlotsPerEpoch
 }
 
 func (bm *BlockMetaData) TrieRoot() common.Hash {

@@ -1,6 +1,11 @@
 package p2p
 
 import (
+	"math/big"
+	"sort"
+	"sync"
+	"time"
+
 	log "github.com/sirupsen/logrus"
 	"github.com/theQRL/zond/block"
 	"github.com/theQRL/zond/chain"
@@ -9,10 +14,6 @@ import (
 	"github.com/theQRL/zond/misc"
 	"github.com/theQRL/zond/ntp"
 	"github.com/theQRL/zond/protos"
-	"math/big"
-	"sort"
-	"sync"
-	"time"
 )
 
 const MaxRequest = 40 // Size has to be calculated based on maximum possible values on Queue
@@ -512,7 +513,7 @@ func (d *Downloader) DownloadMonitor() {
 					continue
 				}
 
-				epoch := peerChainState.SlotNumber / config.GetDevConfig().BlocksPerEpoch
+				epoch := peerChainState.SlotNumber / config.GetDevConfig().SlotsPerEpoch
 				if epoch < startingNonFinalizedEpoch {
 					continue
 				}
@@ -567,7 +568,7 @@ func (d *Downloader) Initialize(peerGroup []*Peer,
 	case <-time.After(10 * time.Second):
 	}
 
-	blocksPerEpoch := config.GetDevConfig().BlocksPerEpoch
+	blocksPerEpoch := config.GetDevConfig().SlotsPerEpoch
 	minimumStartSlotNumber := startingNonFinalizedEpoch * blocksPerEpoch
 	hashesWithPeerInfoBySlotNumber := make(map[uint64]*HashesAndPeerInfo)
 

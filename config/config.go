@@ -108,7 +108,7 @@ type DevConfig struct {
 
 	Version string
 
-	BlocksPerEpoch       uint64
+	SlotsPerEpoch        uint64
 	BlockLeadTimestamp   uint32
 	BlockMaxDrift        uint16
 	BlockGasLimit        uint64
@@ -333,7 +333,7 @@ func GetDevConfig() (dev *DevConfig) {
 
 		Version: "0.0.1 go",
 
-		BlocksPerEpoch:       100,
+		SlotsPerEpoch:        100,
 		BlockLeadTimestamp:   30,
 		BlockMaxDrift:        15,
 		BlockGasLimit:        100000000,

@@ -2,6 +2,10 @@ package metadata
 
 import (
 	"fmt"
+	"math"
+	"math/rand"
+	"reflect"
+
 	"github.com/golang/protobuf/proto"
 	log "github.com/sirupsen/logrus"
 	"github.com/theQRL/zond/common"
@@ -10,9 +14,6 @@ import (
 	"github.com/theQRL/zond/misc"
 	"github.com/theQRL/zond/protos"
 	"go.etcd.io/bbolt"
-	"math"
-	"math/rand"
-	"reflect"
 )
 
 type EpochMetaData struct {
@@ -106,7 +107,7 @@ func (e *EpochMetaData) AllotSlots(randomSeed int64, epoch uint64, prevSlotLastB
 		e.pbData.Validators[i], e.pbData.Validators[j] = e.pbData.Validators[j], e.pbData.Validators[i]
 	})
 
-	blocksPerEpoch := config.GetDevConfig().BlocksPerEpoch
+	blocksPerEpoch := config.GetDevConfig().SlotsPerEpoch
 	e.pbData.SlotInfo = make([]*protos.SlotInfo, blocksPerEpoch)
 
 	lenValidators := uint64(len(e.Validators()))
@@ -146,7 +147,7 @@ func NewEpochMetaData(epoch uint64, prevSlotLastBlockHeaderHash common.Hash,
 func GetEpochMetaData(db *db.DB, currentBlockSlotNumber uint64, parentHeaderHash common.Hash) (*EpochMetaData, error) {
 	var prevSlotLastBlockHeaderHash common.Hash
 
-	blocksPerEpoch := config.GetDevConfig().BlocksPerEpoch
+	blocksPerEpoch := config.GetDevConfig().SlotsPerEpoch
 	epoch := currentBlockSlotNumber / blocksPerEpoch
 	parentEpoch := epoch
 
