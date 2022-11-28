@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package protos;
+
+option go_package = "github.com/theQRL/zond/protos";
+
+message FinalizedBlockRootContainer {
+    bytes parent_root = 1;
+    bytes child_root = 2;
+}

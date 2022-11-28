@@ -9,7 +9,6 @@ import (
 
 	"fmt"
 
-	"github.com/golang/protobuf/proto"
 	"github.com/theQRL/go-qrllib/dilithium"
 	"github.com/theQRL/go-qrllib/xmss"
 	"github.com/theQRL/zond/common"
@@ -18,6 +17,7 @@ import (
 	"github.com/theQRL/zond/protos"
 	"github.com/theQRL/zond/state"
 	"google.golang.org/protobuf/encoding/protojson"
+	"google.golang.org/protobuf/proto"
 )
 
 type CoreTransaction interface {

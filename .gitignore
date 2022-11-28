@@ -5,3 +5,4 @@ bazel-*
 bootstrap
 gzond
 zond-cli
+mainnet.ssz.snappy
