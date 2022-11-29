@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/libp2p/go-libp2p/core/peer"
-	types "github.com/theQRL/zond/core/types"
+	types "github.com/theQRL/zond/consensus-types/primitives"
 	"github.com/theQRL/zond/p2p/peers/peerdata"
 	p2ptypes "github.com/theQRL/zond/p2p/types"
 	pb "github.com/theQRL/zond/protos"

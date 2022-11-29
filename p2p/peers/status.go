@@ -34,7 +34,7 @@ import (
 	manet "github.com/multiformats/go-multiaddr/net"
 	"github.com/prysmaticlabs/go-bitfield"
 	"github.com/theQRL/zond/config"
-	"github.com/theQRL/zond/core/types"
+	types "github.com/theQRL/zond/consensus-types/primitives"
 	"github.com/theQRL/zond/p2p/peers/peerdata"
 	"github.com/theQRL/zond/p2p/peers/scorers"
 	"github.com/theQRL/zond/p2p/znr"
