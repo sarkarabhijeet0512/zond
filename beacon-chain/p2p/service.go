@@ -220,7 +220,7 @@ func (s *Service) Start() {
 	}
 	// Initialize metadata according to the
 	// current epoch.
-	s.RefreshENR()
+	s.RefreshZNR()
 
 	// if the current epoch is beyond bellatrix, increase the
 	// MaxGossipSize and MaxChunkSize to 10Mb.
@@ -232,7 +232,7 @@ func (s *Service) Start() {
 	})
 	async.RunEvery(s.ctx, 30*time.Minute, s.Peers().Prune)
 	async.RunEvery(s.ctx, params.BeaconNetworkConfig().RespTimeout, s.updateMetrics)
-	async.RunEvery(s.ctx, refreshRate, s.RefreshENR)
+	async.RunEvery(s.ctx, refreshRate, s.RefreshZNR)
 	async.RunEvery(s.ctx, 1*time.Minute, func() {
 		log.WithFields(logrus.Fields{
 			"inbound":     len(s.peers.InboundConnected()),

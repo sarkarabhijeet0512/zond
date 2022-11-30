@@ -1884,6 +1884,178 @@ func (p *PendingAttestation) HashTreeRootWith(hh *ssz.Hasher) (err error) {
 	return
 }
 
+// MarshalSSZ ssz marshals the SigningData object
+func (s *SigningData) MarshalSSZ() ([]byte, error) {
+	return ssz.MarshalSSZ(s)
+}
+
+// MarshalSSZTo ssz marshals the SigningData object to a target array
+func (s *SigningData) MarshalSSZTo(buf []byte) (dst []byte, err error) {
+	dst = buf
+
+	// Field (0) 'ObjectRoot'
+	if size := len(s.ObjectRoot); size != 32 {
+		err = ssz.ErrBytesLengthFn("--.ObjectRoot", size, 32)
+		return
+	}
+	dst = append(dst, s.ObjectRoot...)
+
+	// Field (1) 'Domain'
+	if size := len(s.Domain); size != 32 {
+		err = ssz.ErrBytesLengthFn("--.Domain", size, 32)
+		return
+	}
+	dst = append(dst, s.Domain...)
+
+	return
+}
+
+// UnmarshalSSZ ssz unmarshals the SigningData object
+func (s *SigningData) UnmarshalSSZ(buf []byte) error {
+	var err error
+	size := uint64(len(buf))
+	if size != 64 {
+		return ssz.ErrSize
+	}
+
+	// Field (0) 'ObjectRoot'
+	if cap(s.ObjectRoot) == 0 {
+		s.ObjectRoot = make([]byte, 0, len(buf[0:32]))
+	}
+	s.ObjectRoot = append(s.ObjectRoot, buf[0:32]...)
+
+	// Field (1) 'Domain'
+	if cap(s.Domain) == 0 {
+		s.Domain = make([]byte, 0, len(buf[32:64]))
+	}
+	s.Domain = append(s.Domain, buf[32:64]...)
+
+	return err
+}
+
+// SizeSSZ returns the ssz encoded size in bytes for the SigningData object
+func (s *SigningData) SizeSSZ() (size int) {
+	size = 64
+	return
+}
+
+// HashTreeRoot ssz hashes the SigningData object
+func (s *SigningData) HashTreeRoot() ([32]byte, error) {
+	return ssz.HashWithDefaultHasher(s)
+}
+
+// HashTreeRootWith ssz hashes the SigningData object with a hasher
+func (s *SigningData) HashTreeRootWith(hh *ssz.Hasher) (err error) {
+	indx := hh.Index()
+
+	// Field (0) 'ObjectRoot'
+	if size := len(s.ObjectRoot); size != 32 {
+		err = ssz.ErrBytesLengthFn("--.ObjectRoot", size, 32)
+		return
+	}
+	hh.PutBytes(s.ObjectRoot)
+
+	// Field (1) 'Domain'
+	if size := len(s.Domain); size != 32 {
+		err = ssz.ErrBytesLengthFn("--.Domain", size, 32)
+		return
+	}
+	hh.PutBytes(s.Domain)
+
+	if ssz.EnableVectorizedHTR {
+		hh.MerkleizeVectorizedHTR(indx)
+	} else {
+		hh.Merkleize(indx)
+	}
+	return
+}
+
+// MarshalSSZ ssz marshals the ForkData object
+func (f *ForkData) MarshalSSZ() ([]byte, error) {
+	return ssz.MarshalSSZ(f)
+}
+
+// MarshalSSZTo ssz marshals the ForkData object to a target array
+func (f *ForkData) MarshalSSZTo(buf []byte) (dst []byte, err error) {
+	dst = buf
+
+	// Field (0) 'CurrentVersion'
+	if size := len(f.CurrentVersion); size != 4 {
+		err = ssz.ErrBytesLengthFn("--.CurrentVersion", size, 4)
+		return
+	}
+	dst = append(dst, f.CurrentVersion...)
+
+	// Field (1) 'GenesisValidatorsRoot'
+	if size := len(f.GenesisValidatorsRoot); size != 32 {
+		err = ssz.ErrBytesLengthFn("--.GenesisValidatorsRoot", size, 32)
+		return
+	}
+	dst = append(dst, f.GenesisValidatorsRoot...)
+
+	return
+}
+
+// UnmarshalSSZ ssz unmarshals the ForkData object
+func (f *ForkData) UnmarshalSSZ(buf []byte) error {
+	var err error
+	size := uint64(len(buf))
+	if size != 36 {
+		return ssz.ErrSize
+	}
+
+	// Field (0) 'CurrentVersion'
+	if cap(f.CurrentVersion) == 0 {
+		f.CurrentVersion = make([]byte, 0, len(buf[0:4]))
+	}
+	f.CurrentVersion = append(f.CurrentVersion, buf[0:4]...)
+
+	// Field (1) 'GenesisValidatorsRoot'
+	if cap(f.GenesisValidatorsRoot) == 0 {
+		f.GenesisValidatorsRoot = make([]byte, 0, len(buf[4:36]))
+	}
+	f.GenesisValidatorsRoot = append(f.GenesisValidatorsRoot, buf[4:36]...)
+
+	return err
+}
+
+// SizeSSZ returns the ssz encoded size in bytes for the ForkData object
+func (f *ForkData) SizeSSZ() (size int) {
+	size = 36
+	return
+}
+
+// HashTreeRoot ssz hashes the ForkData object
+func (f *ForkData) HashTreeRoot() ([32]byte, error) {
+	return ssz.HashWithDefaultHasher(f)
+}
+
+// HashTreeRootWith ssz hashes the ForkData object with a hasher
+func (f *ForkData) HashTreeRootWith(hh *ssz.Hasher) (err error) {
+	indx := hh.Index()
+
+	// Field (0) 'CurrentVersion'
+	if size := len(f.CurrentVersion); size != 4 {
+		err = ssz.ErrBytesLengthFn("--.CurrentVersion", size, 4)
+		return
+	}
+	hh.PutBytes(f.CurrentVersion)
+
+	// Field (1) 'GenesisValidatorsRoot'
+	if size := len(f.GenesisValidatorsRoot); size != 32 {
+		err = ssz.ErrBytesLengthFn("--.GenesisValidatorsRoot", size, 32)
+		return
+	}
+	hh.PutBytes(f.GenesisValidatorsRoot)
+
+	if ssz.EnableVectorizedHTR {
+		hh.MerkleizeVectorizedHTR(indx)
+	} else {
+		hh.Merkleize(indx)
+	}
+	return
+}
+
 // MarshalSSZ ssz marshals the SyncCommittee object
 func (s *SyncCommittee) MarshalSSZ() ([]byte, error) {
 	return ssz.MarshalSSZ(s)

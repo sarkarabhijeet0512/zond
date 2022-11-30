@@ -81,7 +81,7 @@ type PeerManager interface {
 	Host() host.Host
 	ZNR() *znr.Record
 	DiscoveryAddresses() ([]multiaddr.Multiaddr, error)
-	RefreshENR()
+	RefreshZNR()
 	FindPeersWithSubnet(ctx context.Context, topic string, subIndex uint64, threshold int) (bool, error)
 	AddPingMethod(reqFunc func(ctx context.Context, id peer.ID) error)
 }

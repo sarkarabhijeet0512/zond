@@ -10,7 +10,7 @@ import (
 	"github.com/mattn/go-colorable"
 	log "github.com/sirupsen/logrus"
 
-	//crypto2 "github.com/theQRL/go-libp2p-qrl/crypto"
+	crypto2 "github.com/theQRL/go-libp2p-qrl/crypto"
 	"github.com/theQRL/zond/api"
 	"github.com/theQRL/zond/chain"
 	"github.com/theQRL/zond/config"
@@ -34,18 +34,18 @@ func ConfigCheck() bool {
 }
 
 // func run(c *chain.Chain, db *db.DB, keys crypto.PrivKey) error {
-func run(c *chain.Chain, db *db.DB) error {
+func run(c *chain.Chain, db *db.DB, keys crypto.PrivKey) error {
 	srv, err := p2p.NewServer(c)
 	if err != nil {
 		log.Error("Failed to initialize server")
 		return err
 	}
-	// if err := srv.Start(keys); err != nil {
-	// 	return err
-	// }
-	if err := srv.Start(); err != nil {
+	if err := srv.Start(keys); err != nil {
 		return err
 	}
+	// if err := srv.Start(); err != nil {
+	// 	return err
+	// }
 	defer srv.Stop()
 
 	if config.GetUserConfig().API.PublicAPI.Enabled {
@@ -170,12 +170,12 @@ func main() {
 		return
 	}
 
-	//crypto2.LoadAllExtendedKeyTypes()
-	//keys, err := loadP2PDilithiumKey(userConfig.GetAbsoluteNodeKeyFilePath())
-	// if err != nil {
-	// 	log.Error("Failed to loadP2PDilithiumKey ", err.Error())
-	// 	return
-	// }
+	crypto2.LoadAllExtendedKeyTypes()
+	keys, err := loadP2PDilithiumKey(userConfig.GetAbsoluteNodeKeyFilePath())
+	if err != nil {
+		log.Error("Failed to loadP2PDilithiumKey ", err.Error())
+		return
+	}
 
 	s, err := state.NewState(userConfig.DataDir(), devConfig.DBName)
 	if err != nil {
@@ -190,7 +190,7 @@ func main() {
 	}
 	log.Info("Main Chain Loaded Successfully")
 
-	err = run(c, s.DB())
+	err = run(c, s.DB(), keys)
 	if err != nil {
 		log.Error("Initialization Error ", err.Error())
 	}

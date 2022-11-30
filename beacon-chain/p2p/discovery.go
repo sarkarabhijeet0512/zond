@@ -37,7 +37,7 @@ type Listener interface {
 // RefreshENR uses an epoch to refresh the znr entry for our node
 // with the tracked committee ids for the epoch, allowing our node
 // to be dynamically discoverable by others given our tracked committee ids.
-func (s *Service) RefreshENR() {
+func (s *Service) RefreshZNR() {
 	// return early if discv5 isnt running
 	if s.dv5Listener == nil || !s.isInitialized() {
 		return
@@ -249,7 +249,7 @@ func (s *Service) startDiscoveryV5(
 		return nil, errors.Wrap(err, "could not create listener")
 	}
 	record := listener.Self()
-	log.WithField("ZNR", record.String()).Info("Started discovery v5")
+	log.WithField("ENR", record.String()).Info("Started discovery v5")
 	return listener, nil
 }
 
@@ -299,10 +299,10 @@ func (s *Service) filterPeer(node *znode.Node) bool {
 	}
 	nodeENR := node.Record()
 	// Decide whether or not to connect to peer that does not
-	// match the proper fork ZNR data with our local node.
+	// match the proper fork ENR data with our local node.
 	if s.genesisValidatorsRoot != nil {
 		if err := s.compareForkENR(nodeENR); err != nil {
-			log.WithError(err).Trace("Fork ZNR mismatches between peer and local node")
+			log.WithError(err).Trace("Fork ENR mismatches between peer and local node")
 			return false
 		}
 	}

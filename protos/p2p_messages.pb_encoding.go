@@ -4,7 +4,103 @@ package protos
 
 import (
 	ssz "github.com/prysmaticlabs/fastssz"
+	github_com_theQRL_zond_consensus_types_primitives "github.com/theQRL/zond/consensus-types/primitives"
 )
+
+// MarshalSSZ ssz marshals the ZNRForkID object
+func (z *ZNRForkID) MarshalSSZ() ([]byte, error) {
+	return ssz.MarshalSSZ(z)
+}
+
+// MarshalSSZTo ssz marshals the ZNRForkID object to a target array
+func (z *ZNRForkID) MarshalSSZTo(buf []byte) (dst []byte, err error) {
+	dst = buf
+
+	// Field (0) 'CurrentForkDigest'
+	if size := len(z.CurrentForkDigest); size != 4 {
+		err = ssz.ErrBytesLengthFn("--.CurrentForkDigest", size, 4)
+		return
+	}
+	dst = append(dst, z.CurrentForkDigest...)
+
+	// Field (1) 'NextForkVersion'
+	if size := len(z.NextForkVersion); size != 4 {
+		err = ssz.ErrBytesLengthFn("--.NextForkVersion", size, 4)
+		return
+	}
+	dst = append(dst, z.NextForkVersion...)
+
+	// Field (2) 'NextForkEpoch'
+	dst = ssz.MarshalUint64(dst, uint64(z.NextForkEpoch))
+
+	return
+}
+
+// UnmarshalSSZ ssz unmarshals the ZNRForkID object
+func (z *ZNRForkID) UnmarshalSSZ(buf []byte) error {
+	var err error
+	size := uint64(len(buf))
+	if size != 16 {
+		return ssz.ErrSize
+	}
+
+	// Field (0) 'CurrentForkDigest'
+	if cap(z.CurrentForkDigest) == 0 {
+		z.CurrentForkDigest = make([]byte, 0, len(buf[0:4]))
+	}
+	z.CurrentForkDigest = append(z.CurrentForkDigest, buf[0:4]...)
+
+	// Field (1) 'NextForkVersion'
+	if cap(z.NextForkVersion) == 0 {
+		z.NextForkVersion = make([]byte, 0, len(buf[4:8]))
+	}
+	z.NextForkVersion = append(z.NextForkVersion, buf[4:8]...)
+
+	// Field (2) 'NextForkEpoch'
+	z.NextForkEpoch = github_com_theQRL_zond_consensus_types_primitives.Epoch(ssz.UnmarshallUint64(buf[8:16]))
+
+	return err
+}
+
+// SizeSSZ returns the ssz encoded size in bytes for the ZNRForkID object
+func (z *ZNRForkID) SizeSSZ() (size int) {
+	size = 16
+	return
+}
+
+// HashTreeRoot ssz hashes the ZNRForkID object
+func (z *ZNRForkID) HashTreeRoot() ([32]byte, error) {
+	return ssz.HashWithDefaultHasher(z)
+}
+
+// HashTreeRootWith ssz hashes the ZNRForkID object with a hasher
+func (z *ZNRForkID) HashTreeRootWith(hh *ssz.Hasher) (err error) {
+	indx := hh.Index()
+
+	// Field (0) 'CurrentForkDigest'
+	if size := len(z.CurrentForkDigest); size != 4 {
+		err = ssz.ErrBytesLengthFn("--.CurrentForkDigest", size, 4)
+		return
+	}
+	hh.PutBytes(z.CurrentForkDigest)
+
+	// Field (1) 'NextForkVersion'
+	if size := len(z.NextForkVersion); size != 4 {
+		err = ssz.ErrBytesLengthFn("--.NextForkVersion", size, 4)
+		return
+	}
+	hh.PutBytes(z.NextForkVersion)
+
+	// Field (2) 'NextForkEpoch'
+	hh.PutUint64(uint64(z.NextForkEpoch))
+
+	if ssz.EnableVectorizedHTR {
+		hh.MerkleizeVectorizedHTR(indx)
+	} else {
+		hh.Merkleize(indx)
+	}
+	return
+}
 
 // MarshalSSZ ssz marshals the MetaDataV0 object
 func (m *MetaDataV0) MarshalSSZ() ([]byte, error) {

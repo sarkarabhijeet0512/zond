@@ -16,8 +16,8 @@ import (
 	"github.com/theQRL/zond/time/slots"
 )
 
-// ZNR key used for Ethereum consensus-related fork data.
-var eth2ENRKey = params.BeaconNetworkConfig().ETH2Key
+// ENR key used for Ethereum consensus-related fork data.
+var eth2ZNRKey = params.BeaconNetworkConfig().ETH2Key
 
 // ForkDigest returns the current fork digest of
 // the node according to the local clock.
@@ -48,7 +48,7 @@ func (s *Service) compareForkENR(record *znr.Record) error {
 	// and next_fork_epoch that match local values.
 	if !bytes.Equal(peerForkENR.CurrentForkDigest, currentForkENR.CurrentForkDigest) {
 		return fmt.Errorf(
-			"fork digest of peer with ZNR %s: %v, does not match local value: %v",
+			"fork digest of peer with ENR %s: %v, does not match local value: %v",
 			enrString,
 			peerForkENR.CurrentForkDigest,
 			currentForkENR.CurrentForkDigest,
@@ -97,30 +97,30 @@ func addForkEntry(
 	if err != nil {
 		return nil, err
 	}
-	enrForkID := &pb.ENRForkID{
+	znrForkID := &pb.ZNRForkID{
 		CurrentForkDigest: digest[:],
 		NextForkVersion:   nextForkVersion[:],
 		NextForkEpoch:     nextForkEpoch,
 	}
-	enc, err := enrForkID.MarshalSSZ()
+	enc, err := znrForkID.MarshalSSZ()
 	if err != nil {
 		return nil, err
 	}
-	forkEntry := znr.WithEntry(eth2ENRKey, enc)
+	forkEntry := znr.WithEntry(eth2ZNRKey, enc)
 	node.Set(forkEntry)
 	return node, nil
 }
 
-// Retrieves an enrForkID from an ZNR record by key lookup
+// Retrieves an enrForkID from an ENR record by key lookup
 // under the Ethereum consensus EnrKey
-func forkEntry(record *znr.Record) (*pb.ENRForkID, error) {
+func forkEntry(record *znr.Record) (*pb.ZNRForkID, error) {
 	sszEncodedForkEntry := make([]byte, 16)
-	entry := znr.WithEntry(eth2ENRKey, &sszEncodedForkEntry)
+	entry := znr.WithEntry(eth2ZNRKey, &sszEncodedForkEntry)
 	err := record.Load(entry)
 	if err != nil {
 		return nil, err
 	}
-	forkEntry := &pb.ENRForkID{}
+	forkEntry := &pb.ZNRForkID{}
 	if err := forkEntry.UnmarshalSSZ(sszEncodedForkEntry); err != nil {
 		return nil, err
 	}

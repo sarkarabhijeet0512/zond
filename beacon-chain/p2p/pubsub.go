@@ -43,7 +43,7 @@ var errInvalidTopic = errors.New("invalid topic format")
 const digestLength = 4
 
 // Specifies the prefix for any pubsub topic.
-const gossipTopicPrefix = "/eth2/"
+const gossipTopicPrefix = "/zond/"
 
 // JoinTopic will join PubSub topic, if not already joined.
 func (s *Service) JoinTopic(topic string, opts ...pubsub.TopicOpt) (*pubsub.Topic, error) {
