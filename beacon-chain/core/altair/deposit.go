@@ -7,7 +7,7 @@ import (
 	"github.com/theQRL/zond/beacon-chain/core/blocks"
 	"github.com/theQRL/zond/beacon-chain/state"
 	"github.com/theQRL/zond/encoding/bytesutil"
-	ethpb "github.com/theQRL/zond/proto/prysm/v1alpha1"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 )
 
 // ProcessDeposits processes validator deposits for beacon state Altair.

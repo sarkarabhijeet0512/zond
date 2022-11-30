@@ -3,7 +3,7 @@ package stateutil
 import (
 	"github.com/pkg/errors"
 	"github.com/theQRL/zond/encoding/ssz"
-	ethpb "github.com/theQRL/zond/proto/prysm/v1alpha1"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 )
 
 // Eth1Root computes the HashTreeRoot Merkleization of

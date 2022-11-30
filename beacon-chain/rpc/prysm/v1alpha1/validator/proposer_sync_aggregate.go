@@ -3,7 +3,7 @@ package validator
 import (
 	"bytes"
 
-	eth "github.com/theQRL/zond/proto/prysm/v1alpha1"
+	eth "github.com/theQRL/zond/protos/zond/v1alpha1"
 )
 
 type proposerSyncContributions []*eth.SyncCommitteeContribution

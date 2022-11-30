@@ -15,8 +15,8 @@ import (
 	"github.com/theQRL/zond/config/params"
 	"github.com/theQRL/zond/consensus-types/blocks"
 	"github.com/theQRL/zond/encoding/bytesutil"
-	enginev1 "github.com/theQRL/zond/proto/engine/v1"
-	ethpb "github.com/theQRL/zond/proto/prysm/v1alpha1"
+	enginev1 "github.com/theQRL/zond/protos/engine/v1"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 	"github.com/theQRL/zond/testing/require"
 )
 

@@ -13,7 +13,7 @@ import (
 	"github.com/theQRL/zond/crypto/hash"
 	"github.com/theQRL/zond/encoding/bytesutil"
 	pmath "github.com/theQRL/zond/math"
-	ethpb "github.com/theQRL/zond/proto/prysm/v1alpha1"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 	"github.com/theQRL/zond/runtime/version"
 )
 

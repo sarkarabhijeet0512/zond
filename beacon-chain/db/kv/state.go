@@ -16,7 +16,7 @@ import (
 	types "github.com/theQRL/zond/consensus-types/primitives"
 	"github.com/theQRL/zond/encoding/bytesutil"
 	"github.com/theQRL/zond/monitoring/tracing"
-	ethpb "github.com/theQRL/zond/proto/prysm/v1alpha1"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 	"github.com/theQRL/zond/time"
 	"github.com/theQRL/zond/time/slots"
 	bolt "go.etcd.io/bbolt"

@@ -5,7 +5,7 @@ import (
 	"github.com/theQRL/zond/beacon-chain/state"
 	"github.com/theQRL/zond/config/params"
 	types "github.com/theQRL/zond/consensus-types/primitives"
-	ethpb "github.com/theQRL/zond/proto/eth/v1"
+	ethpb "github.com/theQRL/zond/protos/eth/v1"
 )
 
 // ValidatorStatus returns a validator's status at the given epoch.

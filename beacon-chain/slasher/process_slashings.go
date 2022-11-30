@@ -6,7 +6,7 @@ import (
 	"github.com/theQRL/zond/beacon-chain/core/blocks"
 	"github.com/theQRL/zond/beacon-chain/state"
 	"github.com/theQRL/zond/encoding/bytesutil"
-	ethpb "github.com/theQRL/zond/proto/prysm/v1alpha1"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 )
 
 // Verifies attester slashings, logs them, and submits them to the slashing operations pool

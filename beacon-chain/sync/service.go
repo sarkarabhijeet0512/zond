@@ -33,7 +33,7 @@ import (
 	"github.com/theQRL/zond/beacon-chain/state/stategen"
 	lruwrpr "github.com/theQRL/zond/cache/lru"
 	"github.com/theQRL/zond/config/params"
-	ethpb "github.com/theQRL/zond/proto/prysm/v1alpha1"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 	"github.com/theQRL/zond/runtime"
 	prysmTime "github.com/theQRL/zond/time"
 	"github.com/theQRL/zond/time/slots"

@@ -8,7 +8,7 @@ import (
 	doublylinkedtree "github.com/theQRL/zond/beacon-chain/forkchoice/doubly-linked-tree"
 	"github.com/theQRL/zond/beacon-chain/state/stategen"
 	"github.com/theQRL/zond/consensus-types/blocks"
-	ethpb "github.com/theQRL/zond/proto/prysm/v1alpha1"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 	"github.com/theQRL/zond/testing/require"
 	"github.com/theQRL/zond/testing/util"
 )

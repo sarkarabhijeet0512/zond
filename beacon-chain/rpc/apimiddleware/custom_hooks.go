@@ -14,7 +14,7 @@ import (
 	"github.com/theQRL/zond/api/gateway/apimiddleware"
 	"github.com/theQRL/zond/config/params"
 	types "github.com/theQRL/zond/consensus-types/primitives"
-	ethpbv2 "github.com/theQRL/zond/proto/eth/v2"
+	ethpbv2 "github.com/theQRL/zond/protos/eth/v2"
 	"github.com/theQRL/zond/time/slots"
 )
 

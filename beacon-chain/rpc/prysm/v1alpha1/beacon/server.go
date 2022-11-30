@@ -19,7 +19,7 @@ import (
 	"github.com/theQRL/zond/beacon-chain/p2p"
 	"github.com/theQRL/zond/beacon-chain/state/stategen"
 	"github.com/theQRL/zond/beacon-chain/sync"
-	ethpb "github.com/theQRL/zond/proto/prysm/v1alpha1"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 )
 
 // Server defines a server implementation of the gRPC Beacon Chain service,

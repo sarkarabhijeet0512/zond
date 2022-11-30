@@ -13,7 +13,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/theQRL/zond/beacon-chain/p2p/peers"
 	"github.com/theQRL/zond/beacon-chain/p2p/peers/scorers"
-	pb "github.com/theQRL/zond/proto/prysm/v1alpha1"
+	pb "github.com/theQRL/zond/protos/zond/v1alpha1"
 )
 
 // MockPeersProvider implements PeersProvider for testing.

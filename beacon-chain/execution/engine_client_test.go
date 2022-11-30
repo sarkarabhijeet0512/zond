@@ -23,7 +23,7 @@ import (
 	"github.com/theQRL/zond/consensus-types/blocks"
 	"github.com/theQRL/zond/consensus-types/interfaces"
 	"github.com/theQRL/zond/encoding/bytesutil"
-	pb "github.com/theQRL/zond/proto/engine/v1"
+	pb "github.com/theQRL/zond/protos/engine/v1"
 	"github.com/theQRL/zond/testing/require"
 	"github.com/theQRL/zond/testing/util"
 	"google.golang.org/protobuf/proto"

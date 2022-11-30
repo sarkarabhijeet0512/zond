@@ -13,7 +13,7 @@ import (
 	"github.com/theQRL/zond/config/params"
 	types "github.com/theQRL/zond/consensus-types/primitives"
 	"github.com/theQRL/zond/container/slice"
-	ethpb "github.com/theQRL/zond/proto/prysm/v1alpha1"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 	"github.com/trailofbits/go-mutexasserts"
 	"go.opencensus.io/trace"
 )

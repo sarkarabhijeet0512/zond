@@ -5,7 +5,7 @@ import (
 
 	"github.com/theQRL/zond/beacon-chain/state"
 	types "github.com/theQRL/zond/consensus-types/primitives"
-	eth "github.com/theQRL/zond/proto/prysm/v1alpha1"
+	eth "github.com/theQRL/zond/protos/zond/v1alpha1"
 )
 
 // PoolMock is a fake implementation of PoolManager.

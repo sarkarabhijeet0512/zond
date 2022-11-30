@@ -19,7 +19,7 @@ import (
 	types "github.com/theQRL/zond/consensus-types/primitives"
 	leakybucket "github.com/theQRL/zond/container/leaky-bucket"
 	"github.com/theQRL/zond/crypto/rand"
-	p2ppb "github.com/theQRL/zond/proto/prysm/v1alpha1"
+	p2ppb "github.com/theQRL/zond/protos/zond/v1alpha1"
 	"go.opencensus.io/trace"
 )
 

@@ -6,7 +6,7 @@ import (
 
 	"github.com/theQRL/zond/beacon-chain/p2p/peers"
 	"github.com/theQRL/zond/beacon-chain/p2p/peers/scorers"
-	pbrpc "github.com/theQRL/zond/proto/prysm/v1alpha1"
+	pbrpc "github.com/theQRL/zond/protos/zond/v1alpha1"
 	"github.com/theQRL/zond/testing/assert"
 )
 

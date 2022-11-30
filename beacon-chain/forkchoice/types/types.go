@@ -4,7 +4,7 @@ import (
 	fieldparams "github.com/theQRL/zond/config/fieldparams"
 	"github.com/theQRL/zond/consensus-types/interfaces"
 	types "github.com/theQRL/zond/consensus-types/primitives"
-	ethpb "github.com/theQRL/zond/proto/prysm/v1alpha1"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 )
 
 // ProposerBoostRootArgs to call the BoostProposerRoot function.

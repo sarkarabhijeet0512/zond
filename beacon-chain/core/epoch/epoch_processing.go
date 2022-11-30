@@ -17,8 +17,8 @@ import (
 	"github.com/theQRL/zond/config/params"
 	types "github.com/theQRL/zond/consensus-types/primitives"
 	"github.com/theQRL/zond/math"
-	ethpb "github.com/theQRL/zond/proto/prysm/v1alpha1"
-	"github.com/theQRL/zond/proto/prysm/v1alpha1/attestation"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
+	"github.com/theQRL/zond/protos/zond/v1alpha1/attestation"
 )
 
 // sortableIndices implements the Sort interface to sort newly activated validator indices

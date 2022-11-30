@@ -19,7 +19,7 @@ import (
 	"github.com/theQRL/zond/beacon-chain/p2p"
 	"github.com/theQRL/zond/beacon-chain/sync"
 	"github.com/theQRL/zond/io/logs"
-	ethpb "github.com/theQRL/zond/proto/prysm/v1alpha1"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 	"github.com/theQRL/zond/runtime/version"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"

@@ -31,7 +31,7 @@ import (
 	"github.com/theQRL/zond/config/params"
 	leakybucket "github.com/theQRL/zond/container/leaky-bucket"
 	prysmnetwork "github.com/theQRL/zond/network"
-	"github.com/theQRL/zond/proto/prysm/v1alpha1/metadata"
+	"github.com/theQRL/zond/protos/zond/v1alpha1/metadata"
 	"github.com/theQRL/zond/runtime"
 	"github.com/theQRL/zond/time/slots"
 	"go.opencensus.io/trace"

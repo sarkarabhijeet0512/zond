@@ -4,7 +4,7 @@ import (
 	"github.com/pkg/errors"
 	types "github.com/theQRL/zond/consensus-types/primitives"
 	"github.com/theQRL/zond/crypto/bls"
-	eth "github.com/theQRL/zond/proto/prysm/v1alpha1"
+	eth "github.com/theQRL/zond/protos/zond/v1alpha1"
 )
 
 // Domain returns the domain version for BLS private key to sign and verify.

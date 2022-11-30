@@ -10,7 +10,7 @@ import (
 	state_native "github.com/theQRL/zond/beacon-chain/state/state-native"
 	types "github.com/theQRL/zond/consensus-types/primitives"
 	"github.com/theQRL/zond/encoding/bytesutil"
-	ethpb "github.com/theQRL/zond/proto/prysm/v1alpha1"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 	"github.com/theQRL/zond/testing/require"
 	"github.com/theQRL/zond/time/slots"
 )

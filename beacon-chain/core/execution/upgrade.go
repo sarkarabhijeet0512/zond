@@ -5,8 +5,8 @@ import (
 	"github.com/theQRL/zond/beacon-chain/state"
 	state_native "github.com/theQRL/zond/beacon-chain/state/state-native"
 	"github.com/theQRL/zond/config/params"
-	enginev1 "github.com/theQRL/zond/proto/engine/v1"
-	ethpb "github.com/theQRL/zond/proto/prysm/v1alpha1"
+	enginev1 "github.com/theQRL/zond/protos/engine/v1"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 )
 
 // UpgradeToBellatrix updates inputs a generic state to return the version Bellatrix state.

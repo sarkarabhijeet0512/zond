@@ -19,7 +19,7 @@ import (
 	types "github.com/theQRL/zond/consensus-types/primitives"
 	"github.com/theQRL/zond/encoding/bytesutil"
 	"github.com/theQRL/zond/math"
-	ethpbv1 "github.com/theQRL/zond/proto/eth/v1"
+	ethpbv1 "github.com/theQRL/zond/protos/eth/v1"
 	"github.com/theQRL/zond/time/slots"
 	"go.opencensus.io/trace"
 )

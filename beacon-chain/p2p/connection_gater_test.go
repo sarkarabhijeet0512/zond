@@ -14,7 +14,7 @@ import (
 	"github.com/theQRL/zond/beacon-chain/p2p/peers/scorers"
 	mockp2p "github.com/theQRL/zond/beacon-chain/p2p/testing"
 	leakybucket "github.com/theQRL/zond/container/leaky-bucket"
-	ethpb "github.com/theQRL/zond/proto/eth/v1"
+	ethpb "github.com/theQRL/zond/protos/eth/v1"
 	"github.com/theQRL/zond/testing/assert"
 	"github.com/theQRL/zond/testing/require"
 )

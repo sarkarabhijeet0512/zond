@@ -6,7 +6,7 @@ import (
 	"github.com/prysmaticlabs/go-bitfield"
 	"github.com/theQRL/zond/beacon-chain/state"
 	testtmpl "github.com/theQRL/zond/beacon-chain/state/testing"
-	ethpb "github.com/theQRL/zond/proto/prysm/v1alpha1"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 )
 
 func TestBeaconState_PreviousJustifiedCheckpointNil_Phase0(t *testing.T) {

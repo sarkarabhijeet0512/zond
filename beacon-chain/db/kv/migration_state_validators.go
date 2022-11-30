@@ -11,7 +11,7 @@ import (
 	"github.com/theQRL/zond/config/features"
 	"github.com/theQRL/zond/encoding/ssz/detect"
 	"github.com/theQRL/zond/monitoring/progress"
-	v1alpha1 "github.com/theQRL/zond/proto/prysm/v1alpha1"
+	v1alpha1 "github.com/theQRL/zond/protos/zond/v1alpha1"
 	bolt "go.etcd.io/bbolt"
 )
 

@@ -7,7 +7,7 @@ import (
 	"github.com/theQRL/zond/beacon-chain/state"
 	fieldparams "github.com/theQRL/zond/config/fieldparams"
 	types "github.com/theQRL/zond/consensus-types/primitives"
-	v1 "github.com/theQRL/zond/proto/eth/v1"
+	v1 "github.com/theQRL/zond/protos/eth/v1"
 )
 
 // BalanceByRooter is a handler to obtain the effective balances of the state

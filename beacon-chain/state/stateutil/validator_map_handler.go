@@ -6,7 +6,7 @@ import (
 	coreutils "github.com/theQRL/zond/beacon-chain/core/transition/stateutils"
 	fieldparams "github.com/theQRL/zond/config/fieldparams"
 	types "github.com/theQRL/zond/consensus-types/primitives"
-	ethpb "github.com/theQRL/zond/proto/prysm/v1alpha1"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 )
 
 // ValidatorMapHandler is a container to hold the map and a reference tracker for how many

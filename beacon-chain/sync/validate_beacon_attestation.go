@@ -19,8 +19,8 @@ import (
 	types "github.com/theQRL/zond/consensus-types/primitives"
 	"github.com/theQRL/zond/encoding/bytesutil"
 	"github.com/theQRL/zond/monitoring/tracing"
-	eth "github.com/theQRL/zond/proto/prysm/v1alpha1"
-	"github.com/theQRL/zond/proto/prysm/v1alpha1/attestation"
+	eth "github.com/theQRL/zond/protos/zond/v1alpha1"
+	"github.com/theQRL/zond/protos/zond/v1alpha1/attestation"
 	"github.com/theQRL/zond/time/slots"
 	"go.opencensus.io/trace"
 )

@@ -5,7 +5,7 @@ import (
 
 	"github.com/prysmaticlabs/go-bitfield"
 	types "github.com/theQRL/zond/consensus-types/primitives"
-	ethpb "github.com/theQRL/zond/proto/prysm/v1alpha1"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 )
 
 // JustificationBits marking which epochs have been justified in the beacon chain.

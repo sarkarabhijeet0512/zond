@@ -20,7 +20,7 @@ import (
 	leakybucket "github.com/theQRL/zond/container/leaky-bucket"
 	"github.com/theQRL/zond/container/slice"
 	"github.com/theQRL/zond/encoding/bytesutil"
-	eth "github.com/theQRL/zond/proto/prysm/v1alpha1"
+	eth "github.com/theQRL/zond/protos/zond/v1alpha1"
 	"github.com/theQRL/zond/testing/assert"
 	"github.com/theQRL/zond/testing/require"
 	"github.com/theQRL/zond/testing/util"

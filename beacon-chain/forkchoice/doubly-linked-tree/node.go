@@ -8,7 +8,7 @@ import (
 	"github.com/theQRL/zond/config/features"
 	"github.com/theQRL/zond/config/params"
 	types "github.com/theQRL/zond/consensus-types/primitives"
-	v1 "github.com/theQRL/zond/proto/eth/v1"
+	v1 "github.com/theQRL/zond/protos/eth/v1"
 )
 
 // applyWeightChanges recomputes the weight of the node passed as an argument and all of its descendants,

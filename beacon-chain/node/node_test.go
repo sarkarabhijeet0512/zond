@@ -21,7 +21,7 @@ import (
 	"github.com/theQRL/zond/cmd/beacon-chain/flags"
 	fieldparams "github.com/theQRL/zond/config/fieldparams"
 	"github.com/theQRL/zond/config/params"
-	ethpb "github.com/theQRL/zond/proto/prysm/v1alpha1"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 	"github.com/theQRL/zond/runtime"
 	"github.com/theQRL/zond/runtime/interop"
 	"github.com/theQRL/zond/testing/require"

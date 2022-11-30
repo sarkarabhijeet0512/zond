@@ -14,7 +14,7 @@ import (
 	"github.com/theQRL/zond/consensus-types/interfaces"
 	types "github.com/theQRL/zond/consensus-types/primitives"
 	"github.com/theQRL/zond/monitoring/backup"
-	ethpb "github.com/theQRL/zond/proto/prysm/v1alpha1"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 )
 
 // ReadOnlyDatabase defines a struct which only has read access to database methods.

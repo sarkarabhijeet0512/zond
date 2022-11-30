@@ -12,7 +12,7 @@ import (
 	state_native "github.com/theQRL/zond/beacon-chain/state/state-native"
 	"github.com/theQRL/zond/config/params"
 	consensusblocks "github.com/theQRL/zond/consensus-types/blocks"
-	ethpb "github.com/theQRL/zond/proto/prysm/v1alpha1"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 )
 
 // SaveGenesisData bootstraps the beaconDB with a given genesis state.

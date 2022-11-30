@@ -5,7 +5,7 @@ import (
 
 	types "github.com/theQRL/zond/consensus-types/primitives"
 	"github.com/theQRL/zond/encoding/bytesutil"
-	eth "github.com/theQRL/zond/proto/prysm/v1alpha1"
+	eth "github.com/theQRL/zond/protos/zond/v1alpha1"
 	"github.com/theQRL/zond/testing/assert"
 	"github.com/theQRL/zond/testing/require"
 )

@@ -3,7 +3,7 @@ package scorers
 import (
 	"github.com/libp2p/go-libp2p/core/peer"
 	"github.com/theQRL/zond/beacon-chain/p2p/peers/peerdata"
-	pbrpc "github.com/theQRL/zond/proto/prysm/v1alpha1"
+	pbrpc "github.com/theQRL/zond/protos/zond/v1alpha1"
 )
 
 var _ Scorer = (*GossipScorer)(nil)

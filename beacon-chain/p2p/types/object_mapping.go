@@ -6,8 +6,8 @@ import (
 	"github.com/theQRL/zond/consensus-types/interfaces"
 	"github.com/theQRL/zond/consensus-types/wrapper"
 	"github.com/theQRL/zond/encoding/bytesutil"
-	ethpb "github.com/theQRL/zond/proto/prysm/v1alpha1"
-	"github.com/theQRL/zond/proto/prysm/v1alpha1/metadata"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
+	"github.com/theQRL/zond/protos/zond/v1alpha1/metadata"
 )
 
 func init() {

@@ -7,7 +7,7 @@ import (
 	"github.com/theQRL/zond/beacon-chain/core/feed"
 	opfeed "github.com/theQRL/zond/beacon-chain/core/feed/operation"
 	fieldparams "github.com/theQRL/zond/config/fieldparams"
-	ethpb "github.com/theQRL/zond/proto/prysm/v1alpha1"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )

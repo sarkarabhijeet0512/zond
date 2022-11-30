@@ -9,7 +9,7 @@ import (
 	"github.com/theQRL/zond/config/params"
 	eth2types "github.com/theQRL/zond/consensus-types/primitives"
 	"github.com/theQRL/zond/encoding/bytesutil"
-	pb "github.com/theQRL/zond/proto/prysm/v1alpha1"
+	pb "github.com/theQRL/zond/protos/zond/v1alpha1"
 	"github.com/theQRL/zond/testing/assert"
 	"github.com/theQRL/zond/testing/require"
 )

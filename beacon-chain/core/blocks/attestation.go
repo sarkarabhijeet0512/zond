@@ -14,8 +14,8 @@ import (
 	"github.com/theQRL/zond/consensus-types/interfaces"
 	types "github.com/theQRL/zond/consensus-types/primitives"
 	"github.com/theQRL/zond/crypto/bls"
-	ethpb "github.com/theQRL/zond/proto/prysm/v1alpha1"
-	"github.com/theQRL/zond/proto/prysm/v1alpha1/attestation"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
+	"github.com/theQRL/zond/protos/zond/v1alpha1/attestation"
 	"go.opencensus.io/trace"
 )
 

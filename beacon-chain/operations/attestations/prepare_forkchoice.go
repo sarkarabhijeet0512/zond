@@ -8,8 +8,8 @@ import (
 
 	"github.com/prysmaticlabs/go-bitfield"
 	"github.com/theQRL/zond/crypto/hash"
-	ethpb "github.com/theQRL/zond/proto/prysm/v1alpha1"
-	attaggregation "github.com/theQRL/zond/proto/prysm/v1alpha1/attestation/aggregation/attestations"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
+	attaggregation "github.com/theQRL/zond/protos/zond/v1alpha1/attestation/aggregation/attestations"
 	"github.com/theQRL/zond/time/slots"
 	"go.opencensus.io/trace"
 )

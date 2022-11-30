@@ -11,8 +11,8 @@ import (
 	"github.com/theQRL/zond/config/params"
 	types "github.com/theQRL/zond/consensus-types/primitives"
 	"github.com/theQRL/zond/encoding/bytesutil"
-	pbrpc "github.com/theQRL/zond/proto/prysm/v1alpha1"
-	"github.com/theQRL/zond/proto/prysm/v1alpha1/attestation"
+	pbrpc "github.com/theQRL/zond/protos/zond/v1alpha1"
+	"github.com/theQRL/zond/protos/zond/v1alpha1/attestation"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )

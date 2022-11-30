@@ -5,7 +5,7 @@ import (
 
 	nativetypes "github.com/theQRL/zond/beacon-chain/state/state-native/types"
 	"github.com/theQRL/zond/beacon-chain/state/stateutil"
-	enginev1 "github.com/theQRL/zond/proto/engine/v1"
+	enginev1 "github.com/theQRL/zond/protos/engine/v1"
 	"github.com/theQRL/zond/runtime/version"
 	"github.com/theQRL/zond/testing/assert"
 	"github.com/theQRL/zond/testing/require"

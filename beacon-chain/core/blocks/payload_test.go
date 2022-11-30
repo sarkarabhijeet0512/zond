@@ -12,7 +12,7 @@ import (
 	"github.com/theQRL/zond/consensus-types/interfaces"
 	"github.com/theQRL/zond/encoding/bytesutil"
 	"github.com/theQRL/zond/encoding/ssz"
-	enginev1 "github.com/theQRL/zond/proto/engine/v1"
+	enginev1 "github.com/theQRL/zond/protos/engine/v1"
 	"github.com/theQRL/zond/testing/require"
 	"github.com/theQRL/zond/testing/util"
 	"github.com/theQRL/zond/time/slots"

@@ -9,7 +9,7 @@ import (
 	"github.com/theQRL/zond/config/params"
 	types "github.com/theQRL/zond/consensus-types/primitives"
 	"github.com/theQRL/zond/container/slice"
-	eth "github.com/theQRL/zond/proto/prysm/v1alpha1"
+	eth "github.com/theQRL/zond/protos/zond/v1alpha1"
 	"github.com/theQRL/zond/time/slots"
 	"google.golang.org/protobuf/proto"
 )

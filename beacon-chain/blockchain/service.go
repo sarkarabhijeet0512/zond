@@ -34,7 +34,7 @@ import (
 	"github.com/theQRL/zond/consensus-types/interfaces"
 	types "github.com/theQRL/zond/consensus-types/primitives"
 	"github.com/theQRL/zond/encoding/bytesutil"
-	ethpb "github.com/theQRL/zond/proto/prysm/v1alpha1"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 	prysmTime "github.com/theQRL/zond/time"
 	"github.com/theQRL/zond/time/slots"
 	"go.opencensus.io/trace"

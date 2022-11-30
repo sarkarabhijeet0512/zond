@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	fieldparams "github.com/theQRL/zond/config/fieldparams"
-	v2 "github.com/theQRL/zond/proto/prysm/v1alpha1"
+	v2 "github.com/theQRL/zond/protos/zond/v1alpha1"
 	"github.com/theQRL/zond/testing/assert"
 )
 

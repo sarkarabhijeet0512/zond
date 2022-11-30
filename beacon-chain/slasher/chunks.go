@@ -9,7 +9,7 @@ import (
 	"github.com/theQRL/zond/beacon-chain/db"
 	slashertypes "github.com/theQRL/zond/beacon-chain/slasher/types"
 	types "github.com/theQRL/zond/consensus-types/primitives"
-	ethpb "github.com/theQRL/zond/proto/prysm/v1alpha1"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 )
 
 // A struct encapsulating input arguments to

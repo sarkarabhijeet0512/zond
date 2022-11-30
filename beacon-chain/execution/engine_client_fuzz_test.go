@@ -17,7 +17,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/pkg/errors"
 	"github.com/theQRL/zond/beacon-chain/execution"
-	pb "github.com/theQRL/zond/proto/engine/v1"
+	pb "github.com/theQRL/zond/protos/engine/v1"
 	"github.com/theQRL/zond/testing/assert"
 )
 

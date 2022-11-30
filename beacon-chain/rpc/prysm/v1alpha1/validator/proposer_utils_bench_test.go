@@ -6,8 +6,8 @@ import (
 
 	"github.com/prysmaticlabs/go-bitfield"
 	"github.com/theQRL/zond/config/params"
-	ethpb "github.com/theQRL/zond/proto/prysm/v1alpha1"
-	aggtesting "github.com/theQRL/zond/proto/prysm/v1alpha1/attestation/aggregation/testing"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
+	aggtesting "github.com/theQRL/zond/protos/zond/v1alpha1/attestation/aggregation/testing"
 	"github.com/theQRL/zond/testing/require"
 )
 

@@ -29,7 +29,7 @@ import (
 	"github.com/theQRL/zond/config/params"
 	"github.com/theQRL/zond/encoding/bytesutil"
 	"github.com/theQRL/zond/network/forks"
-	ethpb "github.com/theQRL/zond/proto/prysm/v1alpha1"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"

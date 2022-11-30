@@ -7,7 +7,7 @@ import (
 	p2ptypes "github.com/theQRL/zond/beacon-chain/p2p/types"
 	"github.com/theQRL/zond/config/params"
 	types "github.com/theQRL/zond/consensus-types/primitives"
-	pb "github.com/theQRL/zond/proto/prysm/v1alpha1"
+	pb "github.com/theQRL/zond/protos/zond/v1alpha1"
 )
 
 // SchemaVersionV1 specifies the schema version for our rpc protocol ID.

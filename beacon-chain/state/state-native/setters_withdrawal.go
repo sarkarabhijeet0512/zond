@@ -7,7 +7,7 @@ import (
 	"github.com/theQRL/zond/beacon-chain/state/stateutil"
 	fieldparams "github.com/theQRL/zond/config/fieldparams"
 	types "github.com/theQRL/zond/consensus-types/primitives"
-	enginev1 "github.com/theQRL/zond/proto/engine/v1"
+	enginev1 "github.com/theQRL/zond/protos/engine/v1"
 	"github.com/theQRL/zond/runtime/version"
 )
 

@@ -6,8 +6,8 @@ import (
 	logTest "github.com/sirupsen/logrus/hooks/test"
 	"github.com/theQRL/zond/consensus-types/blocks"
 	"github.com/theQRL/zond/consensus-types/interfaces"
-	enginev1 "github.com/theQRL/zond/proto/engine/v1"
-	ethpb "github.com/theQRL/zond/proto/prysm/v1alpha1"
+	enginev1 "github.com/theQRL/zond/protos/engine/v1"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 	"github.com/theQRL/zond/testing/require"
 )
 

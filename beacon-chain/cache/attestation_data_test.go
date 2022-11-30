@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/theQRL/zond/beacon-chain/cache"
-	ethpb "github.com/theQRL/zond/proto/prysm/v1alpha1"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 	"github.com/theQRL/zond/testing/assert"
 	"google.golang.org/protobuf/proto"
 )

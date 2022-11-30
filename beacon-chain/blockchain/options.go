@@ -14,7 +14,7 @@ import (
 	"github.com/theQRL/zond/beacon-chain/p2p"
 	"github.com/theQRL/zond/beacon-chain/state"
 	"github.com/theQRL/zond/beacon-chain/state/stategen"
-	ethpb "github.com/theQRL/zond/proto/prysm/v1alpha1"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 )
 
 type Option func(s *Service) error

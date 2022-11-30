@@ -13,7 +13,7 @@ import (
 	"github.com/theQRL/zond/config/params"
 	"github.com/theQRL/zond/crypto/hash"
 	"github.com/theQRL/zond/monitoring/tracing"
-	ethpb "github.com/theQRL/zond/proto/prysm/v1alpha1"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 	"github.com/theQRL/zond/time/slots"
 	"go.opencensus.io/trace"
 	"google.golang.org/protobuf/proto"

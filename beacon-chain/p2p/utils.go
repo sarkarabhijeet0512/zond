@@ -20,8 +20,8 @@ import (
 	"github.com/theQRL/zond/consensus-types/wrapper"
 	ecdsaprysm "github.com/theQRL/zond/crypto/ecdsa"
 	"github.com/theQRL/zond/io/file"
-	pb "github.com/theQRL/zond/proto/prysm/v1alpha1"
-	"github.com/theQRL/zond/proto/prysm/v1alpha1/metadata"
+	pb "github.com/theQRL/zond/protos/zond/v1alpha1"
+	"github.com/theQRL/zond/protos/zond/v1alpha1/metadata"
 	"google.golang.org/protobuf/proto"
 )
 

@@ -18,7 +18,7 @@ import (
 	"github.com/theQRL/zond/consensus-types/interfaces"
 	types "github.com/theQRL/zond/consensus-types/primitives"
 	"github.com/theQRL/zond/encoding/bytesutil"
-	enginev1 "github.com/theQRL/zond/proto/engine/v1"
+	enginev1 "github.com/theQRL/zond/protos/engine/v1"
 	"github.com/theQRL/zond/time/slots"
 	"go.opencensus.io/trace"
 )

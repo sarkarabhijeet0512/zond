@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	ethpb "github.com/theQRL/zond/proto/prysm/v1alpha1"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 	"google.golang.org/protobuf/proto"
 )
 

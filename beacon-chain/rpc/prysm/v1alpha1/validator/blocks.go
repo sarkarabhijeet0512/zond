@@ -7,7 +7,7 @@ import (
 	"github.com/theQRL/zond/beacon-chain/core/feed"
 	blockfeed "github.com/theQRL/zond/beacon-chain/core/feed/block"
 	statefeed "github.com/theQRL/zond/beacon-chain/core/feed/state"
-	ethpb "github.com/theQRL/zond/proto/prysm/v1alpha1"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 	"github.com/theQRL/zond/runtime/version"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

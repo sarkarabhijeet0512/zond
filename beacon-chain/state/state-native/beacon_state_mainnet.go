@@ -11,8 +11,8 @@ import (
 	nativetypes "github.com/theQRL/zond/beacon-chain/state/state-native/types"
 	"github.com/theQRL/zond/beacon-chain/state/stateutil"
 	eth2types "github.com/theQRL/zond/consensus-types/primitives"
-	enginev1 "github.com/theQRL/zond/proto/engine/v1"
-	ethpb "github.com/theQRL/zond/proto/prysm/v1alpha1"
+	enginev1 "github.com/theQRL/zond/protos/engine/v1"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 )
 
 // BeaconState defines a struct containing utilities for the Ethereum Beacon Chain state, defining

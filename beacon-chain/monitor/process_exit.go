@@ -3,7 +3,7 @@ package monitor
 import (
 	"github.com/sirupsen/logrus"
 	"github.com/theQRL/zond/consensus-types/interfaces"
-	ethpb "github.com/theQRL/zond/proto/prysm/v1alpha1"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 )
 
 // processExitsFromBlock logs the event when a tracked validators' exit was included in a block

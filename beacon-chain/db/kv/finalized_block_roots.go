@@ -9,7 +9,7 @@ import (
 	"github.com/theQRL/zond/consensus-types/interfaces"
 	"github.com/theQRL/zond/encoding/bytesutil"
 	"github.com/theQRL/zond/monitoring/tracing"
-	ethpb "github.com/theQRL/zond/proto/prysm/v1alpha1"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 	bolt "go.etcd.io/bbolt"
 	"go.opencensus.io/trace"
 )

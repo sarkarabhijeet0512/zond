@@ -8,8 +8,8 @@ import (
 	"github.com/theQRL/zond/beacon-chain/state"
 	state_native "github.com/theQRL/zond/beacon-chain/state/state-native"
 	"github.com/theQRL/zond/config/params"
-	ethpb "github.com/theQRL/zond/proto/prysm/v1alpha1"
-	"github.com/theQRL/zond/proto/prysm/v1alpha1/attestation"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
+	"github.com/theQRL/zond/protos/zond/v1alpha1/attestation"
 )
 
 // UpgradeToAltair updates input state to return the version Altair state.

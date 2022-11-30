@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	types "github.com/theQRL/zond/consensus-types/primitives"
-	enginev1 "github.com/theQRL/zond/proto/engine/v1"
+	enginev1 "github.com/theQRL/zond/protos/engine/v1"
 	"github.com/theQRL/zond/runtime/version"
 	"github.com/theQRL/zond/testing/assert"
 	"github.com/theQRL/zond/testing/require"

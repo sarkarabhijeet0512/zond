@@ -156,7 +156,7 @@ go_test(
         "//encoding/bytesutil:go_default_library",
         "//network:go_default_library",
         "//network/forks:go_default_library",
-        "//proto/eth/v1:go_default_library",
+        "//protos/eth/v1:go_default_library",
         "//proto/prysm/v1alpha1:go_default_library",
         "//proto/testing:go_default_library",
         "//runtime/version:go_default_library",

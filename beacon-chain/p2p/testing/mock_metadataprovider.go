@@ -1,7 +1,7 @@
 package testing
 
 import (
-	"github.com/theQRL/zond/proto/prysm/v1alpha1/metadata"
+	"github.com/theQRL/zond/protos/zond/v1alpha1/metadata"
 )
 
 // MockMetadataProvider is a fake implementation of the MetadataProvider interface.

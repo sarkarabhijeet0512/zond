@@ -13,7 +13,7 @@ import (
 	dbTest "github.com/theQRL/zond/beacon-chain/db/testing"
 	"github.com/theQRL/zond/config/params"
 	"github.com/theQRL/zond/consensus-types/blocks"
-	ethpb "github.com/theQRL/zond/proto/prysm/v1alpha1"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 	"github.com/theQRL/zond/testing/assert"
 	"github.com/theQRL/zond/testing/mock"
 	"github.com/theQRL/zond/testing/require"

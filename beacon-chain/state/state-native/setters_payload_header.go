@@ -4,8 +4,8 @@ import (
 	"github.com/pkg/errors"
 	nativetypes "github.com/theQRL/zond/beacon-chain/state/state-native/types"
 	"github.com/theQRL/zond/consensus-types/interfaces"
-	enginev1 "github.com/theQRL/zond/proto/engine/v1"
-	_ "github.com/theQRL/zond/proto/prysm/v1alpha1"
+	enginev1 "github.com/theQRL/zond/protos/engine/v1"
+	_ "github.com/theQRL/zond/protos/zond/v1alpha1"
 	"github.com/theQRL/zond/runtime/version"
 )
 

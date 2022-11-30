@@ -28,7 +28,7 @@ import (
 	"github.com/theQRL/zond/contracts/deposit/mock"
 	"github.com/theQRL/zond/encoding/bytesutil"
 	"github.com/theQRL/zond/monitoring/clientstats"
-	ethpb "github.com/theQRL/zond/proto/prysm/v1alpha1"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 	"github.com/theQRL/zond/testing/assert"
 	"github.com/theQRL/zond/testing/require"
 	"github.com/theQRL/zond/testing/util"

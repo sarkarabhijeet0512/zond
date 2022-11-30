@@ -13,7 +13,7 @@ import (
 	"github.com/gogo/protobuf/types"
 	"github.com/theQRL/zond/api/gateway/apimiddleware"
 	"github.com/theQRL/zond/config/params"
-	ethpbv2 "github.com/theQRL/zond/proto/eth/v2"
+	ethpbv2 "github.com/theQRL/zond/protos/eth/v2"
 	"github.com/theQRL/zond/testing/assert"
 	"github.com/theQRL/zond/testing/require"
 	"github.com/theQRL/zond/time/slots"

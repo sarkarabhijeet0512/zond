@@ -8,7 +8,7 @@ import (
 	"github.com/theQRL/zond/beacon-chain/p2p/peers/peerdata"
 	p2ptypes "github.com/theQRL/zond/beacon-chain/p2p/types"
 	types "github.com/theQRL/zond/consensus-types/primitives"
-	pb "github.com/theQRL/zond/proto/prysm/v1alpha1"
+	pb "github.com/theQRL/zond/protos/zond/v1alpha1"
 	"github.com/theQRL/zond/time"
 )
 

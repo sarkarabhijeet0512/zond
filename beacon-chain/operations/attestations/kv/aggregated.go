@@ -7,8 +7,8 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/theQRL/zond/beacon-chain/core/helpers"
 	types "github.com/theQRL/zond/consensus-types/primitives"
-	ethpb "github.com/theQRL/zond/proto/prysm/v1alpha1"
-	attaggregation "github.com/theQRL/zond/proto/prysm/v1alpha1/attestation/aggregation/attestations"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
+	attaggregation "github.com/theQRL/zond/protos/zond/v1alpha1/attestation/aggregation/attestations"
 	"go.opencensus.io/trace"
 )
 

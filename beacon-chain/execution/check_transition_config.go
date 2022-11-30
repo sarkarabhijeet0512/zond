@@ -15,7 +15,7 @@ import (
 	statefeed "github.com/theQRL/zond/beacon-chain/core/feed/state"
 	"github.com/theQRL/zond/config/params"
 	"github.com/theQRL/zond/network"
-	pb "github.com/theQRL/zond/proto/engine/v1"
+	pb "github.com/theQRL/zond/protos/engine/v1"
 	"github.com/theQRL/zond/time/slots"
 )
 

@@ -18,7 +18,7 @@ import (
 	"github.com/theQRL/zond/cmd/beacon-chain/flags"
 	"github.com/theQRL/zond/config/params"
 	types "github.com/theQRL/zond/consensus-types/primitives"
-	eth "github.com/theQRL/zond/proto/prysm/v1alpha1"
+	eth "github.com/theQRL/zond/protos/zond/v1alpha1"
 	"github.com/theQRL/zond/testing/assert"
 	"github.com/theQRL/zond/testing/require"
 	"github.com/theQRL/zond/testing/util"

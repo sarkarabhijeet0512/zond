@@ -12,7 +12,7 @@ import (
 	"github.com/theQRL/zond/config/params"
 	"github.com/theQRL/zond/consensus-types/interfaces"
 	types "github.com/theQRL/zond/consensus-types/primitives"
-	pb "github.com/theQRL/zond/proto/prysm/v1alpha1"
+	pb "github.com/theQRL/zond/protos/zond/v1alpha1"
 	"github.com/theQRL/zond/time/slots"
 )
 

@@ -8,7 +8,7 @@ import (
 	"github.com/theQRL/zond/beacon-chain/core/blocks"
 	"github.com/theQRL/zond/container/slice"
 	"github.com/theQRL/zond/monitoring/tracing"
-	ethpb "github.com/theQRL/zond/proto/prysm/v1alpha1"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 	"go.opencensus.io/trace"
 )
 

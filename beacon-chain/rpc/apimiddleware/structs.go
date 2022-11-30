@@ -5,7 +5,7 @@ import (
 
 	"github.com/theQRL/zond/api/gateway/apimiddleware"
 	"github.com/theQRL/zond/beacon-chain/rpc/eth/helpers"
-	ethpbv2 "github.com/theQRL/zond/proto/eth/v2"
+	ethpbv2 "github.com/theQRL/zond/protos/eth/v2"
 )
 
 //----------------

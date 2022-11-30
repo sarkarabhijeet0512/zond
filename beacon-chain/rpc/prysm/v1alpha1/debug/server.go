@@ -15,7 +15,7 @@ import (
 	"github.com/theQRL/zond/beacon-chain/db"
 	"github.com/theQRL/zond/beacon-chain/p2p"
 	"github.com/theQRL/zond/beacon-chain/state/stategen"
-	pbrpc "github.com/theQRL/zond/proto/prysm/v1alpha1"
+	pbrpc "github.com/theQRL/zond/protos/zond/v1alpha1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )

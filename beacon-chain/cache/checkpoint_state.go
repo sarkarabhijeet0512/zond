@@ -9,7 +9,7 @@ import (
 	"github.com/theQRL/zond/beacon-chain/state"
 	lruwrpr "github.com/theQRL/zond/cache/lru"
 	"github.com/theQRL/zond/crypto/hash"
-	ethpb "github.com/theQRL/zond/proto/prysm/v1alpha1"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 )
 
 var (
