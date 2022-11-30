@@ -333,9 +333,9 @@ func (c *Codec) makeHandshakeAuth(toID znode.ID, addr string, challenge *Whoarey
 	// Create the ephemeral key. This needs to be first because the
 	// key is part of the ID nonce signature.
 	var remotePubkey = new(ecdsa.PublicKey)
-	// if err := challenge.Node.Load((*znode.Secp256k1)(remotePubkey)); err != nil {
-	// 	return nil, nil, fmt.Errorf("can't find secp256k1 key for recipient")
-	// }
+	if err := challenge.Node.Load((*znode.Secp256k1)(remotePubkey)); err != nil {
+		return nil, nil, fmt.Errorf("can't find secp256k1 key for recipient")
+	}
 	ephkey, err := c.sc.ephemeralKeyGen()
 	if err != nil {
 		return nil, nil, fmt.Errorf("can't generate ephemeral key")

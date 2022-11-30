@@ -41,7 +41,7 @@ func getDevSubCommands() []*cli.Command {
 				}
 				dk.Add(foundationDilithiumAccount)
 
-				targetWallets := config.GetDevConfig().BlocksPerEpoch * 2
+				targetWallets := config.GetDevConfig().SlotsPerEpoch * 2
 				walletStake := wallet.NewWallet(path.Join("bootstrap", "wallet.json"))
 				for i := uint(0); i < uint(targetWallets); i++ {
 					walletStake.AddDilithium()

@@ -4,16 +4,17 @@ import (
 	crand "crypto/rand"
 	"errors"
 	"fmt"
-	"github.com/theQRL/zond/chain"
-	"github.com/theQRL/zond/common"
-	"github.com/theQRL/zond/common/hexutil"
-	"github.com/theQRL/zond/log"
-	"github.com/theQRL/zond/rpc"
 	"hash/crc32"
 	"os"
 	"reflect"
 	"strings"
 	"sync"
+
+	"github.com/theQRL/zond/chain"
+	"github.com/theQRL/zond/common"
+	"github.com/theQRL/zond/common/hexutil"
+	"github.com/theQRL/zond/log"
+	"github.com/theQRL/zond/rpc"
 )
 
 type Node struct {

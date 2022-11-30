@@ -2,31 +2,47 @@ package p2p
 
 import (
 	"context"
+	"crypto/ecdsa"
 	"errors"
 	"fmt"
+	"net"
+	"sync"
+	"time"
+
 	"github.com/libp2p/go-libp2p"
-	"github.com/libp2p/go-libp2p-core/crypto"
-	"github.com/libp2p/go-libp2p-core/host"
-	"github.com/libp2p/go-libp2p-core/network"
-	"github.com/libp2p/go-libp2p-core/peer"
-	"github.com/libp2p/go-libp2p-core/peerstore"
+	"github.com/libp2p/go-libp2p/core/crypto"
+	"github.com/libp2p/go-libp2p/core/host"
+	"github.com/libp2p/go-libp2p/core/network"
+	"github.com/libp2p/go-libp2p/core/peer"
+	"github.com/libp2p/go-libp2p/core/peerstore"
 	"github.com/multiformats/go-multiaddr"
 	log "github.com/sirupsen/logrus"
 	"github.com/theQRL/zond/block"
 	"github.com/theQRL/zond/chain"
 	"github.com/theQRL/zond/common"
 	"github.com/theQRL/zond/config"
+	cryt "github.com/theQRL/zond/crypto"
 	"github.com/theQRL/zond/metadata"
 	"github.com/theQRL/zond/misc"
 	"github.com/theQRL/zond/ntp"
 	"github.com/theQRL/zond/p2p/messages"
+	"github.com/theQRL/zond/p2p/peers"
+	"github.com/theQRL/zond/p2p/peers/scorers"
+	"github.com/theQRL/zond/p2p/znode"
+	"github.com/theQRL/zond/p2p/znr"
 	"github.com/theQRL/zond/protos"
 	"github.com/theQRL/zond/transactions"
 	"github.com/willf/bloom"
-	"net"
-	"sync"
-	"time"
+	"go.opencensus.io/trace"
 )
+
+// In the event that we are at our peer limit, we
+// stop looking for new peers and instead poll
+// for the current peer limit status for the time period
+// defined below.
+var pollingPeriod = 6 * time.Second
+
+const maxBadResponses = 5
 
 type conn struct {
 	fd      network.Stream
@@ -46,6 +62,7 @@ type PeerIPWithPLData struct {
 
 type Server struct {
 	config *config.Config
+	ctx    context.Context
 
 	host             host.Host
 	chain            *chain.Chain
@@ -54,8 +71,11 @@ type Server struct {
 	ipCount          map[string]int
 	inboundCount     uint16
 	totalConnections uint16
+	peers            *peers.Status
+	privateKey       *ecdsa.PrivateKey
 
 	listener     net.Listener
+	dv5Listener  Listener
 	lock         sync.Mutex
 	peerInfoLock sync.Mutex
 
@@ -77,6 +97,7 @@ type Server struct {
 	mr              *MessageReceipt
 	downloader      *Downloader
 	messagePriority map[protos.LegacyMessage_FuncName]uint64
+	startupErr      error
 }
 
 func (srv *Server) GetRegisterAndBroadcastChan() chan *messages.RegisterMessage {
@@ -154,7 +175,8 @@ func (srv *Server) handleStream(s network.Stream) {
 	srv.addPeer <- &conn{s, true}
 }
 
-func (srv *Server) Start(keys crypto.PrivKey) (err error) {
+// func (srv *Server) Start(keys crypto.PrivKey) (err error) {
+func (srv *Server) Start() (err error) {
 	srv.lock.Lock()
 	defer srv.lock.Unlock()
 	if srv.running {
@@ -163,9 +185,34 @@ func (srv *Server) Start(keys crypto.PrivKey) (err error) {
 
 	srv.filter = bloom.New(200000, 5)
 	//srv.chain.GetTransactionPool().SetRegisterAndBroadcastChan(srv.registerAndBroadcastChan)
-	if err := srv.startListening(keys); err != nil {
-		return err
+	// if err := srv.startListening(keys); err != nil {
+	// 	return err
+	// }
+
+	ipAddr := net.ParseIP(srv.config.User.Node.BindingIP)
+	listener, err := srv.startDiscoveryV5(
+		ipAddr,
+		srv.privateKey,
+	)
+
+	// listener, err := srv.createListener(
+	// 	ipAddr,
+	// 	srv.privateKey,
+	// )
+
+	if err != nil {
+		log.WithError(err).Fatal("Failed to start discovery")
+		srv.startupErr = err
+		return
 	}
+	err = srv.connectToBootnodes()
+	if err != nil {
+		log.WithError(err).Error("Could not add bootnode to the exclusion list")
+		srv.startupErr = err
+		return
+	}
+	srv.dv5Listener = listener
+	go srv.listenForNewNodes()
 
 	srv.running = true
 	go srv.run()
@@ -300,6 +347,27 @@ func (srv *Server) ConnectPeers() error {
 	}
 }
 
+func (s *Server) connectToBootnodes() error {
+	nodes := make([]*znode.Node, 0, len(s.config.Dev.Discv5BootStrapAddr))
+	for _, addr := range s.config.Dev.Discv5BootStrapAddr {
+		bootNode, err := znode.Parse(znode.ValidSchemes, addr)
+		if err != nil {
+			return err
+		}
+		// do not dial bootnodes with their tcp ports not set
+		if err := bootNode.Record().Load(znr.WithEntry("tcp", new(znr.TCP))); err != nil {
+			if !znr.IsNotFound(err) {
+				log.WithError(err).Error("Could not retrieve tcp port")
+			}
+			continue
+		}
+		nodes = append(nodes, bootNode)
+	}
+	multiAddresses := convertToMultiAddr(nodes)
+	s.connectWithAllPeers(multiAddresses)
+	return nil
+}
+
 func (srv *Server) startListening(keys crypto.PrivKey) error {
 	multiAddrStr := fmt.Sprintf("/ip4/%s/tcp/%d",
 		srv.config.User.Node.BindingIP,
@@ -307,7 +375,7 @@ func (srv *Server) startListening(keys crypto.PrivKey) error {
 	sourceMultiAddr, _ := multiaddr.NewMultiaddr(multiAddrStr)
 
 	host, err := libp2p.New(
-		context.Background(),
+		//context.Background(),
 		libp2p.ListenAddrs(sourceMultiAddr),
 		libp2p.Identity(keys),
 	)
@@ -650,6 +718,46 @@ func (srv *Server) UpdatePeerList(p *PeerIPWithPLData) error {
 	return nil
 }
 
+// Peers returns the peer status interface.
+func (s *Server) Peers() *peers.Status {
+	return s.peers
+}
+
+func (s *Server) connectWithAllPeers(multiAddrs []multiaddr.Multiaddr) {
+	addrInfos, err := peer.AddrInfosFromP2pAddrs(multiAddrs...)
+	if err != nil {
+		log.WithError(err).Error("Could not convert to peer address info's from multiaddresses")
+		return
+	}
+	for _, info := range addrInfos {
+		// make each dial non-blocking
+		go func(info peer.AddrInfo) {
+			if err := s.connectWithPeer(s.ctx, info); err != nil {
+				log.WithError(err).Tracef("Could not connect with peer %s", info.String())
+			}
+		}(info)
+	}
+}
+
+func (s *Server) connectWithPeer(ctx context.Context, info peer.AddrInfo) error {
+	ctx, span := trace.StartSpan(ctx, "p2p.connectWithPeer")
+	defer span.End()
+
+	if info.ID == s.host.ID() {
+		return nil
+	}
+	if s.Peers().IsBad(info.ID) {
+		return errors.New("refused to connect to bad peer")
+	}
+	ctx, cancel := context.WithTimeout(ctx, config.GetUserConfig().Node.RespTimeout)
+	defer cancel()
+	if err := s.host.Connect(ctx, info); err != nil {
+		s.Peers().Scorers().BadResponsesScorer().Increment(info.ID)
+		return err
+	}
+	return nil
+}
+
 func (srv *Server) runPeer(p *Peer) {
 	remoteRequested := p.run()
 
@@ -662,6 +770,7 @@ func NewServer(chain *chain.Chain) (*Server, error) {
 		return nil, err
 	}
 	srv := &Server{
+		ctx:        context.Background(),
 		config:     config.GetConfig(),
 		chain:      chain,
 		ntp:        ntp.GetNTP(),
@@ -683,6 +792,25 @@ func NewServer(chain *chain.Chain) (*Server, error) {
 
 		messagePriority: make(map[protos.LegacyMessage_FuncName]uint64),
 	}
+
+	srv.privateKey, err = cryt.PrivKey(srv.config)
+	h, err := libp2p.New()
+	if err != nil {
+		log.WithError(err).Error("Failed to create p2p host")
+		return nil, err
+	}
+
+	srv.peers = peers.NewStatus(srv.ctx, &peers.StatusConfig{
+		PeerLimit: int(srv.config.User.Node.MaxPeersLimit),
+		ScorerParams: &scorers.Config{
+			BadResponsesScorerConfig: &scorers.BadResponsesScorerConfig{
+				Threshold:     maxBadResponses,
+				DecayInterval: time.Hour,
+			},
+		},
+	})
+
+	srv.host = h
 
 	srv.messagePriority[protos.LegacyMessage_VE] = 0
 	srv.messagePriority[protos.LegacyMessage_PL] = 0

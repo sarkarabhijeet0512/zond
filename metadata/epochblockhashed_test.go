@@ -22,7 +22,7 @@ func TestNewEpochBlockHashes(t *testing.T) {
 	epoch := uint64(1)
 	epochBlockHashes := NewEpochBlockHashes(epoch)
 
-	slotNumber := epoch*config.GetDevConfig().BlocksPerEpoch + 1
+	slotNumber := epoch*config.GetDevConfig().SlotsPerEpoch + 1
 
 	if epochBlockHashes.Epoch() != epoch {
 		t.Error("epoch not correctly set in epoch block hashes")
@@ -36,7 +36,7 @@ func TestNewEpochBlockHashes(t *testing.T) {
 func TestGetEpochBlockHashes(t *testing.T) {
 	epoch := uint64(1)
 
-	slotNumber := epoch*config.GetDevConfig().BlocksPerEpoch + 1
+	slotNumber := epoch*config.GetDevConfig().SlotsPerEpoch + 1
 
 	epochBlockHashesMetadata := NewEpochBlockHashes(epoch)
 
@@ -90,7 +90,7 @@ func TestGetEpochBlockHashes(t *testing.T) {
 func TestAddHeaderHashBySlotNumber(t *testing.T) {
 	epoch := uint64(1)
 
-	slotNumber := epoch*config.GetDevConfig().BlocksPerEpoch + 1
+	slotNumber := epoch*config.GetDevConfig().SlotsPerEpoch + 1
 
 	headerHash := sha256.Sum256([]byte("headerHash"))
 
@@ -126,14 +126,14 @@ func TestAddHeaderHashBySlotNumber(t *testing.T) {
 		{
 			name:             "unexpected slotNumber",
 			headerHash:       headerHash,
-			slotNumber:       2*config.GetDevConfig().BlocksPerEpoch + 0,
+			slotNumber:       2*config.GetDevConfig().SlotsPerEpoch + 0,
 			epochBlockHashes: epochBlockHashesMetadata2,
 			expectedError:    fmt.Errorf("Unexpected slot number %d at index %d", 2000, 0),
 		},
 		{
 			name:             "already existing headerHash",
 			headerHash:       headerHash,
-			slotNumber:       3*config.GetDevConfig().BlocksPerEpoch + 0,
+			slotNumber:       3*config.GetDevConfig().SlotsPerEpoch + 0,
 			epochBlockHashes: epochBlockHashesMetadata3,
 			expectedError:    fmt.Errorf("Headerhash %s already exists", hex.EncodeToString(headerHash[:])),
 		},

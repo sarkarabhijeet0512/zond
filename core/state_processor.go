@@ -915,8 +915,8 @@ func ValidateAttestTx(tx *transactions.Attest, statedb *state.StateDB, slotValid
 			"attest", misc.BytesToHexStr(txHash[:]), signerAddr, slotNumber)
 	}
 
-	parentEpoch := parentSlotNumber / config.GetDevConfig().BlocksPerEpoch
-	currentEpoch := slotNumber / config.GetDevConfig().BlocksPerEpoch
+	parentEpoch := parentSlotNumber / config.GetDevConfig().SlotsPerEpoch
+	currentEpoch := slotNumber / config.GetDevConfig().SlotsPerEpoch
 	if accountState.StakeBalance().Uint64() < config.GetDevConfig().StakeAmount {
 		/*
 			This case happens, when the first block of epoch is created.
@@ -984,8 +984,8 @@ func ValidateCoinBaseTx(tx *transactions.CoinBase, statedb *state.StateDB, slotV
 
 	// Genesis block proposer will have 0 stake balance initially
 	if !isGenesis {
-		parentEpoch := parentSlotNumber / config.GetDevConfig().BlocksPerEpoch
-		currentEpoch := slotNumber / config.GetDevConfig().BlocksPerEpoch
+		parentEpoch := parentSlotNumber / config.GetDevConfig().SlotsPerEpoch
+		currentEpoch := slotNumber / config.GetDevConfig().SlotsPerEpoch
 		if accountState.StakeBalance().Uint64() < config.GetDevConfig().StakeAmount {
 			/*
 				This case happens, when the first block of epoch is created.

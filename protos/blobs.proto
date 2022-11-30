@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package protos;
+
+import "protos/options.proto";
+import "protos/engine/execution_engine.proto";
+
+option go_package = "github.com/theQRL/zond/protos";
+
+// The blobs sidecar which contains the beacon block root, slot, blobs and an aggregated proof
+// for fast validation.
+message BlobsSidecar {
+        // The beacon block root which corresponds to the beacon block.
+        bytes beacon_block_root = 1 [(protos.ssz_size) = "32"];
+        // The beacon block slot which corresponds ot the beacon block.
+        uint64 beacon_block_slot = 2 [(protos.cast_type) = "github.com/theQRL/zond/consensus-types/primitives.Slot"];
+        // The blobs itself which contains data to be committed.
+        repeated protos.engine.Blob blobs = 3 [(protos.ssz_max)  = "16"];
+        // The aggregated proof for blobs and commitments for validation.
+        bytes aggregated_proof = 4 [(protos.ssz_size) = "48"];
+}

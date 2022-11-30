@@ -2,13 +2,15 @@ package config
 
 import (
 	"fmt"
-	"github.com/libp2p/go-libp2p-core/protocol"
-	"github.com/theQRL/zond/common"
-	"github.com/theQRL/zond/misc"
 	"math/big"
 	"os/user"
 	"path"
 	"sync"
+	"time"
+
+	"github.com/libp2p/go-libp2p/core/protocol"
+	"github.com/theQRL/zond/common"
+	"github.com/theQRL/zond/misc"
 )
 
 type Config struct {
@@ -18,15 +20,21 @@ type Config struct {
 
 type NodeConfig struct {
 	EnablePeerDiscovery     bool
+	EnablePeerScorer        bool
 	PeerList                []string
 	BindingIP               string
+	HostDNS                 string
+	HostAddress             string
 	LocalPort               uint16
 	PublicPort              uint16
+	UDPPort                 uint16
 	PeerRateLimit           uint64
 	BanMinutes              uint8
 	MaxPeersLimit           uint16
 	MaxPeersInPeerList      uint64
 	MaxRedundantConnections int
+	BlockBatchLimit         int
+	RespTimeout             time.Duration
 }
 
 type NTPConfig struct {
@@ -74,9 +82,10 @@ type UserConfig struct {
 	TransactionPool *TransactionPoolConfig
 	Stake           *StakeConfig
 
-	BaseDir            string
-	ChainFileDirectory string
-	NodeKeyFileName    string
+	BaseDir              string
+	ChainFileDirectory   string
+	NodeKeyFileName      string
+	NodeECDSAKeyFileName string
 
 	API *API
 	//MongoProcessorConfig *MongoProcessorConfig
@@ -99,7 +108,7 @@ type DevConfig struct {
 
 	Version string
 
-	BlocksPerEpoch       uint64
+	SlotsPerEpoch        uint64
 	BlockLeadTimestamp   uint32
 	BlockMaxDrift        uint16
 	BlockGasLimit        uint64
@@ -108,6 +117,8 @@ type DevConfig struct {
 	MinMarginBlockNumber uint16
 
 	ReorgLimit uint64
+
+	Discv5BootStrapAddr []string
 
 	MessageQSize          uint32
 	MessageReceiptTimeout uint32
@@ -179,15 +190,20 @@ func GetConfig() *Config {
 func GetUserConfig() (userConf *UserConfig) {
 	node := &NodeConfig{
 		EnablePeerDiscovery:     true,
-		PeerList:                []string{"/ip4/45.76.43.83/tcp/15005/p2p/QmU6Uo93bSgU7bA8bkbdNhSfbmp7S5XJEcSqgrdLzH6ksT"},
+		EnablePeerScorer:        true,
+		PeerList:                []string{},
 		BindingIP:               "0.0.0.0",
 		LocalPort:               15005,
 		PublicPort:              15005,
+		UDPPort:                 15010,
+		HostAddress:             "127.0.0.1",
 		PeerRateLimit:           500,
 		BanMinutes:              20,
 		MaxPeersLimit:           1000,
 		MaxPeersInPeerList:      100,
 		MaxRedundantConnections: 5,
+		BlockBatchLimit:         64,
+		RespTimeout:             10 * time.Second,
 	}
 
 	ntp := &NTPConfig{
@@ -249,9 +265,10 @@ func GetUserConfig() (userConf *UserConfig) {
 		TransactionPool: transactionPool,
 		Stake:           stake,
 
-		BaseDir:            path.Join(userCurrentDir.HomeDir, ".zond"),
-		ChainFileDirectory: "data",
-		NodeKeyFileName:    "node.key",
+		BaseDir:              path.Join(userCurrentDir.HomeDir, ".zond"),
+		ChainFileDirectory:   "data",
+		NodeKeyFileName:      "node.key",
+		NodeECDSAKeyFileName: "",
 
 		API: api,
 		//MongoProcessorConfig: mongoProcessorConfig,
@@ -285,7 +302,7 @@ func GetDevConfig() (dev *DevConfig) {
 	}
 
 	var foundationDilithiumAddress common.Address
-	binFoundationDilithiumAddress, err := misc.HexStrToBytes("0x20b86443849021244943cac233c1ed6f76370fd7")
+	binFoundationDilithiumAddress, err := misc.HexStrToBytes("0x20a9f10fc1d9be0305e753ffdfde2fa73a45a366")
 	if err != nil {
 		panic(fmt.Sprintf("Invalid FoundationAddress %v", err.Error()))
 	}
@@ -316,7 +333,7 @@ func GetDevConfig() (dev *DevConfig) {
 
 		Version: "0.0.1 go",
 
-		BlocksPerEpoch:       100,
+		SlotsPerEpoch:        100,
 		BlockLeadTimestamp:   30,
 		BlockMaxDrift:        15,
 		BlockGasLimit:        100000000,
@@ -357,6 +374,7 @@ func GetDevConfig() (dev *DevConfig) {
 
 		BlockTimeSeriesSize:     1440,
 		RecordTransactionHashes: false,
+		Discv5BootStrapAddr:     []string{"znr:-JG4QOWVYni1egp15WG7dgaS1YSS4jjdDT-rYBttnD7go7caUV-AdfolaaTgMf0N2xtKM-HwUYFuqCmPpP4Qcs2HWHSGAYSFYCl6gmlkgnY0gmlwhH8AAAGJc2VjcDI1NmsxoQOb3QR-LyYLvKbiYDAHvzbYhDsJ6jlha0FEvpntbacXwoN0Y3CCOp2DdWRwgjqi", "znr:-JG4QLXIGy3FgABtzbe2bcLLDN5acgIopxSW8QHGDxaMF0frIDW6H2UNh-3hC8adqDmcRQFZFpi7TH1UW7ANDjI0OaqGAYSFbuQngmlkgnY0gmlwhH8AAAGJc2VjcDI1NmsxoQML5JDEZKRoZjuDb3n-RFd0Z6giKpWyA3D1AQU-hYUW0oN0Y3CCOp2DdWRwgjqj", "znr:-JG4QO3COpU2l-nFQlHwneQN8zL9OUUU-AHaDCe9B3WgeMuwOTudwW886Mw0MbxWj8wxHq3vFIvgspS9PVxUksgPnxaGAYSFqForgmlkgnY0gmlwhH8AAAGJc2VjcDI1NmsxoQLrAop7RoxzuKs7wL8BkfROOEu_gJVydE7hGpHLhi9wMoN0Y3CCOp2DdWRwgjqk"},
 	}
 	dev.MaxBytesOut = dev.MaxReceivableBytes - dev.ReservedQuota
 	dev.StakeAmount = 10000 * dev.ShorPerQuanta

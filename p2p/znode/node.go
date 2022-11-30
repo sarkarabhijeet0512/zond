@@ -1,6 +1,7 @@
 package znode
 
 import (
+	"crypto/ecdsa"
 	"encoding/base64"
 	"encoding/hex"
 	"fmt"
@@ -32,6 +33,25 @@ func New(validSchemes znr.IdentityScheme, r *znr.Record) (*Node, error) {
 		return nil, fmt.Errorf("invalid node ID length %d, need %d", n, len(ID{}))
 	}
 	return node, nil
+}
+
+// Parse decodes and verifies a base64-encoded node record.
+func Parse(validSchemes znr.IdentityScheme, input string) (*Node, error) {
+	// if strings.HasPrefix(input, "znode://") {
+	// 	return ParseV4(input)
+	// }
+	if !strings.HasPrefix(input, "znr:") {
+		return nil, errors.New("missing 'znr:' prefix for base64-encoded record")
+	}
+	bin, err := base64.RawURLEncoding.DecodeString(input[4:])
+	if err != nil {
+		return nil, err
+	}
+	var r znr.Record
+	if err := rlp.DecodeBytes(bin, &r); err != nil {
+		return nil, err
+	}
+	return New(validSchemes, &r)
 }
 
 // ID returns the node identifier.
@@ -83,14 +103,14 @@ func (n *Node) TCP() int {
 	return int(port)
 }
 
-// // Pubkey returns the secp256k1 public key of the node, if present.
-// func (n *Node) Pubkey() *ecdsa.PublicKey {
-// 	var key ecdsa.PublicKey
-// 	if n.Load((*Secp256k1)(&key)) != nil {
-// 		return nil
-// 	}
-// 	return &key
-// }
+// Pubkey returns the secp256k1 public key of the node, if present.
+func (n *Node) Pubkey() *ecdsa.PublicKey {
+	var key ecdsa.PublicKey
+	if n.Load((*Secp256k1)(&key)) != nil {
+		return nil
+	}
+	return &key
+}
 
 // Record returns the node's record. The return value is a copy and may
 // be modified by the caller.

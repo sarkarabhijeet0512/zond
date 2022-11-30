@@ -5,6 +5,9 @@ import (
 	"crypto/sha256"
 	"encoding/binary"
 	"fmt"
+	"math/big"
+	"reflect"
+
 	"github.com/golang/protobuf/proto"
 	log "github.com/sirupsen/logrus"
 	"github.com/theQRL/go-qrllib/dilithium"
@@ -18,8 +21,6 @@ import (
 	"github.com/theQRL/zond/state"
 	"github.com/theQRL/zond/storagekeys"
 	"github.com/theQRL/zond/transactions"
-	"math/big"
-	"reflect"
 )
 
 type Header struct {
@@ -94,7 +95,7 @@ func (b *Block) ParentHash() common.Hash {
 }
 
 func (b *Block) Epoch() uint64 {
-	return b.pbData.Header.SlotNumber / config.GetDevConfig().BlocksPerEpoch
+	return b.pbData.Header.SlotNumber / config.GetDevConfig().SlotsPerEpoch
 }
 
 func (b *Block) SlotNumber() uint64 {
@@ -299,7 +300,7 @@ func (b *Block) UpdateFinalizedEpoch(db *db.DB, stateContext *state.StateContext
 		return nil
 	}
 
-	blocksPerEpoch := config.GetDevConfig().BlocksPerEpoch
+	blocksPerEpoch := config.GetDevConfig().SlotsPerEpoch
 	currentEpoch := b.Epoch()
 	mainChainMetaData := stateContext.GetMainChainMetaData()
 	finalizedBlockEpoch := mainChainMetaData.FinalizedBlockSlotNumber() / blocksPerEpoch

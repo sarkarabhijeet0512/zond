@@ -1,10 +1,16 @@
 package main
 
 import (
-	"github.com/libp2p/go-libp2p-core/crypto"
+	"io/ioutil"
+	"os"
+	"os/signal"
+	"time"
+
+	"github.com/libp2p/go-libp2p/core/crypto"
 	"github.com/mattn/go-colorable"
 	log "github.com/sirupsen/logrus"
-	crypto2 "github.com/theQRL/go-libp2p-qrl/crypto"
+
+	//crypto2 "github.com/theQRL/go-libp2p-qrl/crypto"
 	"github.com/theQRL/zond/api"
 	"github.com/theQRL/zond/chain"
 	"github.com/theQRL/zond/config"
@@ -17,10 +23,6 @@ import (
 	"github.com/theQRL/zond/zond"
 	"github.com/theQRL/zond/zond/tracers"
 	prefixed "github.com/x-cray/logrus-prefixed-formatter"
-	"io/ioutil"
-	"os"
-	"os/signal"
-	"time"
 )
 
 var (
@@ -31,13 +33,17 @@ func ConfigCheck() bool {
 	return true
 }
 
-func run(c *chain.Chain, db *db.DB, keys crypto.PrivKey) error {
+// func run(c *chain.Chain, db *db.DB, keys crypto.PrivKey) error {
+func run(c *chain.Chain, db *db.DB) error {
 	srv, err := p2p.NewServer(c)
 	if err != nil {
 		log.Error("Failed to initialize server")
 		return err
 	}
-	if err := srv.Start(keys); err != nil {
+	// if err := srv.Start(keys); err != nil {
+	// 	return err
+	// }
+	if err := srv.Start(); err != nil {
 		return err
 	}
 	defer srv.Stop()
@@ -118,8 +124,13 @@ func SetLogOutput() error {
 }
 
 func loadP2PDilithiumKey(filePath string) (crypto.PrivKey, error) {
+	f, err := os.Open(filePath)
+	if err != nil {
+		return nil, err
+	}
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
-		keys, _, err := crypto2.GenerateDilithiumKey(nil)
+		//keys, _, err := crypto2.GenerateDilithiumKey(nil)
+		keys, _, err := crypto.GenerateECDSAKeyPair(f)
 		if err != nil {
 			return nil, err
 		}
@@ -129,15 +140,13 @@ func loadP2PDilithiumKey(filePath string) (crypto.PrivKey, error) {
 		}
 		return keys, nil
 	}
-	f, err := os.Open(filePath)
-	if err != nil {
-		return nil, err
-	}
+
 	data, err := ioutil.ReadAll(f)
 	if err != nil {
 		return nil, err
 	}
-	return crypto2.UnmarshalDilithiumPrivateKey(data)
+	return crypto.UnmarshalECDSAPrivateKey(data)
+	//return crypto2.UnmarshalDilithiumPrivateKey(data)
 }
 
 func main() {
@@ -161,12 +170,12 @@ func main() {
 		return
 	}
 
-	crypto2.LoadAllExtendedKeyTypes()
-	keys, err := loadP2PDilithiumKey(userConfig.GetAbsoluteNodeKeyFilePath())
-	if err != nil {
-		log.Error("Failed to loadP2PDilithiumKey ", err.Error())
-		return
-	}
+	//crypto2.LoadAllExtendedKeyTypes()
+	//keys, err := loadP2PDilithiumKey(userConfig.GetAbsoluteNodeKeyFilePath())
+	// if err != nil {
+	// 	log.Error("Failed to loadP2PDilithiumKey ", err.Error())
+	// 	return
+	// }
 
 	s, err := state.NewState(userConfig.DataDir(), devConfig.DBName)
 	if err != nil {
@@ -181,7 +190,7 @@ func main() {
 	}
 	log.Info("Main Chain Loaded Successfully")
 
-	err = run(c, s.DB(), keys)
+	err = run(c, s.DB())
 	if err != nil {
 		log.Error("Initialization Error ", err.Error())
 	}
