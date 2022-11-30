@@ -10,7 +10,7 @@ import (
 	"github.com/theQRL/zond/crypto/hash"
 	"github.com/theQRL/zond/crypto/hash/htr"
 	"github.com/theQRL/zond/encoding/ssz"
-	ethpb "github.com/theQRL/zond/protos"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 )
 
 const (

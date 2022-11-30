@@ -14,7 +14,7 @@ import (
 	"github.com/theQRL/zond/consensus-types/interfaces"
 	types "github.com/theQRL/zond/consensus-types/primitives"
 	"github.com/theQRL/zond/monitoring/backup"
-	ethpb "github.com/theQRL/zond/protos"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 )
 
 // ReadOnlyDatabase defines a struct which only has read access to database methods.
@@ -51,7 +51,7 @@ type ReadOnlyDatabase interface {
 	DepositContractAddress(ctx context.Context) ([]byte, error)
 	// ExecutionChainData operations.
 	ExecutionChainData(ctx context.Context) (*ethpb.ETH1ChainData, error)
-	// Fee recipients operations.
+	// Fee reicipients operations.
 	FeeRecipientByValidatorID(ctx context.Context, id types.ValidatorIndex) (common.Address, error)
 	RegistrationByValidatorID(ctx context.Context, id types.ValidatorIndex) (*ethpb.ValidatorRegistrationV1, error)
 	// origin checkpoint sync support
@@ -85,7 +85,7 @@ type NoHeadAccessDatabase interface {
 	SaveExecutionChainData(ctx context.Context, data *ethpb.ETH1ChainData) error
 	// Run any required database migrations.
 	RunMigrations(ctx context.Context) error
-	// Fee recipients operations.
+	// Fee reicipients operations.
 	SaveFeeRecipientsByValidatorIDs(ctx context.Context, ids []types.ValidatorIndex, addrs []common.Address) error
 	SaveRegistrationsByValidatorIDs(ctx context.Context, ids []types.ValidatorIndex, regs []*ethpb.ValidatorRegistrationV1) error
 

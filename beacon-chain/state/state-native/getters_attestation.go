@@ -1,7 +1,7 @@
 package state_native
 
 import (
-	ethpb "github.com/theQRL/zond/protos"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 	"github.com/theQRL/zond/runtime/version"
 )
 

@@ -1,11 +1,11 @@
 package blocks
 
 import (
+	"gihub.com/theQRL/zond/encoding/bytesutil"
+	eth "gihub.com/theQRL/zond/proto/prysm/v1alpha1"
+	"gihub.com/theQRL/zond/runtime/version"
 	"github.com/pkg/errors"
-	"github.com/theQRL/zond/encoding/bytesutil"
-	eth "github.com/theQRL/zond/protos"
-	enginev1 "github.com/theQRL/zond/protos/engine"
-	"github.com/theQRL/zond/runtime/version"
+	enginev1 "github.com/theQRL/zond/protos/engine/v1"
 	"google.golang.org/protobuf/proto"
 )
 

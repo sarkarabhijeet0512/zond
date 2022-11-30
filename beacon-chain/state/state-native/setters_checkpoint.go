@@ -3,7 +3,7 @@ package state_native
 import (
 	"github.com/prysmaticlabs/go-bitfield"
 	nativetypes "github.com/theQRL/zond/beacon-chain/state/state-native/types"
-	ethpb "github.com/theQRL/zond/protos"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 )
 
 // SetJustificationBits for the beacon state.

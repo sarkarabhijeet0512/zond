@@ -8,7 +8,7 @@ import (
 	types "github.com/theQRL/zond/consensus-types/primitives"
 	"github.com/theQRL/zond/crypto/hash"
 	"github.com/theQRL/zond/encoding/bytesutil"
-	ethpb "github.com/theQRL/zond/protos"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 	"google.golang.org/protobuf/proto"
 )
 

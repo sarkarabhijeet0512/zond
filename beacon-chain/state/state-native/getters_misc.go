@@ -2,7 +2,7 @@ package state_native
 
 import (
 	types "github.com/theQRL/zond/consensus-types/primitives"
-	ethpb "github.com/theQRL/zond/protos"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 )
 
 // GenesisTime of the beacon state as a uint64.

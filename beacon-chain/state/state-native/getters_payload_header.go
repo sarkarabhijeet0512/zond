@@ -3,8 +3,8 @@ package state_native
 import (
 	"github.com/theQRL/zond/consensus-types/blocks"
 	"github.com/theQRL/zond/consensus-types/interfaces"
-	ethpb "github.com/theQRL/zond/protos"
-	enginev1 "github.com/theQRL/zond/protos/engine"
+	enginev1 "github.com/theQRL/zond/protos/engine/v1"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 	"github.com/theQRL/zond/runtime/version"
 )
 

@@ -6,13 +6,11 @@ import (
 	"fmt"
 
 	"github.com/golang/snappy"
-	"github.com/theQRL/zond/common/hexutil"
-
-	//"github.com/prysmaticlabs/prysm/v3/config/features"
 	"github.com/schollz/progressbar/v3"
+	"github.com/theQRL/zond/common/hexutil"
 	"github.com/theQRL/zond/encoding/ssz/detect"
 	"github.com/theQRL/zond/monitoring/progress"
-	v1alpha1 "github.com/theQRL/zond/protos"
+	v1alpha1 "github.com/theQRL/zond/protos/zond/v1alpha1"
 	bolt "go.etcd.io/bbolt"
 )
 

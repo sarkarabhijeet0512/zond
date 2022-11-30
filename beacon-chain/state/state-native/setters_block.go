@@ -7,7 +7,7 @@ import (
 	nativetypes "github.com/theQRL/zond/beacon-chain/state/state-native/types"
 	"github.com/theQRL/zond/beacon-chain/state/stateutil"
 	fieldparams "github.com/theQRL/zond/config/fieldparams"
-	ethpb "github.com/theQRL/zond/protos"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 )
 
 // SetLatestBlockHeader in the beacon state.

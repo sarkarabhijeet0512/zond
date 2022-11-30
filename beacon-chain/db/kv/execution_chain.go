@@ -5,7 +5,7 @@ import (
 	"errors"
 
 	"github.com/theQRL/zond/monitoring/tracing"
-	v2 "github.com/theQRL/zond/protos"
+	v2 "github.com/theQRL/zond/protos/zond/v1alpha1"
 	bolt "go.etcd.io/bbolt"
 	"go.opencensus.io/trace"
 	"google.golang.org/protobuf/proto"

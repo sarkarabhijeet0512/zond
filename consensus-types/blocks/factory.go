@@ -5,8 +5,8 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/theQRL/zond/consensus-types/interfaces"
-	eth "github.com/theQRL/zond/protos"
-	enginev1 "github.com/theQRL/zond/protos/engine"
+	enginev1 "github.com/theQRL/zond/protos/engine/v1"
+	eth "github.com/theQRL/zond/protos/zond/v1alpha1"
 	"github.com/theQRL/zond/runtime/version"
 )
 

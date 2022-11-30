@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/theQRL/zond/encoding/bytesutil"
-	ethpb "github.com/theQRL/zond/protos"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 	bolt "go.etcd.io/bbolt"
 	"go.opencensus.io/trace"
 )

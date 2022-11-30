@@ -3,7 +3,7 @@ package state_native
 import (
 	nativetypes "github.com/theQRL/zond/beacon-chain/state/state-native/types"
 	"github.com/theQRL/zond/beacon-chain/state/stateutil"
-	ethpb "github.com/theQRL/zond/protos"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 )
 
 // SetEth1Data for the beacon state.

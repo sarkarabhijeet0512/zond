@@ -4,18 +4,16 @@ import (
 	"github.com/theQRL/zond/config/params"
 	types "github.com/theQRL/zond/consensus-types/primitives"
 	"github.com/theQRL/zond/encoding/bytesutil"
-	ethpb "github.com/theQRL/zond/protos"
-	enginev1 "github.com/theQRL/zond/protos/engine"
+	enginev1 "github.com/theQRL/zond/protos/engine/v1"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 	"github.com/theQRL/zond/runtime/version"
 	"github.com/theQRL/zond/time/slots"
 )
 
-const ETH1AddressOffset = 12
-
-// NextWithdrawalIndex returns the index that will be assigned to the next withdrawal.
-func (b *BeaconState) NextWithdrawalIndex() (uint64, error) {
+// WithdrawalQueue returns the list of pending withdrawals.
+func (b *BeaconState) WithdrawalQueue() ([]*enginev1.Withdrawal, error) {
 	if b.version < version.Capella {
-		return 0, errNotSupported("NextWithdrawalIndex", b.version)
+		return nil, errNotSupported("WithdrawalQueue", b.version)
 	}
 
 	b.lock.RLock()

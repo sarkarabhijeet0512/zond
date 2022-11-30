@@ -3,7 +3,7 @@ package state_native
 import (
 	"fmt"
 
-	ethpb "github.com/theQRL/zond/protos"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 )
 
 // LatestBlockHeader stored within the beacon state.

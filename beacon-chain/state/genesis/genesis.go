@@ -7,7 +7,7 @@ import (
 	"github.com/theQRL/zond/beacon-chain/state"
 	state_native "github.com/theQRL/zond/beacon-chain/state/state-native"
 	"github.com/theQRL/zond/config/params"
-	ethpb "github.com/theQRL/zond/protos"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 )
 
 var (

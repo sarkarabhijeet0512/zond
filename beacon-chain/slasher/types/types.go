@@ -2,7 +2,7 @@ package types
 
 import (
 	types "github.com/theQRL/zond/consensus-types/primitives"
-	ethpb "github.com/theQRL/zond/protos"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 )
 
 // ChunkKind to differentiate what kind of span we are working

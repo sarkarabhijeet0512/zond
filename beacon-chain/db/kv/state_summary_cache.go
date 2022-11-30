@@ -3,7 +3,7 @@ package kv
 import (
 	"sync"
 
-	ethpb "github.com/theQRL/zond/protos"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 )
 
 const stateSummaryCachePruneCount = 128

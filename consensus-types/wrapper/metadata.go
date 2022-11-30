@@ -1,10 +1,10 @@
 package wrapper
 
 import (
+	pb "gihub.com/theQRL/zond/proto/prysm/v1alpha1"
+	"gihub.com/theQRL/zond/proto/prysm/v1alpha1/metadata"
+	"gihub.com/theQRL/zond/runtime/version"
 	"github.com/prysmaticlabs/go-bitfield"
-	pb "github.com/theQRL/zond/protos"
-	"github.com/theQRL/zond/protos/metadata"
-	"github.com/theQRL/zond/runtime/version"
 	"google.golang.org/protobuf/proto"
 )
 

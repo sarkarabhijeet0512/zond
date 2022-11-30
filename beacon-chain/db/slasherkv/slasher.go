@@ -14,7 +14,7 @@ import (
 	slashertypes "github.com/theQRL/zond/beacon-chain/slasher/types"
 	types "github.com/theQRL/zond/consensus-types/primitives"
 	"github.com/theQRL/zond/encoding/bytesutil"
-	ethpb "github.com/theQRL/zond/protos"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 	bolt "go.etcd.io/bbolt"
 	"go.opencensus.io/trace"
 	"golang.org/x/sync/errgroup"

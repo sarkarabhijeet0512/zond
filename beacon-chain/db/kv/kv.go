@@ -14,8 +14,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	prombolt "github.com/prysmaticlabs/prombbolt"
 	"github.com/theQRL/zond/beacon-chain/db/iface"
-
-	//"github.com/theQRL/zond/config/features"
 	"github.com/theQRL/zond/config/params"
 	"github.com/theQRL/zond/io/file"
 	bolt "go.etcd.io/bbolt"

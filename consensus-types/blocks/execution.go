@@ -10,7 +10,7 @@ import (
 	"github.com/theQRL/zond/crypto/hash"
 	"github.com/theQRL/zond/encoding/bytesutil"
 	"github.com/theQRL/zond/encoding/ssz"
-	enginev1 "github.com/theQRL/zond/protos/engine"
+	enginev1 "github.com/theQRL/zond/protos/engine/v1"
 	"google.golang.org/protobuf/proto"
 )
 

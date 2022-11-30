@@ -3,12 +3,12 @@ package blocks
 import (
 	"fmt"
 
+	field_params "gihub.com/theQRL/zond/config/fieldparams"
+	"gihub.com/theQRL/zond/consensus-types/interfaces"
+	types "gihub.com/theQRL/zond/consensus-types/primitives"
+	eth "gihub.com/theQRL/zond/proto/prysm/v1alpha1"
+	"gihub.com/theQRL/zond/runtime/version"
 	"github.com/pkg/errors"
-	field_params "github.com/theQRL/zond/config/fieldparams"
-	"github.com/theQRL/zond/consensus-types/interfaces"
-	types "github.com/theQRL/zond/consensus-types/primitives"
-	eth "github.com/theQRL/zond/protos"
-	"github.com/theQRL/zond/runtime/version"
 )
 
 var (

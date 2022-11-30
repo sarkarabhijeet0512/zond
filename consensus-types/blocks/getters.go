@@ -8,9 +8,9 @@ import (
 	field_params "github.com/theQRL/zond/config/fieldparams"
 	"github.com/theQRL/zond/consensus-types/interfaces"
 	types "github.com/theQRL/zond/consensus-types/primitives"
-	eth "github.com/theQRL/zond/protos"
-	enginev1 "github.com/theQRL/zond/protos/engine"
-	validatorpb "github.com/theQRL/zond/protos/validator-client"
+	enginev1 "github.com/theQRL/zond/protos/engine/v1"
+	eth "github.com/theQRL/zond/protos/zond/v1alpha1"
+	validatorpb "github.com/theQRL/zond/protos/zond/v1alpha1/validator-client"
 	"github.com/theQRL/zond/runtime/version"
 )
 
