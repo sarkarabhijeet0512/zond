@@ -1,16 +1,16 @@
 syntax = "proto3";
-package ethereum.validator.accounts.v2;
+package zond.validator.accounts.v2;
 
 import "protos/eth/ext/options.proto";
-import "proto/prysm/v1alpha1/attestation.proto";
-import "proto/prysm/v1alpha1/beacon_block.proto";
-import "proto/prysm/v1alpha1/beacon_state.proto";
-import "proto/prysm/v1alpha1/sync_committee.proto";
+import "protos/zond/v1alpha1/attestation.proto";
+import "protos/zond/v1alpha1/beacon_block.proto";
+import "protos/zond/v1alpha1/beacon_state.proto";
+import "protos/zond/v1alpha1/sync_committee.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 
 option csharp_namespace = "Ethereum.Validator.Accounts.V2";
-option go_package = "github.com/theQRL/zond/protos/prysm/v1alpha1/validator-client;validatorpb";
+option go_package = "github.com/theQRL/zond/protos/zond/v1alpha1/validator-client;validatorpb";
 option java_multiple_files = true;
 option java_outer_classname = "KeymanagerProto";
 option java_package = "org.ethereum.validator.accounts.v2";

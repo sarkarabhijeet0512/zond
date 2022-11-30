@@ -3,16 +3,16 @@ package blocks
 import (
 	"testing"
 
-	fieldparams "gihub.com/theQRL/zond/config/fieldparams"
-	"gihub.com/theQRL/zond/consensus-types/interfaces"
-	types "gihub.com/theQRL/zond/consensus-types/primitives"
-	"gihub.com/theQRL/zond/encoding/bytesutil"
-	eth "gihub.com/theQRL/zond/proto/prysm/v1alpha1"
-	validatorpb "gihub.com/theQRL/zond/proto/prysm/v1alpha1/validator-client"
-	"gihub.com/theQRL/zond/runtime/version"
-	"gihub.com/theQRL/zond/testing/assert"
-	"gihub.com/theQRL/zond/testing/require"
 	ssz "github.com/prysmaticlabs/fastssz"
+	fieldparams "github.com/theQRL/zond/config/fieldparams"
+	"github.com/theQRL/zond/consensus-types/interfaces"
+	types "github.com/theQRL/zond/consensus-types/primitives"
+	"github.com/theQRL/zond/encoding/bytesutil"
+	eth "github.com/theQRL/zond/protos/zond/v1alpha1"
+	validatorpb "github.com/theQRL/zond/protos/zond/v1alpha1/validator-client"
+	"github.com/theQRL/zond/runtime/version"
+	"github.com/theQRL/zond/testing/assert"
+	"github.com/theQRL/zond/testing/require"
 )
 
 func Test_BeaconBlockIsNil(t *testing.T) {

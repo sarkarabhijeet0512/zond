@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	types "gihub.com/theQRL/zond/consensus-types/primitives"
+	types "github.com/theQRL/zond/consensus-types/primitives"
 )
 
 func TestSSZBytes_HashTreeRoot(t *testing.T) {

@@ -1,8 +1,8 @@
 package interfaces
 
 import (
-	ethpb "gihub.com/theQRL/zond/proto/prysm/v1alpha1"
 	"github.com/pkg/errors"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 )
 
 // SignedBeaconBlockHeaderFromBlock function to retrieve signed block header from block.

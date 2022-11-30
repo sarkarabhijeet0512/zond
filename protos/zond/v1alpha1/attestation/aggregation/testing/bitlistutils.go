@@ -6,8 +6,7 @@ import (
 
 	"github.com/prysmaticlabs/go-bitfield"
 	types "github.com/theQRL/zond/consensus-types/primitives"
-	"github.com/theQRL/zond/crypto/bls"
-	ethpb "github.com/theQRL/zond/protos/prysm/v1alpha1"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 	"github.com/theQRL/zond/time"
 )
 
@@ -86,7 +85,8 @@ func MakeAttestationsFromBitlists(bl []bitfield.Bitlist) []*ethpb.Attestation {
 				Slot:           42,
 				CommitteeIndex: 1,
 			},
-			Signature: bls.NewAggregateSignature().Marshal(),
+			//TODO (abhijeet): Replace bls with Dilithium
+			// Signature: bls.NewAggregateSignature().Marshal(),
 		}
 	}
 	return atts
@@ -100,7 +100,9 @@ func MakeSyncContributionsFromBitVector(bl []bitfield.Bitvector128) []*ethpb.Syn
 			Slot:              types.Slot(1),
 			SubcommitteeIndex: 2,
 			AggregationBits:   b,
-			Signature:         bls.NewAggregateSignature().Marshal(),
+			//TODO (abhijeet): Replace bls with Dilithium
+
+			// Signature:         bls.NewAggregateSignature().Marshal(),
 		}
 	}
 	return c

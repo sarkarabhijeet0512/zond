@@ -13,7 +13,7 @@
 // limitations under the License.
 syntax = "proto3";
 
-package zond.eth..service;
+package zond.eth.service;
 
 import "google/api/annotations.proto";
 import "google/protobuf/descriptor.proto";

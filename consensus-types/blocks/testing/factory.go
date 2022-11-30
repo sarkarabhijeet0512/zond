@@ -1,10 +1,10 @@
 package testing
 
 import (
-	"gihub.com/theQRL/zond/consensus-types/blocks"
-	"gihub.com/theQRL/zond/consensus-types/interfaces"
-	eth "gihub.com/theQRL/zond/proto/prysm/v1alpha1"
 	"github.com/pkg/errors"
+	"github.com/theQRL/zond/consensus-types/blocks"
+	"github.com/theQRL/zond/consensus-types/interfaces"
+	eth "github.com/theQRL/zond/protos/zond/v1alpha1"
 )
 
 // NewSignedBeaconBlockFromGeneric creates a signed beacon block

@@ -1,14 +1,14 @@
 syntax = "proto3";
-package ethereum.validator.accounts.v2;
+package zond.validator.accounts.v2;
 
-import "proto/prysm/v1alpha1/health.proto";
-import "proto/prysm/v1alpha1/beacon_chain.proto";
-import "proto/prysm/v1alpha1/node.proto";
+import "protos/zond/v1alpha1/health.proto";
+import "protos/zond/v1alpha1/beacon_chain.proto";
+import "protos/zond/v1alpha1/node.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 
 option csharp_namespace = "Ethereum.Validator.Accounts.V2";
-option go_package = "github.com/theQRL/zond/protos/prysm/v1alpha1/validator-client;validatorpb";
+option go_package = "github.com/theQRL/zond/protos/zond/v1alpha1/validator-client;validatorpb";
 option java_multiple_files = true;
 option java_outer_classname = "WebProto";
 option java_package = "org.ethereum.validator.accounts.v2";

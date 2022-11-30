@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.28.0
 // 	protoc        v3.15.8
-// source: proto/prysm/v1alpha1/validator-client/keymanager.proto
+// source: protos/zond/v1alpha1/validator-client/keymanager.proto
 
 package validatorpb
 
@@ -14,7 +14,7 @@ import (
 	empty "github.com/golang/protobuf/ptypes/empty"
 	github_com_prysmaticlabs_prysm_v3_consensus_types_primitives "github.com/theQRL/zond/consensus-types/primitives"
 	_ "github.com/theQRL/zond/protos/eth/ext"
-	v1alpha1 "github.com/theQRL/zond/protos/prysm/v1alpha1"
+	v1alpha1 "github.com/theQRL/zond/protos/zond/v1alpha1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
@@ -860,5 +860,5 @@ var _RemoteSigner_serviceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "proto/prysm/v1alpha1/validator-client/keymanager.proto",
+	Metadata: "protos/zond/v1alpha1/validator-client/keymanager.proto",
 }

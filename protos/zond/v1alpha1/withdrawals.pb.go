@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.28.0
 // 	protoc        v3.15.8
-// source: proto/prysm/v1alpha1/withdrawals.proto
+// source: protos/zond/v1alpha1/withdrawals.proto
 
 package eth
 
@@ -201,11 +201,11 @@ func file_proto_prysm_v1alpha1_withdrawals_proto_rawDescGZIP() []byte {
 
 var file_proto_prysm_v1alpha1_withdrawals_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_proto_prysm_v1alpha1_withdrawals_proto_goTypes = []interface{}{
-	(*BLSToExecutionChange)(nil),       // 0: zond.eth.v1alpha1.BLSToExecutionChange
-	(*SignedBLSToExecutionChange)(nil), // 1: zond.eth.v1alpha1.SignedBLSToExecutionChange
+	(*BLSToExecutionChange)(nil),       // 0: ethereum.eth.v1alpha1.BLSToExecutionChange
+	(*SignedBLSToExecutionChange)(nil), // 1: ethereum.eth.v1alpha1.SignedBLSToExecutionChange
 }
 var file_proto_prysm_v1alpha1_withdrawals_proto_depIdxs = []int32{
-	0, // 0: zond.eth.v1alpha1.SignedBLSToExecutionChange.message:type_name -> zond.eth.v1alpha1.BLSToExecutionChange
+	0, // 0: ethereum.eth.v1alpha1.SignedBLSToExecutionChange.message:type_name -> ethereum.eth.v1alpha1.BLSToExecutionChange
 	1, // [1:1] is the sub-list for method output_type
 	1, // [1:1] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name

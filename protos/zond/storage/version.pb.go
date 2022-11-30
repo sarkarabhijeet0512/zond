@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.28.0
 // 	protoc        v3.15.8
-// source: proto/prysm/storage/version.proto
+// source: protos/zond/storage/version.proto
 
 package storage
 

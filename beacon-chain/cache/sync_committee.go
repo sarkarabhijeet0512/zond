@@ -10,7 +10,7 @@ import (
 	"github.com/theQRL/zond/beacon-chain/state"
 	types "github.com/theQRL/zond/consensus-types/primitives"
 	"github.com/theQRL/zond/encoding/bytesutil"
-	"k8s.io/client-go/tools/cache"
+	cache "k8s.io/client-go/tools/cache"
 )
 
 var (

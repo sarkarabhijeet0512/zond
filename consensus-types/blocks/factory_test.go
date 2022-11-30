@@ -5,13 +5,13 @@ import (
 	"errors"
 	"testing"
 
-	fieldparams "gihub.com/theQRL/zond/config/fieldparams"
-	"gihub.com/theQRL/zond/encoding/bytesutil"
-	eth "gihub.com/theQRL/zond/proto/prysm/v1alpha1"
-	enginev1 "gihub.com/theQRL/zond/protos/engine/v1"
-	"gihub.com/theQRL/zond/runtime/version"
-	"gihub.com/theQRL/zond/testing/assert"
-	"gihub.com/theQRL/zond/testing/require"
+	fieldparams "github.com/theQRL/zond/config/fieldparams"
+	"github.com/theQRL/zond/encoding/bytesutil"
+	enginev1 "github.com/theQRL/zond/protos/engine/v1"
+	eth "github.com/theQRL/zond/protos/zond/v1alpha1"
+	"github.com/theQRL/zond/runtime/version"
+	"github.com/theQRL/zond/testing/assert"
+	"github.com/theQRL/zond/testing/require"
 )
 
 func Test_NewSignedBeaconBlock(t *testing.T) {

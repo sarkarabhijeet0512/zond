@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	types "gihub.com/theQRL/zond/consensus-types/primitives"
+	types "github.com/theQRL/zond/consensus-types/primitives"
 )
 
 func TestSSZUint64_Limit(t *testing.T) {

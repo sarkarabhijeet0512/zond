@@ -5,9 +5,9 @@ import (
 	"math"
 	"testing"
 
-	types "gihub.com/theQRL/zond/consensus-types/primitives"
-	mathprysm "gihub.com/theQRL/zond/math"
-	"gihub.com/theQRL/zond/testing/require"
+	types "github.com/theQRL/zond/consensus-types/primitives"
+	mathprysm "github.com/theQRL/zond/math"
+	"github.com/theQRL/zond/testing/require"
 )
 
 func TestMaxEpoch(t *testing.T) {

@@ -5,9 +5,8 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/prysmaticlabs/go-bitfield"
-	"github.com/theQRL/zond/crypto/bls"
-	ethpb "github.com/theQRL/zond/protos/prysm/v1alpha1"
-	"github.com/theQRL/zond/protos/prysm/v1alpha1/attestation/aggregation"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
+	"github.com/theQRL/zond/protos/zond/v1alpha1/attestation/aggregation"
 )
 
 // MaxCoverAttestationAggregation relies on Maximum Coverage greedy algorithm for aggregation.
@@ -124,18 +123,19 @@ func (al attList) aggregate(coverage bitfield.Bitlist) (*ethpb.Attestation, erro
 	if len(al) < 2 {
 		return nil, errors.Wrap(ErrInvalidAttestationCount, "cannot aggregate")
 	}
-	signs := make([]bls.Signature, len(al))
-	for i := 0; i < len(al); i++ {
-		sig, err := signatureFromBytes(al[i].Signature)
-		if err != nil {
-			return nil, err
-		}
-		signs[i] = sig
-	}
+	// signs := make([]bls.Signature, len(al))
+	// for i := 0; i < len(al); i++ {
+	// 	// sig, err := signatureFromBytes(al[i].Signature)
+	// 	if err != nil {
+	// 		return nil, err
+	// 	}
+	// 	signs[i] = sig
+	// }
+	// TODO (abhijeet): Replace bls with Dilithium
 	return &ethpb.Attestation{
 		AggregationBits: coverage,
 		Data:            ethpb.CopyAttestationData(al[0].Data),
-		Signature:       aggregateSignatures(signs).Marshal(),
+		// Signature:       aggregateSignatures(signs).Marshal(),
 	}, nil
 }
 
@@ -158,24 +158,24 @@ func aggregateAttestations(atts []*ethpb.Attestation, keys []int, coverage *bitf
 	}
 
 	var data *ethpb.AttestationData
-	signs := make([]bls.Signature, 0, len(keys))
-	for i, idx := range keys {
-		sig, err := signatureFromBytes(atts[idx].Signature)
-		if err != nil {
-			return targetIdx, err
-		}
-		signs = append(signs, sig)
-		if i == 0 {
-			data = ethpb.CopyAttestationData(atts[idx].Data)
-			targetIdx = idx
-		}
-	}
+	// signs := make([]bls.Signature, 0, len(keys))
+	// for i, idx := range keys {
+	// 	sig, err := signatureFromBytes(atts[idx].Signature)
+	// 	if err != nil {
+	// 		return targetIdx, err
+	// 	}
+	// 	signs = append(signs, sig)
+	// 	if i == 0 {
+	// 		data = ethpb.CopyAttestationData(atts[idx].Data)
+	// 		targetIdx = idx
+	// 	}
+	// }
 	// Put aggregated attestation at a position of the first selected attestation.
 	atts[targetIdx] = &ethpb.Attestation{
 		// Append size byte, which will be unnecessary on switch to Bitlist64.
 		AggregationBits: coverage.ToBitlist(),
 		Data:            data,
-		Signature:       aggregateSignatures(signs).Marshal(),
+		// Signature:       aggregateSignatures(signs).Marshal(),
 	}
 	return
 }

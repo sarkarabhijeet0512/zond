@@ -11,7 +11,7 @@ go_library(
         "sszuint64.go",
         "validator.go",
     ],
-    importpath = "gihub.com/theQRL/zond/consensus-types/primitives",
+    importpath = "github.com/theQRL/zond/consensus-types/primitives",
     visibility = ["//visibility:public"],
     deps = [
         "//math:go_default_library",

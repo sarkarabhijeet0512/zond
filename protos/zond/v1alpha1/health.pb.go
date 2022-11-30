@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.28.0
 // 	protoc        v3.15.8
-// source: proto/prysm/v1alpha1/health.proto
+// source: protos/zond/v1alpha1/health.proto
 
 package eth
 
@@ -278,5 +278,5 @@ var _Health_serviceDesc = grpc.ServiceDesc{
 			ServerStreams: true,
 		},
 	},
-	Metadata: "proto/prysm/v1alpha1/health.proto",
+	Metadata: "protos/zond/v1alpha1/health.proto",
 }

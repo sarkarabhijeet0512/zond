@@ -128,7 +128,7 @@ go_proto_library(
     compilers = [
         "@com_github_prysmaticlabs_protoc_gen_go_cast//:go_cast_grpc",
     ],
-    importpath = "github.com/theQRL/zond/protos/prysm/v1alpha1",
+    importpath = "github.com/theQRL/zond/protos/zond/v1alpha1",
     proto = ":proto",
     visibility = ["//visibility:public"],
     deps = [
@@ -154,7 +154,7 @@ go_proto_library(
         "@com_github_grpc_ecosystem_grpc_gateway_v2//protoc-gen-grpc-gateway:go_gen_grpc_gateway",
     ],
     embed = [":go_proto"],
-    importpath = "github.com/theQRL/zond/protos/prysm/v1alpha1",
+    importpath = "github.com/theQRL/zond/protos/zond/v1alpha1",
     protos = [":proto"],
     visibility = ["//visibility:private"],
     deps = [
@@ -180,7 +180,7 @@ go_library(
     embed = [
         ":go_grpc_gateway_library",
     ],
-    importpath = "github.com/theQRL/zond/protos/prysm/v1alpha1",
+    importpath = "github.com/theQRL/zond/protos/zond/v1alpha1",
     visibility = ["//visibility:public"],
     deps = SSZ_DEPS + [
         "//protos/eth/ext:go_default_library",

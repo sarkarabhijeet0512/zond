@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.28.0
 // 	protoc        v3.15.8
-// source: proto/prysm/v1alpha1/finalized_block_root_container.proto
+// source: protos/zond/v1alpha1/finalized_block_root_container.proto
 
 package eth
 

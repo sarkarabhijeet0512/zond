@@ -3,9 +3,8 @@ package attestations
 import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
-	"github.com/theQRL/zond/crypto/bls"
-	ethpb "github.com/theQRL/zond/protos/prysm/v1alpha1"
-	"github.com/theQRL/zond/protos/prysm/v1alpha1/attestation/aggregation"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
+	"github.com/theQRL/zond/protos/zond/v1alpha1/attestation/aggregation"
 )
 
 // attList represents list of attestations, defined for easier en masse operations (filtering, sorting).
@@ -14,8 +13,8 @@ type attList []*ethpb.Attestation
 // BLS aggregate signature aliases for testing / benchmark substitution. These methods are
 // significantly more expensive than the inner logic of AggregateAttestations so they must be
 // substituted for benchmarks which analyze AggregateAttestations.
-var aggregateSignatures = bls.AggregateSignatures
-var signatureFromBytes = bls.SignatureFromBytes
+// var aggregateSignatures = bls.AggregateSignatures
+// var signatureFromBytes = bls.SignatureFromBytes
 
 var _ = logrus.WithField("prefix", "aggregation.attestations")
 
@@ -64,17 +63,17 @@ func AggregatePair(a1, a2 *ethpb.Attestation) (*ethpb.Attestation, error) {
 	if err != nil {
 		return nil, err
 	}
-	newSig, err := signatureFromBytes(newAtt.Signature)
-	if err != nil {
-		return nil, err
-	}
-	baseSig, err := signatureFromBytes(baseAtt.Signature)
-	if err != nil {
-		return nil, err
-	}
+	// newSig, err := signatureFromBytes(newAtt.Signature)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// baseSig, err := signatureFromBytes(baseAtt.Signature)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
-	aggregatedSig := aggregateSignatures([]bls.Signature{baseSig, newSig})
-	baseAtt.Signature = aggregatedSig.Marshal()
+	// aggregatedSig := aggregateSignatures([]bls.Signature{baseSig, newSig})
+	// baseAtt.Signature = aggregatedSig.Marshal()
 	baseAtt.AggregationBits = newBits
 
 	return baseAtt, nil

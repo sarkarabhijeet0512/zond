@@ -7,9 +7,9 @@ import (
 
 	"github.com/prysmaticlabs/go-bitfield"
 	"github.com/theQRL/zond/crypto/bls"
-	ethpb "github.com/theQRL/zond/protos/prysm/v1alpha1"
-	"github.com/theQRL/zond/protos/prysm/v1alpha1/attestation/aggregation"
-	aggtesting "github.com/theQRL/zond/protos/prysm/v1alpha1/attestation/aggregation/testing"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
+	"github.com/theQRL/zond/protos/zond/v1alpha1/attestation/aggregation"
+	aggtesting "github.com/theQRL/zond/protos/zond/v1alpha1/attestation/aggregation/testing"
 	"github.com/theQRL/zond/testing/assert"
 	"github.com/theQRL/zond/testing/require"
 )

@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.28.0
 // 	protoc        v3.15.8
-// source: proto/prysm/v1alpha1/beacon_chain.proto
+// source: protos/zond/v1alpha1/beacon_chain.proto
 
 package eth
 
@@ -5803,5 +5803,5 @@ var _BeaconChain_serviceDesc = grpc.ServiceDesc{
 			ClientStreams: true,
 		},
 	},
-	Metadata: "proto/prysm/v1alpha1/beacon_chain.proto",
+	Metadata: "protos/zond/v1alpha1/beacon_chain.proto",
 }

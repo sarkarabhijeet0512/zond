@@ -3,12 +3,12 @@ package blocks_test
 import (
 	"testing"
 
-	fieldparams "gihub.com/theQRL/zond/config/fieldparams"
-	"gihub.com/theQRL/zond/consensus-types/blocks"
-	"gihub.com/theQRL/zond/consensus-types/interfaces"
-	enginev1 "gihub.com/theQRL/zond/protos/engine/v1"
-	"gihub.com/theQRL/zond/testing/assert"
-	"gihub.com/theQRL/zond/testing/require"
+	fieldparams "github.com/theQRL/zond/config/fieldparams"
+	"github.com/theQRL/zond/consensus-types/blocks"
+	"github.com/theQRL/zond/consensus-types/interfaces"
+	enginev1 "github.com/theQRL/zond/protos/engine/v1"
+	"github.com/theQRL/zond/testing/assert"
+	"github.com/theQRL/zond/testing/require"
 )
 
 func TestWrapExecutionPayload(t *testing.T) {

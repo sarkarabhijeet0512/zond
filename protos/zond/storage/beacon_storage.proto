@@ -15,7 +15,7 @@ syntax = "proto3";
 
 package zond.eth.storage;
 
-import "proto/prysm/storage/version.proto";
+import "protos/zond/storage/version.proto";
 
 
 // BeaconStateForStorage is used only inside db/kv package and it there for the sole purpose of

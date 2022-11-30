@@ -2,8 +2,8 @@ package sync_contribution
 
 import (
 	"github.com/theQRL/zond/crypto/bls"
-	v2 "github.com/theQRL/zond/protos/prysm/v1alpha1"
-	"github.com/theQRL/zond/protos/prysm/v1alpha1/attestation/aggregation"
+	v2 "github.com/theQRL/zond/protos/zond/v1alpha1"
+	"github.com/theQRL/zond/protos/zond/v1alpha1/attestation/aggregation"
 )
 
 // naiveSyncContributionAggregation aggregates naively, without any complex algorithms or optimizations.

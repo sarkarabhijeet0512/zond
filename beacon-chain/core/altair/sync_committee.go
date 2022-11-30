@@ -12,7 +12,6 @@ import (
 	fieldparams "github.com/theQRL/zond/config/fieldparams"
 	"github.com/theQRL/zond/config/params"
 	types "github.com/theQRL/zond/consensus-types/primitives"
-	"github.com/theQRL/zond/crypto/bls"
 	"github.com/theQRL/zond/crypto/hash"
 	"github.com/theQRL/zond/encoding/bytesutil"
 	"github.com/theQRL/zond/math"
@@ -64,14 +63,16 @@ func NextSyncCommittee(ctx context.Context, s state.BeaconState) (*ethpb.SyncCom
 		p := s.PubkeyAtIndex(index)
 		pubkeys[i] = p[:]
 	}
-	aggregated, err := bls.AggregatePublicKeys(pubkeys)
+	// aggregated, err := bls.AggregatePublicKeys(pubkeys)
 	if err != nil {
 		return nil, err
 	}
-	return &ethpb.SyncCommittee{
-		Pubkeys:         pubkeys,
-		AggregatePubkey: aggregated.Marshal(),
-	}, nil
+	// TODO (abhijeet): Replace bls with Dilithium
+	// return &ethpb.SyncCommittee{
+	// 	Pubkeys:         pubkeys,
+	// 	AggregatePubkey: aggregated.Marshal(),
+	// }, nil
+	return nil, nil
 }
 
 // NextSyncCommitteeIndices returns the next sync committee indices for a given state.

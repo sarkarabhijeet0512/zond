@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
 	"github.com/theQRL/zond/beacon-chain/db/filters"
 	"github.com/theQRL/zond/config/params"
 	types "github.com/theQRL/zond/consensus-types/primitives"

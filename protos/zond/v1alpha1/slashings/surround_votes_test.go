@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	types "github.com/theQRL/zond/consensus-types/primitives"
-	ethpb "github.com/theQRL/zond/protos/prysm/v1alpha1"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 )
 
 func TestIsSurround(t *testing.T) {

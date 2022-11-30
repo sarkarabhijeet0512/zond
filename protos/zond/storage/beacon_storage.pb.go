@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.28.0
 // 	protoc        v3.15.8
-// source: proto/prysm/storage/beacon_storage.proto
+// source: protos/zond/storage/beacon_storage.proto
 
 package storage
 

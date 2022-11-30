@@ -6,14 +6,11 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/theQRL/zond/beacon-chain/core/helpers"
-	"github.com/theQRL/zond/beacon-chain/core/signing"
 	"github.com/theQRL/zond/beacon-chain/core/time"
 	"github.com/theQRL/zond/beacon-chain/state"
 	"github.com/theQRL/zond/config/params"
 	"github.com/theQRL/zond/consensus-types/blocks"
 	"github.com/theQRL/zond/consensus-types/interfaces"
-	types "github.com/theQRL/zond/consensus-types/primitives"
-	"github.com/theQRL/zond/crypto/bls"
 	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 	"github.com/theQRL/zond/protos/zond/v1alpha1/attestation"
 	"go.opencensus.io/trace"
@@ -205,24 +202,26 @@ func VerifyIndexedAttestation(ctx context.Context, beaconState state.ReadOnlyBea
 	if err := attestation.IsValidAttestationIndices(ctx, indexedAtt); err != nil {
 		return err
 	}
-	domain, err := signing.Domain(
-		beaconState.Fork(),
-		indexedAtt.Data.Target.Epoch,
-		params.BeaconConfig().DomainBeaconAttester,
-		beaconState.GenesisValidatorsRoot(),
-	)
-	if err != nil {
-		return err
-	}
-	indices := indexedAtt.AttestingIndices
-	var pubkeys []bls.PublicKey
-	for i := 0; i < len(indices); i++ {
-		pubkeyAtIdx := beaconState.PubkeyAtIndex(types.ValidatorIndex(indices[i]))
-		pk, err := bls.PublicKeyFromBytes(pubkeyAtIdx[:])
-		if err != nil {
-			return errors.Wrap(err, "could not deserialize validator public key")
-		}
-		pubkeys = append(pubkeys, pk)
-	}
-	return attestation.VerifyIndexedAttestationSig(ctx, indexedAtt, pubkeys, domain)
+	// domain, err := signing.Domain(
+	// 	beaconState.Fork(),
+	// 	indexedAtt.Data.Target.Epoch,
+	// 	params.BeaconConfig().DomainBeaconAttester,
+	// 	beaconState.GenesisValidatorsRoot(),
+	// )
+	// if err != nil {
+	// 	return err
+	// }
+	//TODO (abhijeet): Replace bls with Dilithium
+	// indices := indexedAtt.AttestingIndices
+	// var pubkeys []bls.PublicKey
+	// for i := 0; i < len(indices); i++ {
+	// 	pubkeyAtIdx := beaconState.PubkeyAtIndex(types.ValidatorIndex(indices[i]))
+	// 	pk, err := bls.PublicKeyFromBytes(pubkeyAtIdx[:])
+	// 	if err != nil {
+	// 		return errors.Wrap(err, "could not deserialize validator public key")
+	// 	}
+	// 	pubkeys = append(pubkeys, pk)
+	// }
+	// return attestation.VerifyIndexedAttestationSig(ctx, indexedAtt, pubkeys, domain)
+	return nil
 }

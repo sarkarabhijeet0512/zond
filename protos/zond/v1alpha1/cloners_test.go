@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	enginev1 "github.com/theQRL/zond/protos/engine/v1"
-	v1alpha1 "github.com/theQRL/zond/protos/prysm/v1alpha1"
+	v1alpha1 "github.com/theQRL/zond/protos/zond/v1alpha1"
 	"github.com/theQRL/zond/testing/assert"
 )
 

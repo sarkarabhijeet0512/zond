@@ -18,7 +18,7 @@ package zond.eth.v1alpha1;
 import "protos/eth/ext/options.proto";
 
 option csharp_namespace = "zond.eth.V1";
-option go_package = "github.com/theQRL/zond/protos/prysm/v1alpha1;eth";
+option go_package = "github.com/theQRL/zond/protos/zond/v1alpha1;eth";
 option java_multiple_files = true;
 option java_outer_classname = "SyncCommitteeProto";
 option java_package = "org.zond.eth.v1alpha1";

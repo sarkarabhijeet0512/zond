@@ -1,12 +1,12 @@
 package mock
 
 import (
-	field_params "gihub.com/theQRL/zond/config/fieldparams"
-	"gihub.com/theQRL/zond/consensus-types/interfaces"
-	types "gihub.com/theQRL/zond/consensus-types/primitives"
-	eth "gihub.com/theQRL/zond/proto/prysm/v1alpha1"
-	validatorpb "gihub.com/theQRL/zond/proto/prysm/v1alpha1/validator-client"
 	ssz "github.com/prysmaticlabs/fastssz"
+	field_params "github.com/theQRL/zond/config/fieldparams"
+	"github.com/theQRL/zond/consensus-types/interfaces"
+	types "github.com/theQRL/zond/consensus-types/primitives"
+	eth "github.com/theQRL/zond/protos/zond/v1alpha1"
+	validatorpb "github.com/theQRL/zond/protos/zond/v1alpha1/validator-client"
 	"google.golang.org/protobuf/proto"
 )
 

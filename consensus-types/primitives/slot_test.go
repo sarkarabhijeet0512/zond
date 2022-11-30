@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	types "gihub.com/theQRL/zond/consensus-types/primitives"
-	mathprysm "gihub.com/theQRL/zond/math"
+	types "github.com/theQRL/zond/consensus-types/primitives"
+	mathprysm "github.com/theQRL/zond/math"
 )
 
 func TestSlot_Casting(t *testing.T) {

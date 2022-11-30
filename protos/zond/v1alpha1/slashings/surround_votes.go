@@ -1,6 +1,6 @@
 package slashings
 
-import ethpb "github.com/theQRL/zond/protos/prysm/v1alpha1"
+import ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 
 // IsSurround checks if an attestation, a, is surrounding
 // another one, b, based on the Ethereum slashing conditions specified

@@ -3,17 +3,10 @@ package altair
 import (
 	"context"
 
-	"github.com/pkg/errors"
 	"github.com/theQRL/zond/beacon-chain/core/helpers"
-	"github.com/theQRL/zond/beacon-chain/core/signing"
-	p2pType "github.com/theQRL/zond/beacon-chain/p2p/types"
 	"github.com/theQRL/zond/beacon-chain/state"
 	"github.com/theQRL/zond/config/params"
 	types "github.com/theQRL/zond/consensus-types/primitives"
-	"github.com/theQRL/zond/crypto/bls"
-	"github.com/theQRL/zond/encoding/bytesutil"
-	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
-	"github.com/theQRL/zond/time/slots"
 )
 
 // ProcessSyncAggregate verifies sync committee aggregate signature signing over the previous slot block root.
@@ -44,86 +37,87 @@ import (
 //            increase_balance(state, get_beacon_proposer_index(state), proposer_reward)
 //        else:
 //            decrease_balance(state, participant_index, participant_reward)
-func ProcessSyncAggregate(ctx context.Context, s state.BeaconState, sync *ethpb.SyncAggregate) (state.BeaconState, error) {
-	votedKeys, votedIndices, didntVoteIndices, err := FilterSyncCommitteeVotes(s, sync)
-	if err != nil {
-		return nil, errors.Wrap(err, "could not filter sync committee votes")
-	}
+// func ProcessSyncAggregate(ctx context.Context, s state.BeaconState, sync *ethpb.SyncAggregate) (state.BeaconState, error) {
+// 	votedKeys, votedIndices, didntVoteIndices, err := FilterSyncCommitteeVotes(s, sync)
+// 	if err != nil {
+// 		return nil, errors.Wrap(err, "could not filter sync committee votes")
+// 	}
 
-	if err := VerifySyncCommitteeSig(s, votedKeys, sync.SyncCommitteeSignature); err != nil {
-		return nil, errors.Wrap(err, "could not verify sync committee signature")
-	}
+// 	if err := VerifySyncCommitteeSig(s, votedKeys, sync.SyncCommitteeSignature); err != nil {
+// 		return nil, errors.Wrap(err, "could not verify sync committee signature")
+// 	}
 
-	return ApplySyncRewardsPenalties(ctx, s, votedIndices, didntVoteIndices)
-}
+// 	return ApplySyncRewardsPenalties(ctx, s, votedIndices, didntVoteIndices)
+// }
 
+//TODO (abhijeet): Replace bls with Dilithium
 // FilterSyncCommitteeVotes filters the validator public keys and indices for the ones that voted and didn't vote.
-func FilterSyncCommitteeVotes(s state.BeaconState, sync *ethpb.SyncAggregate) (
-	votedKeys []bls.PublicKey,
-	votedIndices []types.ValidatorIndex,
-	didntVoteIndices []types.ValidatorIndex,
-	err error) {
-	currentSyncCommittee, err := s.CurrentSyncCommittee()
-	if err != nil {
-		return nil, nil, nil, err
-	}
-	if currentSyncCommittee == nil {
-		return nil, nil, nil, errors.New("nil current sync committee in state")
-	}
-	committeeKeys := currentSyncCommittee.Pubkeys
-	if sync.SyncCommitteeBits.Len() > uint64(len(committeeKeys)) {
-		return nil, nil, nil, errors.New("bits length exceeds committee length")
-	}
-	votedKeys = make([]bls.PublicKey, 0, len(committeeKeys))
-	votedIndices = make([]types.ValidatorIndex, 0, len(committeeKeys))
-	didntVoteIndices = make([]types.ValidatorIndex, 0) // No allocation. Expect most votes.
+// func FilterSyncCommitteeVotes(s state.BeaconState, sync *ethpb.SyncAggregate) (
+// 	votedKeys []bls.PublicKey,
+// 	votedIndices []types.ValidatorIndex,
+// 	didntVoteIndices []types.ValidatorIndex,
+// 	err error) {
+// 	currentSyncCommittee, err := s.CurrentSyncCommittee()
+// 	if err != nil {
+// 		return nil, nil, nil, err
+// 	}
+// 	if currentSyncCommittee == nil {
+// 		return nil, nil, nil, errors.New("nil current sync committee in state")
+// 	}
+// 	committeeKeys := currentSyncCommittee.Pubkeys
+// 	if sync.SyncCommitteeBits.Len() > uint64(len(committeeKeys)) {
+// 		return nil, nil, nil, errors.New("bits length exceeds committee length")
+// 	}
+// 	votedKeys = make([]bls.PublicKey, 0, len(committeeKeys))
+// 	votedIndices = make([]types.ValidatorIndex, 0, len(committeeKeys))
+// 	didntVoteIndices = make([]types.ValidatorIndex, 0) // No allocation. Expect most votes.
 
-	for i := uint64(0); i < sync.SyncCommitteeBits.Len(); i++ {
-		vIdx, exists := s.ValidatorIndexByPubkey(bytesutil.ToBytes48(committeeKeys[i]))
-		// Impossible scenario.
-		if !exists {
-			return nil, nil, nil, errors.New("validator public key does not exist in state")
-		}
+// 	for i := uint64(0); i < sync.SyncCommitteeBits.Len(); i++ {
+// 		vIdx, exists := s.ValidatorIndexByPubkey(bytesutil.ToBytes48(committeeKeys[i]))
+// 		// Impossible scenario.
+// 		if !exists {
+// 			return nil, nil, nil, errors.New("validator public key does not exist in state")
+// 		}
 
-		if sync.SyncCommitteeBits.BitAt(i) {
-			pubKey, err := bls.PublicKeyFromBytes(committeeKeys[i])
-			if err != nil {
-				return nil, nil, nil, err
-			}
-			votedKeys = append(votedKeys, pubKey)
-			votedIndices = append(votedIndices, vIdx)
-		} else {
-			didntVoteIndices = append(didntVoteIndices, vIdx)
-		}
-	}
-	return
-}
-
+// 		if sync.SyncCommitteeBits.BitAt(i) {
+// 			pubKey, err := bls.PublicKeyFromBytes(committeeKeys[i])
+// 			if err != nil {
+// 				return nil, nil, nil, err
+// 			}
+// 			votedKeys = append(votedKeys, pubKey)
+// 			votedIndices = append(votedIndices, vIdx)
+// 		} else {
+// 			didntVoteIndices = append(didntVoteIndices, vIdx)
+// 		}
+// 	}
+// 	return
+// }
+//TODO (abhijeet): Replace bls with Dilithium
 // VerifySyncCommitteeSig verifies sync committee signature `syncSig` is valid with respect to public keys `syncKeys`.
-func VerifySyncCommitteeSig(s state.BeaconState, syncKeys []bls.PublicKey, syncSig []byte) error {
-	ps := slots.PrevSlot(s.Slot())
-	d, err := signing.Domain(s.Fork(), slots.ToEpoch(ps), params.BeaconConfig().DomainSyncCommittee, s.GenesisValidatorsRoot())
-	if err != nil {
-		return err
-	}
-	pbr, err := helpers.BlockRootAtSlot(s, ps)
-	if err != nil {
-		return err
-	}
-	sszBytes := p2pType.SSZBytes(pbr)
-	r, err := signing.ComputeSigningRoot(&sszBytes, d)
-	if err != nil {
-		return err
-	}
-	sig, err := bls.SignatureFromBytes(syncSig)
-	if err != nil {
-		return err
-	}
-	if !sig.Eth2FastAggregateVerify(syncKeys, r) {
-		return errors.New("invalid sync committee signature")
-	}
-	return nil
-}
+// func VerifySyncCommitteeSig(s state.BeaconState, syncKeys []bls.PublicKey, syncSig []byte) error {
+// 	ps := slots.PrevSlot(s.Slot())
+// 	d, err := signing.Domain(s.Fork(), slots.ToEpoch(ps), params.BeaconConfig().DomainSyncCommittee, s.GenesisValidatorsRoot())
+// 	if err != nil {
+// 		return err
+// 	}
+// 	pbr, err := helpers.BlockRootAtSlot(s, ps)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	sszBytes := p2pType.SSZBytes(pbr)
+// 	r, err := signing.ComputeSigningRoot(&sszBytes, d)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	sig, err := bls.SignatureFromBytes(syncSig)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	if !sig.Eth2FastAggregateVerify(syncKeys, r) {
+// 		return errors.New("invalid sync committee signature")
+// 	}
+// 	return nil
+// }
 
 // ApplySyncRewardsPenalties applies rewards and penalties for proposer and sync committee participants.
 func ApplySyncRewardsPenalties(ctx context.Context, s state.BeaconState, votedIndices, didntVoteIndices []types.ValidatorIndex) (state.BeaconState, error) {

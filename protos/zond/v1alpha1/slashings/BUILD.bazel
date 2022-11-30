@@ -6,11 +6,11 @@ go_library(
         "double_votes.go",
         "surround_votes.go",
     ],
-    importpath = "github.com/theQRL/zond/protos/prysm/v1alpha1/slashings",
+    importpath = "github.com/theQRL/zond/protos/zond/v1alpha1/slashings",
     visibility = ["//visibility:public"],
     deps = [
         "//config/params:go_default_library",
-        "//proto/prysm/v1alpha1:go_default_library",
+        "//protos/zond/v1alpha1:go_default_library",
     ],
 )
 
@@ -24,6 +24,6 @@ go_test(
     deps = [
         "//config/params:go_default_library",
         "//consensus-types/primitives:go_default_library",
-        "//proto/prysm/v1alpha1:go_default_library",
+        "//protos/zond/v1alpha1:go_default_library",
     ],
 )

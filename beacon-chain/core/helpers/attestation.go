@@ -8,7 +8,6 @@ import (
 
 	"github.com/theQRL/zond/config/params"
 	types "github.com/theQRL/zond/consensus-types/primitives"
-	"github.com/theQRL/zond/crypto/bls"
 	"github.com/theQRL/zond/crypto/hash"
 	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 	prysmTime "github.com/theQRL/zond/time"
@@ -66,6 +65,7 @@ func IsAggregator(committeeCount uint64, slotSig []byte) (bool, error) {
 	return binary.LittleEndian.Uint64(b[:8])%modulo == 0, nil
 }
 
+//TODO (abhijeet): Replace bls with Dilithium
 // AggregateSignature returns the aggregated signature of the input attestations.
 //
 // Spec pseudocode definition:
@@ -73,17 +73,17 @@ func IsAggregator(committeeCount uint64, slotSig []byte) (bool, error) {
 //	def get_aggregate_signature(attestations: Sequence[Attestation]) -> BLSSignature:
 //	 signatures = [attestation.signature for attestation in attestations]
 //	 return bls.Aggregate(signatures)
-func AggregateSignature(attestations []*ethpb.Attestation) (bls.Signature, error) {
-	sigs := make([]bls.Signature, len(attestations))
-	var err error
-	for i := 0; i < len(sigs); i++ {
-		sigs[i], err = bls.SignatureFromBytes(attestations[i].Signature)
-		if err != nil {
-			return nil, err
-		}
-	}
-	return bls.AggregateSignatures(sigs), nil
-}
+// func AggregateSignature(attestations []*ethpb.Attestation) (bls.Signature, error) {
+// 	sigs := make([]bls.Signature, len(attestations))
+// 	var err error
+// 	for i := 0; i < len(sigs); i++ {
+// 		sigs[i], err = bls.SignatureFromBytes(attestations[i].Signature)
+// 		if err != nil {
+// 			return nil, err
+// 		}
+// 	}
+// 	return bls.AggregateSignatures(sigs), nil
+// }
 
 // IsAggregated returns true if the attestation is an aggregated attestation,
 // false otherwise.

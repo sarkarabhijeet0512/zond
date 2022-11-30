@@ -3,14 +3,14 @@ syntax = "proto3";
 package zond.eth.v1alpha1;
 
 import "protos/eth/ext/options.proto";
-import "proto/prysm/v1alpha1/node.proto";
-import "proto/prysm/v1alpha1/p2p_messages.proto";
+import "protos/zond/v1alpha1/node.proto";
+import "protos/zond/v1alpha1/p2p_messages.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
-import "proto/prysm/v1alpha1/attestation.proto";
+import "protos/zond/v1alpha1/attestation.proto";
 
 option csharp_namespace = "zond.eth.V1alpha1";
-option go_package = "github.com/theQRL/zond/protos/prysm/v1alpha1;eth";
+option go_package = "github.com/theQRL/zond/protos/zond/v1alpha1;eth";
 option java_multiple_files = true;
 option java_outer_classname = "DebugProto";
 option java_package = "org.zond.eth.v1alpha1";

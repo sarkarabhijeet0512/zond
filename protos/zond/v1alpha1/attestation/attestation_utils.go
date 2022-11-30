@@ -10,11 +10,9 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/prysmaticlabs/go-bitfield"
-	"github.com/theQRL/zond/beacon-chain/core/signing"
 	"github.com/theQRL/zond/config/params"
 	types "github.com/theQRL/zond/consensus-types/primitives"
-	"github.com/theQRL/zond/crypto/bls"
-	ethpb "github.com/theQRL/zond/protos/prysm/v1alpha1"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 	"go.opencensus.io/trace"
 )
 
@@ -100,26 +98,27 @@ func AttestingIndices(bf bitfield.Bitfield, committee []types.ValidatorIndex) ([
 //    domain = get_domain(state, DOMAIN_BEACON_ATTESTER, indexed_attestation.data.target.epoch)
 //    signing_root = compute_signing_root(indexed_attestation.data, domain)
 //    return bls.FastAggregateVerify(pubkeys, signing_root, indexed_attestation.signature)
-func VerifyIndexedAttestationSig(ctx context.Context, indexedAtt *ethpb.IndexedAttestation, pubKeys []bls.PublicKey, domain []byte) error {
-	ctx, span := trace.StartSpan(ctx, "attestationutil.VerifyIndexedAttestationSig")
-	defer span.End()
-	indices := indexedAtt.AttestingIndices
-	messageHash, err := signing.ComputeSigningRoot(indexedAtt.Data, domain)
-	if err != nil {
-		return errors.Wrap(err, "could not get signing root of object")
-	}
+// func VerifyIndexedAttestationSig(ctx context.Context, indexedAtt *ethpb.IndexedAttestation, pubKeys []bls.PublicKey, domain []byte) error {
+// 	ctx, span := trace.StartSpan(ctx, "attestationutil.VerifyIndexedAttestationSig")
+// 	defer span.End()
+// 	// TODO (abhijeet): Replace bls with Dilithium
+// 	// indices := indexedAtt.AttestingIndices
+// 	// messageHash, err := signing.ComputeSigningRoot(indexedAtt.Data, domain)
+// 	// if err != nil {
+// 	// 	return errors.Wrap(err, "could not get signing root of object")
+// 	// }
+// 	// // TODO (abhijeet): Replace bls with Dilithium
+// 	// // sig, err := bls.SignatureFromBytes(indexedAtt.Signature)
+// 	// if err != nil {
+// 	// 	return errors.Wrap(err, "could not convert bytes to signature")
+// 	// }
 
-	sig, err := bls.SignatureFromBytes(indexedAtt.Signature)
-	if err != nil {
-		return errors.Wrap(err, "could not convert bytes to signature")
-	}
-
-	voted := len(indices) > 0
-	if voted && !sig.FastAggregateVerify(pubKeys, messageHash) {
-		return signing.ErrSigFailedToVerify
-	}
-	return nil
-}
+// 	// voted := len(indices) > 0
+// 	// if voted && !sig.FastAggregateVerify(pubKeys, messageHash) {
+// 	// 	return signing.ErrSigFailedToVerify
+// 	// }
+// 	return nil
+// }
 
 // IsValidAttestationIndices this helper function performs the first part of the
 // spec indexed attestation validation starting at Check if ``indexed_attestation``

@@ -3,8 +3,8 @@ package sync_contribution
 import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
-	v2 "github.com/theQRL/zond/protos/prysm/v1alpha1"
-	"github.com/theQRL/zond/protos/prysm/v1alpha1/attestation/aggregation"
+	v2 "github.com/theQRL/zond/protos/zond/v1alpha1"
+	"github.com/theQRL/zond/protos/zond/v1alpha1/attestation/aggregation"
 )
 
 const (

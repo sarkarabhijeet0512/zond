@@ -9,6 +9,6 @@ go_library(
     deps = [
         "//consensus-types/primitives:go_default_library",
         "//protos/engine/v1:go_default_library",
-        "//proto/prysm/v1alpha1:go_default_library",
+        "//protos/zond/v1alpha1:go_default_library",
     ],
 )

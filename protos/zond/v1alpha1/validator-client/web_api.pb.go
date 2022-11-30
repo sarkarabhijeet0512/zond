@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.28.0
 // 	protoc        v3.15.8
-// source: proto/prysm/v1alpha1/validator-client/web_api.proto
+// source: protos/zond/v1alpha1/validator-client/web_api.proto
 
 package validatorpb
 
@@ -12,7 +12,7 @@ import (
 	sync "sync"
 
 	empty "github.com/golang/protobuf/ptypes/empty"
-	v1alpha1 "github.com/theQRL/zond/protos/prysm/v1alpha1"
+	v1alpha1 "github.com/theQRL/zond/protos/zond/v1alpha1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
@@ -2833,7 +2833,7 @@ var _Wallet_serviceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "proto/prysm/v1alpha1/validator-client/web_api.proto",
+	Metadata: "protos/zond/v1alpha1/validator-client/web_api.proto",
 }
 
 // AccountsClient is the client API for Accounts service.
@@ -2977,7 +2977,7 @@ var _Accounts_serviceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "proto/prysm/v1alpha1/validator-client/web_api.proto",
+	Metadata: "protos/zond/v1alpha1/validator-client/web_api.proto",
 }
 
 // BeaconClient is the client API for Beacon service.
@@ -3265,7 +3265,7 @@ var _Beacon_serviceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "proto/prysm/v1alpha1/validator-client/web_api.proto",
+	Metadata: "protos/zond/v1alpha1/validator-client/web_api.proto",
 }
 
 // SlashingProtectionClient is the client API for SlashingProtection service.
@@ -3373,7 +3373,7 @@ var _SlashingProtection_serviceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "proto/prysm/v1alpha1/validator-client/web_api.proto",
+	Metadata: "protos/zond/v1alpha1/validator-client/web_api.proto",
 }
 
 // HealthClient is the client API for Health service.
@@ -3644,7 +3644,7 @@ var _Health_serviceDesc = grpc.ServiceDesc{
 			ServerStreams: true,
 		},
 	},
-	Metadata: "proto/prysm/v1alpha1/validator-client/web_api.proto",
+	Metadata: "protos/zond/v1alpha1/validator-client/web_api.proto",
 }
 
 // AuthClient is the client API for Auth service.
@@ -3716,5 +3716,5 @@ var _Auth_serviceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "proto/prysm/v1alpha1/validator-client/web_api.proto",
+	Metadata: "protos/zond/v1alpha1/validator-client/web_api.proto",
 }
