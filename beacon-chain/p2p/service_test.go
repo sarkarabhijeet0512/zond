@@ -8,8 +8,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ethereum/go-ethereum/p2p/discover"
-	"github.com/ethereum/go-ethereum/p2p/enode"
 	"github.com/libp2p/go-libp2p"
 	"github.com/libp2p/go-libp2p/core/host"
 	"github.com/libp2p/go-libp2p/core/peer"
@@ -26,6 +24,8 @@ import (
 	"github.com/theQRL/zond/config/params"
 	"github.com/theQRL/zond/encoding/bytesutil"
 	"github.com/theQRL/zond/network/forks"
+	"github.com/theQRL/zond/p2p/discover"
+	"github.com/theQRL/zond/p2p/enode"
 	"github.com/theQRL/zond/testing/assert"
 	"github.com/theQRL/zond/testing/require"
 	prysmTime "github.com/theQRL/zond/time"

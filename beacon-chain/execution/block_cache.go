@@ -5,12 +5,12 @@ import (
 	"math/big"
 	"sync"
 
-	"github.com/ethereum/go-ethereum/common"
-	gethTypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/theQRL/zond/beacon-chain/execution/types"
+	"github.com/theQRL/zond/common"
 	"github.com/theQRL/zond/config/params"
+	gethTypes "github.com/theQRL/zond/core/types"
 	"k8s.io/client-go/tools/cache"
 )
 

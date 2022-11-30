@@ -8,18 +8,18 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/hexutil"
-	gethRPC "github.com/ethereum/go-ethereum/rpc"
 	"github.com/holiman/uint256"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	"github.com/theQRL/zond/common"
+	"github.com/theQRL/zond/common/hexutil"
 	fieldparams "github.com/theQRL/zond/config/fieldparams"
 	"github.com/theQRL/zond/config/params"
 	"github.com/theQRL/zond/consensus-types/blocks"
 	"github.com/theQRL/zond/consensus-types/interfaces"
 	"github.com/theQRL/zond/encoding/bytesutil"
 	pb "github.com/theQRL/zond/protos/engine/v1"
+	gethRPC "github.com/theQRL/zond/rpc"
 	"go.opencensus.io/trace"
 )
 

@@ -7,7 +7,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/prysmaticlabs/go-bitfield"
 	logTest "github.com/sirupsen/logrus/hooks/test"
 	mockChain "github.com/theQRL/zond/beacon-chain/blockchain/testing"
@@ -33,6 +32,7 @@ import (
 	"github.com/theQRL/zond/beacon-chain/state"
 	"github.com/theQRL/zond/beacon-chain/state/stategen"
 	mockSync "github.com/theQRL/zond/beacon-chain/sync/initial-sync/testing"
+	"github.com/theQRL/zond/common"
 	fieldparams "github.com/theQRL/zond/config/fieldparams"
 	"github.com/theQRL/zond/config/params"
 	"github.com/theQRL/zond/consensus-types/blocks"

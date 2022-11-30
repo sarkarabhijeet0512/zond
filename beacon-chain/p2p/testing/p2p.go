@@ -9,7 +9,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ethereum/go-ethereum/p2p/enr"
 	pubsub "github.com/libp2p/go-libp2p-pubsub"
 	core "github.com/libp2p/go-libp2p/core"
 	"github.com/libp2p/go-libp2p/core/control"
@@ -25,6 +24,7 @@ import (
 	"github.com/theQRL/zond/beacon-chain/p2p/encoder"
 	"github.com/theQRL/zond/beacon-chain/p2p/peers"
 	"github.com/theQRL/zond/beacon-chain/p2p/peers/scorers"
+	"github.com/theQRL/zond/p2p/enr"
 	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 	"github.com/theQRL/zond/protos/zond/v1alpha1/metadata"
 	"google.golang.org/protobuf/proto"

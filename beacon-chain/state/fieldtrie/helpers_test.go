@@ -7,11 +7,11 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/ethereum/go-ethereum/common/hexutil"
 	customtypes "github.com/theQRL/zond/beacon-chain/state/state-native/custom-types"
 	nativeStateTypes "github.com/theQRL/zond/beacon-chain/state/state-native/types"
 	"github.com/theQRL/zond/beacon-chain/state/stateutil"
 	stateTypes "github.com/theQRL/zond/beacon-chain/state/types"
+	"github.com/theQRL/zond/common/hexutil"
 	fieldparams "github.com/theQRL/zond/config/fieldparams"
 	"github.com/theQRL/zond/config/params"
 	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"

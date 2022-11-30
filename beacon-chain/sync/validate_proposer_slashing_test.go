@@ -8,8 +8,8 @@ import (
 	"testing"
 	"time"
 
-	pubsub "github.com/libp2p/go-libp2p-pubsub"
 	pubsubpb "github.com/libp2p/go-libp2p-pubsub/pb"
+	pubsub "github.com/libp2p/go-libp2p/pubsub"
 	"github.com/prysmaticlabs/go-bitfield"
 	mock "github.com/theQRL/zond/beacon-chain/blockchain/testing"
 	"github.com/theQRL/zond/beacon-chain/core/signing"
@@ -23,7 +23,7 @@ import (
 	"github.com/theQRL/zond/config/params"
 	types "github.com/theQRL/zond/consensus-types/primitives"
 	"github.com/theQRL/zond/crypto/bls"
-	ethpb "github.com/theQRL/zond/proto/prysm/v1alpha1"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 	"github.com/theQRL/zond/testing/assert"
 	"github.com/theQRL/zond/testing/require"
 )

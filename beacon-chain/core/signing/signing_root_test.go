@@ -5,12 +5,12 @@ import (
 	"context"
 	"testing"
 
-	"github.com/ethereum/go-ethereum/common/hexutil"
 	fuzz "github.com/google/gofuzz"
 	"github.com/theQRL/zond/beacon-chain/core/helpers"
 	"github.com/theQRL/zond/beacon-chain/core/signing"
 	"github.com/theQRL/zond/beacon-chain/core/time"
 	"github.com/theQRL/zond/beacon-chain/state"
+	"github.com/theQRL/zond/common/hexutil"
 	fieldparams "github.com/theQRL/zond/config/fieldparams"
 	"github.com/theQRL/zond/config/params"
 	"github.com/theQRL/zond/crypto/bls"

@@ -3,9 +3,9 @@ package execution
 import (
 	"context"
 
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/pkg/errors"
 	"github.com/theQRL/zond/beacon-chain/core/blocks"
+	"github.com/theQRL/zond/common"
 	"github.com/theQRL/zond/config/params"
 	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 )

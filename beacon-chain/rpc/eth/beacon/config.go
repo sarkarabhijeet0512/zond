@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/theQRL/zond/common/hexutil"
 	"github.com/theQRL/zond/config/params"
 	"github.com/theQRL/zond/network/forks"
 	ethpb "github.com/theQRL/zond/protos/eth/v1"

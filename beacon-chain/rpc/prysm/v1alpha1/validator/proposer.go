@@ -7,8 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/hexutil"
 	emptypb "github.com/golang/protobuf/ptypes/empty"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -17,6 +15,8 @@ import (
 	blockfeed "github.com/theQRL/zond/beacon-chain/core/feed/block"
 	"github.com/theQRL/zond/beacon-chain/core/transition"
 	"github.com/theQRL/zond/beacon-chain/db/kv"
+	"github.com/theQRL/zond/common"
+	"github.com/theQRL/zond/common/hexutil"
 	"github.com/theQRL/zond/config/params"
 	"github.com/theQRL/zond/consensus-types/blocks"
 	"github.com/theQRL/zond/consensus-types/interfaces"

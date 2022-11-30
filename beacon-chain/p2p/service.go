@@ -9,8 +9,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ethereum/go-ethereum/p2p/enode"
-	"github.com/ethereum/go-ethereum/p2p/enr"
 	"github.com/libp2p/go-libp2p"
 	pubsub "github.com/libp2p/go-libp2p-pubsub"
 	"github.com/libp2p/go-libp2p/core/host"
@@ -31,6 +29,8 @@ import (
 	"github.com/theQRL/zond/config/params"
 	leakybucket "github.com/theQRL/zond/container/leaky-bucket"
 	prysmnetwork "github.com/theQRL/zond/network"
+	"github.com/theQRL/zond/p2p/enode"
+	"github.com/theQRL/zond/p2p/enr"
 	"github.com/theQRL/zond/protos/zond/v1alpha1/metadata"
 	"github.com/theQRL/zond/runtime"
 	"github.com/theQRL/zond/time/slots"

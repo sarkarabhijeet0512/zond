@@ -6,11 +6,11 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/hexutil"
-	gethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/pkg/errors"
+	"github.com/theQRL/zond/common"
+	"github.com/theQRL/zond/common/hexutil"
 	fieldparams "github.com/theQRL/zond/config/fieldparams"
+	gethtypes "github.com/theQRL/zond/core/types"
 	"github.com/theQRL/zond/encoding/bytesutil"
 )
 

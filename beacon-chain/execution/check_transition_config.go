@@ -7,12 +7,12 @@ import (
 	"math/big"
 	"time"
 
-	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/holiman/uint256"
 	"github.com/sirupsen/logrus"
 	"github.com/theQRL/zond/beacon-chain/core/blocks"
 	"github.com/theQRL/zond/beacon-chain/core/feed"
 	statefeed "github.com/theQRL/zond/beacon-chain/core/feed/state"
+	"github.com/theQRL/zond/common/hexutil"
 	"github.com/theQRL/zond/config/params"
 	"github.com/theQRL/zond/network"
 	pb "github.com/theQRL/zond/protos/engine/v1"

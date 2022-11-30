@@ -9,7 +9,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ethereum/go-ethereum/p2p/discover"
 	pubsub "github.com/libp2p/go-libp2p-pubsub"
 	"github.com/libp2p/go-libp2p/core/host"
 	"github.com/prysmaticlabs/go-bitfield"
@@ -19,6 +18,7 @@ import (
 	p2ptest "github.com/theQRL/zond/beacon-chain/p2p/testing"
 	"github.com/theQRL/zond/consensus-types/wrapper"
 	"github.com/theQRL/zond/encoding/bytesutil"
+	"github.com/theQRL/zond/p2p/discover"
 	testpb "github.com/theQRL/zond/proto/testing"
 	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 	"github.com/theQRL/zond/testing/assert"

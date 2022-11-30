@@ -5,7 +5,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
@@ -15,6 +14,7 @@ import (
 	"github.com/theQRL/zond/beacon-chain/core/time"
 	"github.com/theQRL/zond/beacon-chain/core/transition"
 	"github.com/theQRL/zond/beacon-chain/db/kv"
+	"github.com/theQRL/zond/common"
 	fieldparams "github.com/theQRL/zond/config/fieldparams"
 	"github.com/theQRL/zond/config/params"
 	consensusblocks "github.com/theQRL/zond/consensus-types/blocks"

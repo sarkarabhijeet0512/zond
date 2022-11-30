@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/ethereum/go-ethereum"
-	"github.com/ethereum/go-ethereum/common"
 	logTest "github.com/sirupsen/logrus/hooks/test"
 	"github.com/theQRL/zond/beacon-chain/cache/depositcache"
 	"github.com/theQRL/zond/beacon-chain/core/feed"
@@ -16,6 +15,7 @@ import (
 	"github.com/theQRL/zond/beacon-chain/db"
 	testDB "github.com/theQRL/zond/beacon-chain/db/testing"
 	mockExecution "github.com/theQRL/zond/beacon-chain/execution/testing"
+	"github.com/theQRL/zond/common"
 	"github.com/theQRL/zond/config/params"
 	contracts "github.com/theQRL/zond/contracts/deposit"
 	"github.com/theQRL/zond/contracts/deposit/mock"

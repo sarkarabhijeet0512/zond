@@ -7,10 +7,10 @@ import (
 	"context"
 	"io"
 
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/theQRL/zond/beacon-chain/db/filters"
 	slashertypes "github.com/theQRL/zond/beacon-chain/slasher/types"
 	"github.com/theQRL/zond/beacon-chain/state"
+	"github.com/theQRL/zond/common"
 	"github.com/theQRL/zond/consensus-types/interfaces"
 	types "github.com/theQRL/zond/consensus-types/primitives"
 	"github.com/theQRL/zond/monitoring/backup"

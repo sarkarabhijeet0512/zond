@@ -9,8 +9,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ethereum/go-ethereum/p2p/enode"
-	"github.com/ethereum/go-ethereum/p2p/enr"
 	grpcruntime "github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/libp2p/go-libp2p/core/network"
 	"github.com/libp2p/go-libp2p/core/peer"
@@ -25,6 +23,8 @@ import (
 	syncmock "github.com/theQRL/zond/beacon-chain/sync/initial-sync/testing"
 	types "github.com/theQRL/zond/consensus-types/primitives"
 	"github.com/theQRL/zond/consensus-types/wrapper"
+	"github.com/theQRL/zond/p2p/enode"
+	"github.com/theQRL/zond/p2p/enr"
 	ethpb "github.com/theQRL/zond/protos/eth/v1"
 	pb "github.com/theQRL/zond/protos/zond/v1alpha1"
 	"github.com/theQRL/zond/runtime/version"

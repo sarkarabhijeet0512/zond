@@ -5,9 +5,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/golang/snappy"
 	"github.com/schollz/progressbar/v3"
+	"github.com/theQRL/zond/common/hexutil"
 	"github.com/theQRL/zond/config/features"
 	"github.com/theQRL/zond/encoding/ssz/detect"
 	"github.com/theQRL/zond/monitoring/progress"

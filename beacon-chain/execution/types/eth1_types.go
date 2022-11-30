@@ -4,8 +4,8 @@ import (
 	"errors"
 	"math/big"
 
-	"github.com/ethereum/go-ethereum/common"
-	gethTypes "github.com/ethereum/go-ethereum/core/types"
+	"github.com/theQRL/zond/common"
+	gethTypes "github.com/theQRL/zond/core/types"
 	"github.com/theQRL/zond/encoding/bytesutil"
 )
 

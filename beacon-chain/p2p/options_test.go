@@ -7,15 +7,15 @@ import (
 	"os"
 	"testing"
 
-	gethCrypto "github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/p2p/enode"
-	"github.com/ethereum/go-ethereum/p2p/enr"
 	"github.com/libp2p/go-libp2p"
 	"github.com/libp2p/go-libp2p/core/crypto"
 	mock "github.com/theQRL/zond/beacon-chain/blockchain/testing"
 	"github.com/theQRL/zond/config/params"
+	gethCrypto "github.com/theQRL/zond/crypto"
 	ecdsaprysm "github.com/theQRL/zond/crypto/ecdsa"
 	"github.com/theQRL/zond/network"
+	"github.com/theQRL/zond/p2p/enode"
+	"github.com/theQRL/zond/p2p/enr"
 	"github.com/theQRL/zond/testing/assert"
 	"github.com/theQRL/zond/testing/require"
 )

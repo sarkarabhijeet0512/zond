@@ -6,9 +6,6 @@ import (
 	"net"
 	"time"
 
-	"github.com/ethereum/go-ethereum/p2p/discover"
-	"github.com/ethereum/go-ethereum/p2p/enode"
-	"github.com/ethereum/go-ethereum/p2p/enr"
 	"github.com/libp2p/go-libp2p/core/network"
 	"github.com/libp2p/go-libp2p/core/peer"
 	ma "github.com/multiformats/go-multiaddr"
@@ -17,6 +14,9 @@ import (
 	"github.com/theQRL/zond/beacon-chain/cache"
 	"github.com/theQRL/zond/config/params"
 	ecdsaprysm "github.com/theQRL/zond/crypto/ecdsa"
+	"github.com/theQRL/zond/p2p/discover"
+	"github.com/theQRL/zond/p2p/enode"
+	"github.com/theQRL/zond/p2p/enr"
 	"github.com/theQRL/zond/runtime/version"
 	"github.com/theQRL/zond/time/slots"
 )

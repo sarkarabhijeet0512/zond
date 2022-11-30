@@ -6,7 +6,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ethereum/go-ethereum/p2p/enr"
 	"github.com/libp2p/go-libp2p/core/network"
 	"github.com/libp2p/go-libp2p/core/protocol"
 	mock "github.com/theQRL/zond/beacon-chain/blockchain/testing"
@@ -17,7 +16,8 @@ import (
 	types "github.com/theQRL/zond/consensus-types/primitives"
 	"github.com/theQRL/zond/consensus-types/wrapper"
 	leakybucket "github.com/theQRL/zond/container/leaky-bucket"
-	pb "github.com/theQRL/zond/proto/prysm/v1alpha1"
+	"github.com/theQRL/zond/p2p/enr"
+	pb "github.com/theQRL/zond/protos/zond/v1alpha1"
 	"github.com/theQRL/zond/testing/assert"
 	"github.com/theQRL/zond/testing/require"
 	"github.com/theQRL/zond/testing/util"

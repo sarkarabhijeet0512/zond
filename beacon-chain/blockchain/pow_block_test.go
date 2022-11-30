@@ -6,7 +6,6 @@ import (
 	"math/big"
 	"testing"
 
-	gethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/holiman/uint256"
 	testDB "github.com/theQRL/zond/beacon-chain/db/testing"
 	mocks "github.com/theQRL/zond/beacon-chain/execution/testing"
@@ -14,6 +13,7 @@ import (
 	"github.com/theQRL/zond/beacon-chain/state/stategen"
 	"github.com/theQRL/zond/config/params"
 	"github.com/theQRL/zond/consensus-types/blocks"
+	gethtypes "github.com/theQRL/zond/core/types"
 	"github.com/theQRL/zond/encoding/bytesutil"
 	enginev1 "github.com/theQRL/zond/protos/engine/v1"
 	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"

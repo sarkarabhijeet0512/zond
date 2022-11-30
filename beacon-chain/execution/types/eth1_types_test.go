@@ -5,8 +5,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/ethereum/go-ethereum/common"
-	gethTypes "github.com/ethereum/go-ethereum/core/types"
+	"github.com/theQRL/zond/common"
+	gethTypes "github.com/theQRL/zond/core/types"
 )
 
 func Test_headerToHeaderInfo(t *testing.T) {

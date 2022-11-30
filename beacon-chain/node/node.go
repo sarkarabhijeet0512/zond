@@ -15,7 +15,6 @@ import (
 	"sync"
 	"syscall"
 
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	apigateway "github.com/theQRL/zond/api/gateway"
@@ -51,6 +50,7 @@ import (
 	initialsync "github.com/theQRL/zond/beacon-chain/sync/initial-sync"
 	"github.com/theQRL/zond/cmd"
 	"github.com/theQRL/zond/cmd/beacon-chain/flags"
+	"github.com/theQRL/zond/common"
 	"github.com/theQRL/zond/config/features"
 	"github.com/theQRL/zond/config/params"
 	types "github.com/theQRL/zond/consensus-types/primitives"

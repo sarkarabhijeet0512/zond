@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/ethereum/go-ethereum/common/hexutil"
 	statenative "github.com/theQRL/zond/beacon-chain/state/state-native"
+	"github.com/theQRL/zond/common/hexutil"
 	"github.com/theQRL/zond/container/trie"
 	"github.com/theQRL/zond/testing/require"
 	"github.com/theQRL/zond/testing/util"

@@ -28,7 +28,6 @@ import (
 	"sort"
 	"time"
 
-	"github.com/ethereum/go-ethereum/p2p/enr"
 	"github.com/libp2p/go-libp2p/core/network"
 	"github.com/libp2p/go-libp2p/core/peer"
 	ma "github.com/multiformats/go-multiaddr"
@@ -41,6 +40,7 @@ import (
 	types "github.com/theQRL/zond/consensus-types/primitives"
 	"github.com/theQRL/zond/crypto/rand"
 	pmath "github.com/theQRL/zond/math"
+	"github.com/theQRL/zond/p2p/enr"
 	pb "github.com/theQRL/zond/protos/zond/v1alpha1"
 	"github.com/theQRL/zond/protos/zond/v1alpha1/metadata"
 	prysmTime "github.com/theQRL/zond/time"

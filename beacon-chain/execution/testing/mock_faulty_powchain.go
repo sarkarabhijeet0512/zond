@@ -4,12 +4,12 @@ import (
 	"context"
 	"math/big"
 
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/pkg/errors"
 	"github.com/theQRL/zond/async/event"
 	"github.com/theQRL/zond/beacon-chain/execution/types"
 	"github.com/theQRL/zond/beacon-chain/state"
 	state_native "github.com/theQRL/zond/beacon-chain/state/state-native"
+	"github.com/theQRL/zond/common"
 	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 )
 

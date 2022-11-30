@@ -4,9 +4,9 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/ethereum/go-ethereum/common"
-	gethTypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/theQRL/zond/beacon-chain/execution/types"
+	"github.com/theQRL/zond/common"
+	gethTypes "github.com/theQRL/zond/core/types"
 	"github.com/theQRL/zond/testing/assert"
 	"github.com/theQRL/zond/testing/require"
 )

@@ -11,10 +11,10 @@ import (
 	"github.com/theQRL/zond/beacon-chain/state/stategen"
 	"github.com/theQRL/zond/consensus-types/blocks"
 
-	"github.com/ethereum/go-ethereum/common/hexutil"
 	chainMock "github.com/theQRL/zond/beacon-chain/blockchain/testing"
 	testDB "github.com/theQRL/zond/beacon-chain/db/testing"
 	mockstategen "github.com/theQRL/zond/beacon-chain/state/stategen/mock"
+	"github.com/theQRL/zond/common/hexutil"
 	"github.com/theQRL/zond/config/params"
 	types "github.com/theQRL/zond/consensus-types/primitives"
 	"github.com/theQRL/zond/encoding/bytesutil"

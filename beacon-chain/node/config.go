@@ -3,10 +3,10 @@ package node
 import (
 	"fmt"
 
-	"github.com/ethereum/go-ethereum/common"
 	fastssz "github.com/prysmaticlabs/fastssz"
 	"github.com/theQRL/zond/cmd"
 	"github.com/theQRL/zond/cmd/beacon-chain/flags"
+	"github.com/theQRL/zond/common"
 	"github.com/theQRL/zond/config/features"
 	"github.com/theQRL/zond/config/params"
 	types "github.com/theQRL/zond/consensus-types/primitives"

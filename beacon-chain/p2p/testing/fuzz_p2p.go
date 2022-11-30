@@ -3,7 +3,6 @@ package testing
 import (
 	"context"
 
-	"github.com/ethereum/go-ethereum/p2p/enr"
 	pubsub "github.com/libp2p/go-libp2p-pubsub"
 	"github.com/libp2p/go-libp2p/core/control"
 	"github.com/libp2p/go-libp2p/core/host"
@@ -12,6 +11,7 @@ import (
 	"github.com/multiformats/go-multiaddr"
 	"github.com/theQRL/zond/beacon-chain/p2p/encoder"
 	"github.com/theQRL/zond/beacon-chain/p2p/peers"
+	"github.com/theQRL/zond/p2p/enr"
 	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 	"github.com/theQRL/zond/protos/zond/v1alpha1/metadata"
 	"google.golang.org/protobuf/proto"

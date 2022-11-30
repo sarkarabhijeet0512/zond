@@ -3,10 +3,10 @@ package state_native_test
 import (
 	"testing"
 
-	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/theQRL/zond/beacon-chain/state"
 	statenative "github.com/theQRL/zond/beacon-chain/state/state-native"
 	testtmpl "github.com/theQRL/zond/beacon-chain/state/testing"
+	"github.com/theQRL/zond/common/hexutil"
 	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 	"github.com/theQRL/zond/testing/require"
 	"github.com/theQRL/zond/testing/util"

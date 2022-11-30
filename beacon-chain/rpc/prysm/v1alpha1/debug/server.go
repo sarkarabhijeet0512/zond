@@ -7,7 +7,6 @@ import (
 	"context"
 	"os"
 
-	gethlog "github.com/ethereum/go-ethereum/log"
 	"github.com/golang/protobuf/ptypes/empty"
 	golog "github.com/ipfs/go-log/v2"
 	"github.com/sirupsen/logrus"
@@ -15,6 +14,7 @@ import (
 	"github.com/theQRL/zond/beacon-chain/db"
 	"github.com/theQRL/zond/beacon-chain/p2p"
 	"github.com/theQRL/zond/beacon-chain/state/stategen"
+	gethlog "github.com/theQRL/zond/log"
 	pbrpc "github.com/theQRL/zond/protos/zond/v1alpha1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

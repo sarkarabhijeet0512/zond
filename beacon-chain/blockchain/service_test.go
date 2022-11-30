@@ -7,7 +7,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ethereum/go-ethereum/common"
 	logTest "github.com/sirupsen/logrus/hooks/test"
 	"github.com/theQRL/zond/async/event"
 	mock "github.com/theQRL/zond/beacon-chain/blockchain/testing"
@@ -26,6 +25,7 @@ import (
 	"github.com/theQRL/zond/beacon-chain/p2p"
 	state_native "github.com/theQRL/zond/beacon-chain/state/state-native"
 	"github.com/theQRL/zond/beacon-chain/state/stategen"
+	"github.com/theQRL/zond/common"
 	"github.com/theQRL/zond/config/features"
 	"github.com/theQRL/zond/config/params"
 	consensusblocks "github.com/theQRL/zond/consensus-types/blocks"

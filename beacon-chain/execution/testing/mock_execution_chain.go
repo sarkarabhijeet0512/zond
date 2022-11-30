@@ -9,17 +9,17 @@ import (
 	"net/http/httptest"
 	"time"
 
-	"github.com/ethereum/go-ethereum/accounts/abi/bind/backends"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/hexutil"
-	gethTypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/rpc"
+	"github.com/theQRL/zond/accounts/abi/bind/backends"
 	"github.com/theQRL/zond/async/event"
 	"github.com/theQRL/zond/beacon-chain/execution/types"
 	"github.com/theQRL/zond/beacon-chain/state"
+	"github.com/theQRL/zond/common"
+	"github.com/theQRL/zond/common/hexutil"
 	"github.com/theQRL/zond/config/params"
+	gethTypes "github.com/theQRL/zond/core/types"
 	"github.com/theQRL/zond/encoding/bytesutil"
 	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
+	"github.com/theQRL/zond/rpc"
 )
 
 // Chain defines a properly functioning mock for the powchain service.

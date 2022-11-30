@@ -7,14 +7,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ethereum/go-ethereum/ethclient"
-	gethRPC "github.com/ethereum/go-ethereum/rpc"
 	"github.com/pkg/errors"
 	"github.com/theQRL/zond/config/params"
 	contracts "github.com/theQRL/zond/contracts/deposit"
+	"github.com/theQRL/zond/ethclient"
 	"github.com/theQRL/zond/io/logs"
 	"github.com/theQRL/zond/network"
 	"github.com/theQRL/zond/network/authorization"
+	gethRPC "github.com/theQRL/zond/rpc"
 )
 
 func (s *Service) setupExecutionClientConnections(ctx context.Context, currEndpoint network.Endpoint) error {

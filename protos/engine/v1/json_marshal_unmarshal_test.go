@@ -5,11 +5,11 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/ethereum/go-ethereum/common"
-	gethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/holiman/uint256"
+	"github.com/theQRL/zond/common"
 	fieldparams "github.com/theQRL/zond/config/fieldparams"
 	"github.com/theQRL/zond/config/params"
+	gethtypes "github.com/theQRL/zond/core/types"
 	"github.com/theQRL/zond/encoding/bytesutil"
 	enginev1 "github.com/theQRL/zond/protos/engine/v1"
 	"github.com/theQRL/zond/testing/require"

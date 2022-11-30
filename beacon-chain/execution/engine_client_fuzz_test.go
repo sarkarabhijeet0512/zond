@@ -11,12 +11,12 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/ethereum/go-ethereum/core/beacon"
-	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/pkg/errors"
 	"github.com/theQRL/zond/beacon-chain/execution"
+	"github.com/theQRL/zond/common"
+	"github.com/theQRL/zond/common/hexutil"
+	"github.com/theQRL/zond/core/beacon"
+	"github.com/theQRL/zond/core/types"
 	pb "github.com/theQRL/zond/protos/engine/v1"
 	"github.com/theQRL/zond/testing/assert"
 )

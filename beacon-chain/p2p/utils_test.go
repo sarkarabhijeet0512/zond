@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/p2p/enode"
 	logTest "github.com/sirupsen/logrus/hooks/test"
 	"github.com/theQRL/zond/config/params"
+	"github.com/theQRL/zond/crypto"
+	"github.com/theQRL/zond/p2p/enode"
 	"github.com/theQRL/zond/testing/assert"
 	"github.com/theQRL/zond/testing/require"
 )

@@ -8,10 +8,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ethereum/go-ethereum/common"
 	logTest "github.com/sirupsen/logrus/hooks/test"
 	"github.com/theQRL/zond/cmd"
 	"github.com/theQRL/zond/cmd/beacon-chain/flags"
+	"github.com/theQRL/zond/common"
 	"github.com/theQRL/zond/config/params"
 	types "github.com/theQRL/zond/consensus-types/primitives"
 	"github.com/theQRL/zond/testing/assert"

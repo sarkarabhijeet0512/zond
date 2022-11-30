@@ -6,16 +6,16 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/hexutil"
-	gethTypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/trie"
 	dbutil "github.com/theQRL/zond/beacon-chain/db/testing"
 	mockExecution "github.com/theQRL/zond/beacon-chain/execution/testing"
+	"github.com/theQRL/zond/common"
+	"github.com/theQRL/zond/common/hexutil"
 	contracts "github.com/theQRL/zond/contracts/deposit"
 	"github.com/theQRL/zond/contracts/deposit/mock"
+	gethTypes "github.com/theQRL/zond/core/types"
 	"github.com/theQRL/zond/testing/assert"
 	"github.com/theQRL/zond/testing/require"
+	"github.com/theQRL/zond/trie"
 )
 
 func setDefaultMocks(service *Service) *Service {

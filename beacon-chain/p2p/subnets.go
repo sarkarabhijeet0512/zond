@@ -5,13 +5,13 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/ethereum/go-ethereum/p2p/enode"
-	"github.com/ethereum/go-ethereum/p2p/enr"
 	"github.com/pkg/errors"
 	"github.com/prysmaticlabs/go-bitfield"
 	"github.com/theQRL/zond/cmd/beacon-chain/flags"
 	"github.com/theQRL/zond/consensus-types/wrapper"
 	mathutil "github.com/theQRL/zond/math"
+	"github.com/theQRL/zond/p2p/enode"
+	"github.com/theQRL/zond/p2p/enr"
 	"go.opencensus.io/trace"
 
 	"github.com/theQRL/zond/config/params"
