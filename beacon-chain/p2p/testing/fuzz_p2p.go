@@ -11,7 +11,7 @@ import (
 	"github.com/multiformats/go-multiaddr"
 	"github.com/theQRL/zond/beacon-chain/p2p/encoder"
 	"github.com/theQRL/zond/beacon-chain/p2p/peers"
-	"github.com/theQRL/zond/p2p/enr"
+	"github.com/theQRL/zond/p2p/znr"
 	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 	"github.com/theQRL/zond/protos/zond/v1alpha1/metadata"
 	"google.golang.org/protobuf/proto"
@@ -50,9 +50,9 @@ func (_ *FakeP2P) PeerID() peer.ID {
 	return "fake"
 }
 
-// ENR returns the enr of the local peer.
-func (_ *FakeP2P) ENR() *enr.Record {
-	return new(enr.Record)
+// ZNR returns the znr of the local peer.
+func (_ *FakeP2P) ZNR() *znr.Record {
+	return new(znr.Record)
 }
 
 // DiscoveryAddresses -- fake

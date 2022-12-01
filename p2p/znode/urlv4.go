@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with the go-ethereum library. If not, see <http://www.gnu.org/licenses/>.
 
-package enode
+package znode
 
 import (
 	"crypto/ecdsa"
@@ -26,9 +26,8 @@ import (
 	"regexp"
 	"strconv"
 
-	"github.com/theQRL/zond/common/math"
 	"github.com/theQRL/zond/crypto"
-	"github.com/theQRL/zond/p2p/enr"
+	"github.com/theQRL/zond/p2p/znr"
 )
 
 var (
@@ -83,15 +82,15 @@ func ParseV4(rawurl string) (*Node, error) {
 // NewV4 creates a node from discovery v4 node information. The record
 // contained in the node has a zero-length signature.
 func NewV4(pubkey *ecdsa.PublicKey, ip net.IP, tcp, udp int) *Node {
-	var r enr.Record
+	var r znr.Record
 	if len(ip) > 0 {
-		r.Set(enr.IP(ip))
+		r.Set(znr.IP(ip))
 	}
 	if udp != 0 {
-		r.Set(enr.UDP(udp))
+		r.Set(znr.UDP(udp))
 	}
 	if tcp != 0 {
-		r.Set(enr.TCP(tcp))
+		r.Set(znr.TCP(tcp))
 	}
 	signV4Compat(&r, pubkey)
 	n, err := New(v4CompatID{}, &r)
@@ -168,7 +167,7 @@ func parsePubkey(in string) (*ecdsa.PublicKey, error) {
 
 func (n *Node) URLv4() string {
 	var (
-		scheme enr.ID
+		scheme znr.ID
 		nodeid string
 		key    ecdsa.PublicKey
 	)
@@ -192,12 +191,4 @@ func (n *Node) URLv4() string {
 		}
 	}
 	return u.String()
-}
-
-// PubkeyToIDV4 derives the v4 node address from the given public key.
-func PubkeyToIDV4(key *ecdsa.PublicKey) ID {
-	e := make([]byte, 64)
-	math.ReadBits(key.X, e[:len(e)/2])
-	math.ReadBits(key.Y, e[len(e)/2:])
-	return ID(crypto.Keccak256Hash(e))
 }

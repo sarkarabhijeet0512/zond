@@ -458,8 +458,8 @@ type DebugPeerResponse struct {
 	ConnectionState ConnectionState `protobuf:"varint,3,opt,name=connection_state,json=connectionState,proto3,enum=protos.ConnectionState" json:"connection_state,omitempty"`
 	// Peer ID of peer.
 	PeerId string `protobuf:"bytes,4,opt,name=peer_id,json=peerId,proto3" json:"peer_id,omitempty"`
-	// ENR of peer at the current moment.
-	Enr string `protobuf:"bytes,5,opt,name=enr,proto3" json:"enr,omitempty"`
+	// ZNR of peer at the current moment.
+	Znr string `protobuf:"bytes,5,opt,name=znr,proto3" json:"znr,omitempty"`
 	// Peer Info of the peer containing all relevant metadata.
 	PeerInfo *DebugPeerResponse_PeerInfo `protobuf:"bytes,6,opt,name=peer_info,json=peerInfo,proto3" json:"peer_info,omitempty"`
 	// Peer Status of the peer.
@@ -532,7 +532,7 @@ func (x *DebugPeerResponse) GetPeerId() string {
 
 func (x *DebugPeerResponse) GetEnr() string {
 	if x != nil {
-		return x.Enr
+		return x.Znr
 	}
 	return ""
 }

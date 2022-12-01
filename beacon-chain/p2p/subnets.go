@@ -10,8 +10,8 @@ import (
 	"github.com/theQRL/zond/cmd/beacon-chain/flags"
 	"github.com/theQRL/zond/consensus-types/wrapper"
 	mathutil "github.com/theQRL/zond/math"
-	"github.com/theQRL/zond/p2p/enode"
-	"github.com/theQRL/zond/p2p/enr"
+	"github.com/theQRL/zond/p2p/znode"
+	"github.com/theQRL/zond/p2p/znr"
 	"go.opencensus.io/trace"
 
 	"github.com/theQRL/zond/config/params"
@@ -68,7 +68,7 @@ func (s *Service) FindPeersWithSubnet(ctx context.Context, topic string,
 		if currNum >= threshold {
 			break
 		}
-		nodes := enode.ReadNodes(iterator, int(params.BeaconNetworkConfig().MinimumPeersInSubnetSearch))
+		nodes := znode.ReadNodes(iterator, int(params.BeaconNetworkConfig().MinimumPeersInSubnetSearch))
 		for _, node := range nodes {
 			info, _, err := convertToAddrInfo(node)
 			if err != nil {
@@ -90,8 +90,8 @@ func (s *Service) FindPeersWithSubnet(ctx context.Context, topic string,
 }
 
 // returns a method with filters peers specifically for a particular attestation subnet.
-func (s *Service) filterPeerForAttSubnet(index uint64) func(node *enode.Node) bool {
-	return func(node *enode.Node) bool {
+func (s *Service) filterPeerForAttSubnet(index uint64) func(node *znode.Node) bool {
+	return func(node *znode.Node) bool {
 		if !s.filterPeer(node) {
 			return false
 		}
@@ -111,8 +111,8 @@ func (s *Service) filterPeerForAttSubnet(index uint64) func(node *enode.Node) bo
 }
 
 // returns a method with filters peers specifically for a particular sync subnet.
-func (s *Service) filterPeerForSyncSubnet(index uint64) func(node *enode.Node) bool {
-	return func(node *enode.Node) bool {
+func (s *Service) filterPeerForSyncSubnet(index uint64) func(node *znode.Node) bool {
+	return func(node *znode.Node) bool {
 		if !s.filterPeer(node) {
 			return false
 		}
@@ -146,7 +146,7 @@ func (s *Service) hasPeerWithSubnet(topic string) bool {
 // the node's metadata by increasing the sequence number and the
 // subnets tracked by the node.
 func (s *Service) updateSubnetRecordWithMetadata(bitV bitfield.Bitvector64) {
-	entry := enr.WithEntry(attSubnetEnrKey, &bitV)
+	entry := znr.WithEntry(attSubnetEnrKey, &bitV)
 	s.dv5Listener.LocalNode().Set(entry)
 	s.metaData = wrapper.WrappedMetadataV0(&pb.MetaDataV0{
 		SeqNumber: s.metaData.SequenceNumber() + 1,
@@ -156,11 +156,11 @@ func (s *Service) updateSubnetRecordWithMetadata(bitV bitfield.Bitvector64) {
 
 // Updates the service's discv5 listener record's attestation subnet
 // with a new value for a bitfield of subnets tracked. It also record's
-// the sync committee subnet in the enr. It also updates the node's
+// the sync committee subnet in the znr. It also updates the node's
 // metadata by increasing the sequence number and the subnets tracked by the node.
 func (s *Service) updateSubnetRecordWithMetadataV2(bitVAtt bitfield.Bitvector64, bitVSync bitfield.Bitvector4) {
-	entry := enr.WithEntry(attSubnetEnrKey, &bitVAtt)
-	subEntry := enr.WithEntry(syncCommsSubnetEnrKey, &bitVSync)
+	entry := znr.WithEntry(attSubnetEnrKey, &bitVAtt)
+	subEntry := znr.WithEntry(syncCommsSubnetEnrKey, &bitVSync)
 	s.dv5Listener.LocalNode().Set(entry)
 	s.dv5Listener.LocalNode().Set(subEntry)
 	s.metaData = wrapper.WrappedMetadataV1(&pb.MetaDataV1{
@@ -171,26 +171,26 @@ func (s *Service) updateSubnetRecordWithMetadataV2(bitVAtt bitfield.Bitvector64,
 }
 
 // Initializes a bitvector of attestation subnets beacon nodes is subscribed to
-// and creates a new ENR entry with its default value.
-func initializeAttSubnets(node *enode.LocalNode) *enode.LocalNode {
+// and creates a new ZNR entry with its default value.
+func initializeAttSubnets(node *znode.LocalNode) *znode.LocalNode {
 	bitV := bitfield.NewBitvector64()
-	entry := enr.WithEntry(attSubnetEnrKey, bitV.Bytes())
+	entry := znr.WithEntry(attSubnetEnrKey, bitV.Bytes())
 	node.Set(entry)
 	return node
 }
 
 // Initializes a bitvector of sync committees subnets beacon nodes is subscribed to
-// and creates a new ENR entry with its default value.
-func initializeSyncCommSubnets(node *enode.LocalNode) *enode.LocalNode {
+// and creates a new ZNR entry with its default value.
+func initializeSyncCommSubnets(node *znode.LocalNode) *znode.LocalNode {
 	bitV := bitfield.Bitvector4{byte(0x00)}
-	entry := enr.WithEntry(syncCommsSubnetEnrKey, bitV.Bytes())
+	entry := znr.WithEntry(syncCommsSubnetEnrKey, bitV.Bytes())
 	node.Set(entry)
 	return node
 }
 
-// Reads the attestation subnets entry from a node's ENR and determines
+// Reads the attestation subnets entry from a node's ZNR and determines
 // the committee indices of the attestation subnets the node is subscribed to.
-func attSubnets(record *enr.Record) ([]uint64, error) {
+func attSubnets(record *znr.Record) ([]uint64, error) {
 	bitV, err := attBitvector(record)
 	if err != nil {
 		return nil, err
@@ -208,9 +208,9 @@ func attSubnets(record *enr.Record) ([]uint64, error) {
 	return committeeIdxs, nil
 }
 
-// Reads the sync subnets entry from a node's ENR and determines
+// Reads the sync subnets entry from a node's ZNR and determines
 // the committee indices of the sync subnets the node is subscribed to.
-func syncSubnets(record *enr.Record) ([]uint64, error) {
+func syncSubnets(record *znr.Record) ([]uint64, error) {
 	bitV, err := syncBitvector(record)
 	if err != nil {
 		return nil, err
@@ -228,11 +228,11 @@ func syncSubnets(record *enr.Record) ([]uint64, error) {
 	return committeeIdxs, nil
 }
 
-// Parses the attestation subnets ENR entry in a node and extracts its value
+// Parses the attestation subnets ZNR entry in a node and extracts its value
 // as a bitvector for further manipulation.
-func attBitvector(record *enr.Record) (bitfield.Bitvector64, error) {
+func attBitvector(record *znr.Record) (bitfield.Bitvector64, error) {
 	bitV := bitfield.NewBitvector64()
-	entry := enr.WithEntry(attSubnetEnrKey, &bitV)
+	entry := znr.WithEntry(attSubnetEnrKey, &bitV)
 	err := record.Load(entry)
 	if err != nil {
 		return nil, err
@@ -240,11 +240,11 @@ func attBitvector(record *enr.Record) (bitfield.Bitvector64, error) {
 	return bitV, nil
 }
 
-// Parses the attestation subnets ENR entry in a node and extracts its value
+// Parses the attestation subnets ZNR entry in a node and extracts its value
 // as a bitvector for further manipulation.
-func syncBitvector(record *enr.Record) (bitfield.Bitvector4, error) {
+func syncBitvector(record *znr.Record) (bitfield.Bitvector4, error) {
 	bitV := bitfield.Bitvector4{byte(0x00)}
-	entry := enr.WithEntry(syncCommsSubnetEnrKey, &bitV)
+	entry := znr.WithEntry(syncCommsSubnetEnrKey, &bitV)
 	err := record.Load(entry)
 	if err != nil {
 		return nil, err

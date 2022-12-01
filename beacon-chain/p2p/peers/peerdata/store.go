@@ -9,7 +9,7 @@ import (
 	"github.com/libp2p/go-libp2p/core/network"
 	"github.com/libp2p/go-libp2p/core/peer"
 	ma "github.com/multiformats/go-multiaddr"
-	"github.com/theQRL/zond/p2p/enr"
+	"github.com/theQRL/zond/p2p/znr"
 	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 	"github.com/theQRL/zond/protos/zond/v1alpha1/metadata"
 )
@@ -49,7 +49,7 @@ type PeerData struct {
 	Address       ma.Multiaddr
 	Direction     network.Direction
 	ConnState     PeerConnectionState
-	Enr           *enr.Record
+	Znr           *znr.Record
 	NextValidTime time.Time
 	// Chain related data.
 	MetaData                  metadata.Metadata

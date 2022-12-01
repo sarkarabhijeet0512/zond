@@ -445,7 +445,7 @@ type Peer struct {
 	Direction       PeerDirection   `protobuf:"varint,2,opt,name=direction,proto3,enum=zond.eth.v1alpha1.PeerDirection" json:"direction,omitempty"`
 	ConnectionState ConnectionState `protobuf:"varint,3,opt,name=connection_state,json=connectionState,proto3,enum=zond.eth.v1alpha1.ConnectionState" json:"connection_state,omitempty"`
 	PeerId          string          `protobuf:"bytes,4,opt,name=peer_id,json=peerId,proto3" json:"peer_id,omitempty"`
-	Enr             string          `protobuf:"bytes,5,opt,name=enr,proto3" json:"enr,omitempty"`
+	Znr             string          `protobuf:"bytes,5,opt,name=znr,proto3" json:"znr,omitempty"`
 }
 
 func (x *Peer) Reset() {
@@ -510,7 +510,7 @@ func (x *Peer) GetPeerId() string {
 
 func (x *Peer) GetEnr() string {
 	if x != nil {
-		return x.Enr
+		return x.Znr
 	}
 	return ""
 }
@@ -522,7 +522,7 @@ type HostData struct {
 
 	Addresses []string `protobuf:"bytes,1,rep,name=addresses,proto3" json:"addresses,omitempty"`
 	PeerId    string   `protobuf:"bytes,2,opt,name=peer_id,json=peerId,proto3" json:"peer_id,omitempty"`
-	Enr       string   `protobuf:"bytes,3,opt,name=enr,proto3" json:"enr,omitempty"`
+	Znr       string   `protobuf:"bytes,3,opt,name=znr,proto3" json:"znr,omitempty"`
 }
 
 func (x *HostData) Reset() {
@@ -573,7 +573,7 @@ func (x *HostData) GetPeerId() string {
 
 func (x *HostData) GetEnr() string {
 	if x != nil {
-		return x.Enr
+		return x.Znr
 	}
 	return ""
 }

@@ -57,15 +57,15 @@ func (ds *Server) getPeer(pid peer.ID) (*ethpb.DebugPeerResponse, error) {
 	if err != nil {
 		return nil, status.Errorf(codes.NotFound, "Requested peer does not exist: %v", err)
 	}
-	record, err := peers.ENR(pid)
+	record, err := peers.ZNR(pid)
 	if err != nil {
 		return nil, status.Errorf(codes.NotFound, "Requested peer does not exist: %v", err)
 	}
-	enr := ""
+	znr := ""
 	if record != nil {
-		enr, err = p2p.SerializeENR(record)
+		znr, err = p2p.SerializeZNR(record)
 		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Unable to serialize enr: %v", err)
+			return nil, status.Errorf(codes.Internal, "Unable to serialize znr: %v", err)
 		}
 	}
 	metadata, err := peers.Metadata(pid)
@@ -150,7 +150,7 @@ func (ds *Server) getPeer(pid peer.ID) (*ethpb.DebugPeerResponse, error) {
 		Direction:          pbDirection,
 		ConnectionState:    ethpb.ConnectionState(connState),
 		PeerId:             pid.String(),
-		Enr:                enr,
+		Znr:                znr,
 		PeerInfo:           peerInfo,
 		PeerStatus:         pStatus,
 		LastUpdated:        unixTime,

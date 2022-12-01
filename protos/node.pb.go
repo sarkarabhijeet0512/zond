@@ -474,8 +474,8 @@ type Peer struct {
 	ConnectionState ConnectionState `protobuf:"varint,3,opt,name=connection_state,json=connectionState,proto3,enum=protos.ConnectionState" json:"connection_state,omitempty"`
 	// The peer id of the peer.
 	PeerId string `protobuf:"bytes,4,opt,name=peer_id,json=peerId,proto3" json:"peer_id,omitempty"`
-	// The latest ENR of the peer that's in the record.
-	Enr string `protobuf:"bytes,5,opt,name=enr,proto3" json:"enr,omitempty"`
+	// The latest ZNR of the peer that's in the record.
+	Znr string `protobuf:"bytes,5,opt,name=znr,proto3" json:"znr,omitempty"`
 }
 
 func (x *Peer) Reset() {
@@ -540,7 +540,7 @@ func (x *Peer) GetPeerId() string {
 
 func (x *Peer) GetEnr() string {
 	if x != nil {
-		return x.Enr
+		return x.Znr
 	}
 	return ""
 }
@@ -556,8 +556,8 @@ type HostData struct {
 	Addresses []string `protobuf:"bytes,1,rep,name=addresses,proto3" json:"addresses,omitempty"`
 	// The peer id of the peer.
 	PeerId string `protobuf:"bytes,2,opt,name=peer_id,json=peerId,proto3" json:"peer_id,omitempty"`
-	// The latest ENR of the local peer.
-	Enr string `protobuf:"bytes,3,opt,name=enr,proto3" json:"enr,omitempty"`
+	// The latest ZNR of the local peer.
+	Znr string `protobuf:"bytes,3,opt,name=znr,proto3" json:"znr,omitempty"`
 }
 
 func (x *HostData) Reset() {
@@ -608,7 +608,7 @@ func (x *HostData) GetPeerId() string {
 
 func (x *HostData) GetEnr() string {
 	if x != nil {
-		return x.Enr
+		return x.Znr
 	}
 	return ""
 }

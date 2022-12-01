@@ -24,7 +24,7 @@ import (
 	"github.com/theQRL/zond/beacon-chain/p2p/encoder"
 	"github.com/theQRL/zond/beacon-chain/p2p/peers"
 	"github.com/theQRL/zond/beacon-chain/p2p/peers/scorers"
-	"github.com/theQRL/zond/p2p/enr"
+	"github.com/theQRL/zond/p2p/znr"
 	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 	"github.com/theQRL/zond/protos/zond/v1alpha1/metadata"
 	"google.golang.org/protobuf/proto"
@@ -251,9 +251,9 @@ func (p *TestP2P) Host() host.Host {
 	return p.BHost
 }
 
-// ENR returns the enr of the local peer.
-func (_ *TestP2P) ENR() *enr.Record {
-	return new(enr.Record)
+// ZNR returns the znr of the local peer.
+func (_ *TestP2P) ZNR() *znr.Record {
+	return new(znr.Record)
 }
 
 // DiscoveryAddresses --
@@ -267,7 +267,7 @@ func (p *TestP2P) AddConnectionHandler(f, _ func(ctx context.Context, id peer.ID
 		ConnectedF: func(net network.Network, conn network.Conn) {
 			// Must be handled in a goroutine as this callback cannot be blocking.
 			go func() {
-				p.peers.Add(new(enr.Record), conn.RemotePeer(), conn.RemoteMultiaddr(), conn.Stat().Direction)
+				p.peers.Add(new(znr.Record), conn.RemotePeer(), conn.RemoteMultiaddr(), conn.Stat().Direction)
 				ctx := context.Background()
 
 				p.peers.SetConnectionState(conn.RemotePeer(), peers.PeerConnecting)

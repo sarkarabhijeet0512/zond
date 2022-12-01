@@ -29,8 +29,8 @@ import (
 	"github.com/theQRL/zond/config/params"
 	leakybucket "github.com/theQRL/zond/container/leaky-bucket"
 	prysmnetwork "github.com/theQRL/zond/network"
-	"github.com/theQRL/zond/p2p/enode"
-	"github.com/theQRL/zond/p2p/enr"
+	"github.com/theQRL/zond/p2p/znode"
+	"github.com/theQRL/zond/p2p/znr"
 	"github.com/theQRL/zond/protos/zond/v1alpha1/metadata"
 	"github.com/theQRL/zond/runtime"
 	"github.com/theQRL/zond/time/slots"
@@ -45,7 +45,7 @@ var _ runtime.Service = (*Service)(nil)
 // defined below.
 var pollingPeriod = 6 * time.Second
 
-// Refresh rate of ENR set at twice per slot.
+// Refresh rate of ZNR set at twice per slot.
 var refreshRate = slots.DivideSlotBy(2)
 
 // maxBadResponses is the maximum number of bad responses from a peer before we stop talking to it.
@@ -334,15 +334,15 @@ func (s *Service) Peers() *peers.Status {
 	return s.peers
 }
 
-// ENR returns the local node's current ENR.
-func (s *Service) ENR() *enr.Record {
+// ZNR returns the local node's current ZNR.
+func (s *Service) ZNR() *znr.Record {
 	if s.dv5Listener == nil {
 		return nil
 	}
 	return s.dv5Listener.Self().Record()
 }
 
-// DiscoveryAddresses represents our enr addresses as multiaddresses.
+// DiscoveryAddresses represents our znr addresses as multiaddresses.
 func (s *Service) DiscoveryAddresses() ([]multiaddr.Multiaddr, error) {
 	if s.dv5Listener == nil {
 		return nil, nil
@@ -361,7 +361,7 @@ func (s *Service) MetadataSeq() uint64 {
 }
 
 // AddPingMethod adds the metadata ping rpc method to the p2p service, so that it can
-// be used to refresh ENR.
+// be used to refresh ZNR.
 func (s *Service) AddPingMethod(reqFunc func(ctx context.Context, id peer.ID) error) {
 	s.pingMethod = reqFunc
 }
@@ -456,15 +456,15 @@ func (s *Service) connectWithPeer(ctx context.Context, info peer.AddrInfo) error
 }
 
 func (s *Service) connectToBootnodes() error {
-	nodes := make([]*enode.Node, 0, len(s.cfg.Discv5BootStrapAddr))
+	nodes := make([]*znode.Node, 0, len(s.cfg.Discv5BootStrapAddr))
 	for _, addr := range s.cfg.Discv5BootStrapAddr {
-		bootNode, err := enode.Parse(enode.ValidSchemes, addr)
+		bootNode, err := znode.Parse(znode.ValidSchemes, addr)
 		if err != nil {
 			return err
 		}
 		// do not dial bootnodes with their tcp ports not set
-		if err := bootNode.Record().Load(enr.WithEntry("tcp", new(enr.TCP))); err != nil {
-			if !enr.IsNotFound(err) {
+		if err := bootNode.Record().Load(znr.WithEntry("tcp", new(znr.TCP))); err != nil {
+			if !znr.IsNotFound(err) {
 				log.WithError(err).Error("Could not retrieve tcp port")
 			}
 			continue

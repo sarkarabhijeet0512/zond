@@ -11,7 +11,7 @@ import (
 	"github.com/multiformats/go-multiaddr"
 	"github.com/theQRL/zond/beacon-chain/p2p/encoder"
 	"github.com/theQRL/zond/beacon-chain/p2p/peers"
-	"github.com/theQRL/zond/p2p/enr"
+	"github.com/theQRL/zond/p2p/znr"
 	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 	"github.com/theQRL/zond/protos/zond/v1alpha1/metadata"
 	"google.golang.org/protobuf/proto"
@@ -79,7 +79,7 @@ type PeerManager interface {
 	Disconnect(peer.ID) error
 	PeerID() peer.ID
 	Host() host.Host
-	ENR() *enr.Record
+	ZNR() *znr.Record
 	DiscoveryAddresses() ([]multiaddr.Multiaddr, error)
 	RefreshENR()
 	FindPeersWithSubnet(ctx context.Context, topic string, subIndex uint64, threshold int) (bool, error)

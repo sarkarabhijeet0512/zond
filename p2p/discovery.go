@@ -188,7 +188,7 @@ func (s *Server) createLocalNode(
 
 	// localNode, err = addForkEntry(localNode, s.genesisTime, s.genesisValidatorsRoot)
 	// if err != nil {
-	// 	return nil, errors.Wrap(err, "could not add eth2 fork version entry to enr")
+	// 	return nil, errors.Wrap(err, "could not add eth2 fork version entry to znr")
 	// }
 	// localNode = initializeAttSubnets(localNode)
 	// return initializeSyncCommSubnets(localNode), nil
@@ -213,11 +213,11 @@ func (s *Server) startDiscoveryV5(
 // Validity Conditions:
 //  1. The local node is still actively looking for peers to
 //     connect to.
-//  2. Peer has a valid IP and TCP port set in their enr.
+//  2. Peer has a valid IP and TCP port set in their znr.
 //  3. Peer hasn't been marked as 'bad'
 //  4. Peer is not currently active or connected.
 //  5. Peer is ready to receive incoming connections.
-//  6. Peer's fork digest in their ENR matches that of
+//  6. Peer's fork digest in their ZNR matches that of
 //     our localnodes.
 func (s *Server) filterPeer(node *znode.Node) bool {
 	// Ignore nil node entries passed in.
@@ -254,10 +254,10 @@ func (s *Server) filterPeer(node *znode.Node) bool {
 	}
 	nodeZNR := node.Record()
 	// Decide whether or not to connect to peer that does not
-	// match the proper fork ENR data with our local node.
+	// match the proper fork ZNR data with our local node.
 	// if s.genesisValidatorsRoot != nil {
 	// 	if err := s.compareForkENR(nodeENR); err != nil {
-	// 		log.WithError(err).Trace("Fork ENR mismatches between peer and local node")
+	// 		log.WithError(err).Trace("Fork ZNR mismatches between peer and local node")
 	// 		return false
 	// 	}
 	// }

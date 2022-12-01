@@ -143,8 +143,8 @@ message Peer {
     ConnectionState connection_state = 3;
     // The peer id of the peer.
     string peer_id = 4;
-    // The latest ENR of the peer that's in the record.
-    string enr = 5;
+    // The latest ZNR of the peer that's in the record.
+    string znr = 5;
 }
 
 // P2P Data on the local host.
@@ -154,8 +154,8 @@ message HostData {
     repeated string addresses = 1;
     // The peer id of the peer.
     string peer_id = 2;
-    // The latest ENR of the local peer.
-    string enr = 3;
+    // The latest ZNR of the local peer.
+    string znr = 3;
 }
 
 // PeerDirection states the direction of the connection to a peer.

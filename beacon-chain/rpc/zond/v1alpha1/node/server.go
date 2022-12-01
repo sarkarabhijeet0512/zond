@@ -106,20 +106,20 @@ func (ns *Server) GetHost(_ context.Context, _ *empty.Empty) (*ethpb.HostData, e
 	for _, addr := range ns.PeerManager.Host().Addrs() {
 		stringAddr = append(stringAddr, addr.String())
 	}
-	record := ns.PeerManager.ENR()
-	enr := ""
+	record := ns.PeerManager.ZNR()
+	znr := ""
 	var err error
 	if record != nil {
-		enr, err = p2p.SerializeENR(record)
+		znr, err = p2p.SerializeZNR(record)
 		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Unable to serialize enr: %v", err)
+			return nil, status.Errorf(codes.Internal, "Unable to serialize znr: %v", err)
 		}
 	}
 
 	return &ethpb.HostData{
 		Addresses: stringAddr,
 		PeerId:    ns.PeerManager.PeerID().String(),
-		Enr:       enr,
+		Znr:       znr,
 	}, nil
 }
 
@@ -148,15 +148,15 @@ func (ns *Server) GetPeer(_ context.Context, peerReq *ethpb.PeerRequest) (*ethpb
 	if err != nil {
 		return nil, status.Errorf(codes.NotFound, "Requested peer does not exist: %v", err)
 	}
-	record, err := ns.PeersFetcher.Peers().ENR(pid)
+	record, err := ns.PeersFetcher.Peers().ZNR(pid)
 	if err != nil {
 		return nil, status.Errorf(codes.NotFound, "Requested peer does not exist: %v", err)
 	}
-	enr := ""
+	znr := ""
 	if record != nil {
-		enr, err = p2p.SerializeENR(record)
+		znr, err = p2p.SerializeZNR(record)
 		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Unable to serialize enr: %v", err)
+			return nil, status.Errorf(codes.Internal, "Unable to serialize znr: %v", err)
 		}
 	}
 	return &ethpb.Peer{
@@ -164,7 +164,7 @@ func (ns *Server) GetPeer(_ context.Context, peerReq *ethpb.PeerRequest) (*ethpb
 		Direction:       pbDirection,
 		ConnectionState: ethpb.ConnectionState(connState),
 		PeerId:          peerReq.PeerId,
-		Enr:             enr,
+		Znr:             znr,
 	}, nil
 }
 
@@ -184,13 +184,13 @@ func (ns *Server) ListPeers(ctx context.Context, _ *empty.Empty) (*ethpb.Peers, 
 		if err != nil {
 			continue
 		}
-		record, err := ns.PeersFetcher.Peers().ENR(pid)
+		record, err := ns.PeersFetcher.Peers().ZNR(pid)
 		if err != nil {
 			continue
 		}
-		enr := ""
+		znr := ""
 		if record != nil {
-			enr, err = p2p.SerializeENR(record)
+			znr, err = p2p.SerializeZNR(record)
 			if err != nil {
 				continue
 			}
@@ -212,7 +212,7 @@ func (ns *Server) ListPeers(ctx context.Context, _ *empty.Empty) (*ethpb.Peers, 
 			Direction:       pbDirection,
 			ConnectionState: ethpb.ConnectionState_CONNECTED,
 			PeerId:          pid.String(),
-			Enr:             enr,
+			Znr:             znr,
 		})
 	}
 

@@ -17,7 +17,7 @@ func (s *Service) forkWatcher() {
 			currEpoch := slots.ToEpoch(currSlot)
 			if currEpoch == params.BeaconConfig().AltairForkEpoch ||
 				currEpoch == params.BeaconConfig().BellatrixForkEpoch {
-				// If we are in the fork epoch, we update our enr with
+				// If we are in the fork epoch, we update our znr with
 				// the updated fork digest. These repeatedly does
 				// this over the epoch, which might be slightly wasteful
 				// but is fine nonetheless.

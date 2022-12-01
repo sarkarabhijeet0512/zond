@@ -9,14 +9,14 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/theQRL/zond/config/params"
 	"github.com/theQRL/zond/network/forks"
-	"github.com/theQRL/zond/p2p/enode"
-	"github.com/theQRL/zond/p2p/enr"
+	"github.com/theQRL/zond/p2p/znode"
+	"github.com/theQRL/zond/p2p/znr"
 	pb "github.com/theQRL/zond/protos/zond/v1alpha1"
 	prysmTime "github.com/theQRL/zond/time"
 	"github.com/theQRL/zond/time/slots"
 )
 
-// ENR key used for Ethereum consensus-related fork data.
+// ZNR key used for Ethereum consensus-related fork data.
 var eth2ENRKey = params.BeaconNetworkConfig().ETH2Key
 
 // ForkDigest returns the current fork digest of
@@ -30,7 +30,7 @@ func (s *Service) currentForkDigest() ([4]byte, error) {
 
 // Compares fork ENRs between an incoming peer's record and our node's
 // local record values for current and next fork version/epoch.
-func (s *Service) compareForkENR(record *enr.Record) error {
+func (s *Service) compareForkENR(record *znr.Record) error {
 	currentRecord := s.dv5Listener.LocalNode().Node().Record()
 	peerForkENR, err := forkEntry(record)
 	if err != nil {
@@ -40,7 +40,7 @@ func (s *Service) compareForkENR(record *enr.Record) error {
 	if err != nil {
 		return err
 	}
-	enrString, err := SerializeENR(record)
+	enrString, err := SerializeZNR(record)
 	if err != nil {
 		return err
 	}
@@ -48,7 +48,7 @@ func (s *Service) compareForkENR(record *enr.Record) error {
 	// and next_fork_epoch that match local values.
 	if !bytes.Equal(peerForkENR.CurrentForkDigest, currentForkENR.CurrentForkDigest) {
 		return fmt.Errorf(
-			"fork digest of peer with ENR %s: %v, does not match local value: %v",
+			"fork digest of peer with ZNR %s: %v, does not match local value: %v",
 			enrString,
 			peerForkENR.CurrentForkDigest,
 			currentForkENR.CurrentForkDigest,
@@ -74,16 +74,16 @@ func (s *Service) compareForkENR(record *enr.Record) error {
 	return nil
 }
 
-// Adds a fork entry as an ENR record under the Ethereum consensus EnrKey for
+// Adds a fork entry as an ZNR record under the Ethereum consensus EnrKey for
 // the local node. The fork entry is an ssz-encoded enrForkID type
 // which takes into account the current fork version from the current
 // epoch to create a fork digest, the next fork version,
 // and the next fork epoch.
 func addForkEntry(
-	node *enode.LocalNode,
+	node *znode.LocalNode,
 	genesisTime time.Time,
 	genesisValidatorsRoot []byte,
-) (*enode.LocalNode, error) {
+) (*znode.LocalNode, error) {
 	digest, err := forks.CreateForkDigest(genesisTime, genesisValidatorsRoot)
 	if err != nil {
 		return nil, err
@@ -106,16 +106,16 @@ func addForkEntry(
 	if err != nil {
 		return nil, err
 	}
-	forkEntry := enr.WithEntry(eth2ENRKey, enc)
+	forkEntry := znr.WithEntry(eth2ENRKey, enc)
 	node.Set(forkEntry)
 	return node, nil
 }
 
-// Retrieves an enrForkID from an ENR record by key lookup
+// Retrieves an enrForkID from an ZNR record by key lookup
 // under the Ethereum consensus EnrKey
-func forkEntry(record *enr.Record) (*pb.ENRForkID, error) {
+func forkEntry(record *znr.Record) (*pb.ENRForkID, error) {
 	sszEncodedForkEntry := make([]byte, 16)
-	entry := enr.WithEntry(eth2ENRKey, &sszEncodedForkEntry)
+	entry := znr.WithEntry(eth2ENRKey, &sszEncodedForkEntry)
 	err := record.Load(entry)
 	if err != nil {
 		return nil, err

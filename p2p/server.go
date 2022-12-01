@@ -25,7 +25,6 @@ import (
 	"github.com/theQRL/zond/metadata"
 	"github.com/theQRL/zond/misc"
 	"github.com/theQRL/zond/ntp"
-	"github.com/theQRL/zond/p2p/enode"
 	"github.com/theQRL/zond/p2p/messages"
 	"github.com/theQRL/zond/p2p/peers"
 	"github.com/theQRL/zond/p2p/peers/scorers"
@@ -74,7 +73,7 @@ type Server struct {
 	totalConnections uint16
 	peers            *peers.Status
 	privateKey       *ecdsa.PrivateKey
-	localnode        *enode.LocalNode
+	localnode        *znode.LocalNode
 
 	listener     net.Listener
 	dv5Listener  Listener
@@ -843,7 +842,7 @@ func (srv *Server) NodeInfo() *NodeInfo {
 	node := srv.Self()
 	info := &NodeInfo{
 		// Name:       srv.Name,
-		Enode: node.URLv4(),
+		Znode: node.URLv4(),
 		ID:    node.ID().String(),
 		IP:    node.IP().String(),
 		// ListenAddr: srv.ListenAddr,
@@ -851,7 +850,7 @@ func (srv *Server) NodeInfo() *NodeInfo {
 	}
 	info.Ports.Discovery = node.UDP()
 	info.Ports.Listener = node.TCP()
-	info.ENR = node.String()
+	info.ZNR = node.String()
 
 	// Gather all the running protocol infos (only once per protocol type)
 	// for _, proto := range srv.Protocols {
@@ -869,8 +868,8 @@ func (srv *Server) NodeInfo() *NodeInfo {
 type NodeInfo struct {
 	ID    string `json:"id"`    // Unique node identifier (also the encryption key)
 	Name  string `json:"name"`  // Name of the node, including client type, version, OS, custom data
-	Enode string `json:"enode"` // Enode URL for adding this peer from remote peers
-	ENR   string `json:"enr"`   // Ethereum Node Record
+	Znode string `json:"znode"` // Znode URL for adding this peer from remote peers
+	ZNR   string `json:"znr"`   // Ethereum Node Record
 	IP    string `json:"ip"`    // IP address of the node
 	Ports struct {
 		Discovery int `json:"discovery"` // UDP listening port for discovery protocol
@@ -881,13 +880,13 @@ type NodeInfo struct {
 }
 
 // Self returns the local node's endpoint information.
-func (srv *Server) Self() *enode.Node {
+func (srv *Server) Self() *znode.Node {
 	srv.lock.Lock()
 	ln := srv.localnode
 	srv.lock.Unlock()
 
 	if ln == nil {
-		// return enode.NewV4(&srv.PrivateKey.PublicKey, net.ParseIP("0.0.0.0"), 0, 0)
+		// return znode.NewV4(&srv.PrivateKey.PublicKey, net.ParseIP("0.0.0.0"), 0, 0)
 	}
 	return ln.Node()
 }

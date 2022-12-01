@@ -11,8 +11,8 @@ import (
 	"github.com/theQRL/zond/beacon-chain/p2p/peers"
 	"github.com/theQRL/zond/beacon-chain/p2p/peers/scorers"
 	"github.com/theQRL/zond/crypto"
-	"github.com/theQRL/zond/p2p/enode"
-	"github.com/theQRL/zond/p2p/enr"
+	"github.com/theQRL/zond/p2p/znode"
+	"github.com/theQRL/zond/p2p/znr"
 	pb "github.com/theQRL/zond/protos/zond/v1alpha1"
 )
 
@@ -76,15 +76,15 @@ func (m *MockPeersProvider) Peers() *peers.Status {
 	return m.peers
 }
 
-func createENR() *enr.Record {
+func createENR() *znr.Record {
 	key, err := crypto.GenerateKey()
 	if err != nil {
 		log.Error(err)
 	}
-	db, err := enode.OpenDB("")
+	db, err := znode.OpenDB("")
 	if err != nil {
 		log.Error("could not open node's peer database")
 	}
-	lNode := enode.NewLocalNode(db, key)
+	lNode := znode.NewLocalNode(db, key)
 	return lNode.Node().Record()
 }

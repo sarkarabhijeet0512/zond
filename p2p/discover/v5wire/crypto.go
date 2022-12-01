@@ -72,7 +72,7 @@ func makeIDSignature(hash hash.Hash, key *ecdsa.PrivateKey, challenge, ephkey []
 	}
 }
 
-// s256raw is an unparsed secp256k1 public key ENR entry.
+// s256raw is an unparsed secp256k1 public key ZNR entry.
 type s256raw []byte
 
 func (s256raw) ZNRKey() string { return "secp256k1" }

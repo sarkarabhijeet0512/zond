@@ -15,8 +15,8 @@ import (
 	"github.com/theQRL/zond/config/params"
 	ecdsaprysm "github.com/theQRL/zond/crypto/ecdsa"
 	"github.com/theQRL/zond/p2p/discover"
-	"github.com/theQRL/zond/p2p/enode"
-	"github.com/theQRL/zond/p2p/enr"
+	"github.com/theQRL/zond/p2p/znode"
+	"github.com/theQRL/zond/p2p/znr"
 	"github.com/theQRL/zond/runtime/version"
 	"github.com/theQRL/zond/time/slots"
 )
@@ -24,17 +24,17 @@ import (
 // Listener defines the discovery V5 network interface that is used
 // to communicate with other peers.
 type Listener interface {
-	Self() *enode.Node
+	Self() *znode.Node
 	Close()
-	Lookup(enode.ID) []*enode.Node
-	Resolve(*enode.Node) *enode.Node
-	RandomNodes() enode.Iterator
-	Ping(*enode.Node) error
-	RequestENR(*enode.Node) (*enode.Node, error)
-	LocalNode() *enode.LocalNode
+	Lookup(znode.ID) []*znode.Node
+	Resolve(*znode.Node) *znode.Node
+	RandomNodes() znode.Iterator
+	Ping(*znode.Node) error
+	RequestZNR(*znode.Node) (*znode.Node, error)
+	LocalNode() *znode.LocalNode
 }
 
-// RefreshENR uses an epoch to refresh the enr entry for our node
+// RefreshENR uses an epoch to refresh the znr entry for our node
 // with the tracked committee ids for the epoch, allowing our node
 // to be dynamically discoverable by others given our tracked committee ids.
 func (s *Service) RefreshENR() {
@@ -91,7 +91,7 @@ func (s *Service) RefreshENR() {
 // listen for new nodes watches for new nodes in the network and adds them to the peerstore.
 func (s *Service) listenForNewNodes() {
 	iterator := s.dv5Listener.RandomNodes()
-	iterator = enode.Filter(iterator, s.filterPeer)
+	iterator = znode.Filter(iterator, s.filterPeer)
 	defer iterator.Close()
 	for {
 		// Exit if service's context is canceled
@@ -196,9 +196,9 @@ func (s *Service) createListener(
 	dv5Cfg := discover.Config{
 		PrivateKey: privKey,
 	}
-	dv5Cfg.Bootnodes = []*enode.Node{}
+	dv5Cfg.Bootnodes = []*znode.Node{}
 	for _, addr := range s.cfg.Discv5BootStrapAddr {
-		bootNode, err := enode.Parse(enode.ValidSchemes, addr)
+		bootNode, err := znode.Parse(znode.ValidSchemes, addr)
 		if err != nil {
 			return nil, errors.Wrap(err, "could not bootstrap addr")
 		}
@@ -216,16 +216,16 @@ func (s *Service) createLocalNode(
 	privKey *ecdsa.PrivateKey,
 	ipAddr net.IP,
 	udpPort, tcpPort int,
-) (*enode.LocalNode, error) {
-	db, err := enode.OpenDB("")
+) (*znode.LocalNode, error) {
+	db, err := znode.OpenDB("")
 	if err != nil {
 		return nil, errors.Wrap(err, "could not open node's peer database")
 	}
-	localNode := enode.NewLocalNode(db, privKey)
+	localNode := znode.NewLocalNode(db, privKey)
 
-	ipEntry := enr.IP(ipAddr)
-	udpEntry := enr.UDP(udpPort)
-	tcpEntry := enr.TCP(tcpPort)
+	ipEntry := znr.IP(ipAddr)
+	udpEntry := znr.UDP(udpPort)
+	tcpEntry := znr.TCP(tcpPort)
 	localNode.Set(ipEntry)
 	localNode.Set(udpEntry)
 	localNode.Set(tcpEntry)
@@ -234,7 +234,7 @@ func (s *Service) createLocalNode(
 
 	localNode, err = addForkEntry(localNode, s.genesisTime, s.genesisValidatorsRoot)
 	if err != nil {
-		return nil, errors.Wrap(err, "could not add eth2 fork version entry to enr")
+		return nil, errors.Wrap(err, "could not add eth2 fork version entry to znr")
 	}
 	localNode = initializeAttSubnets(localNode)
 	return initializeSyncCommSubnets(localNode), nil
@@ -249,7 +249,7 @@ func (s *Service) startDiscoveryV5(
 		return nil, errors.Wrap(err, "could not create listener")
 	}
 	record := listener.Self()
-	log.WithField("ENR", record.String()).Info("Started discovery v5")
+	log.WithField("ZNR", record.String()).Info("Started discovery v5")
 	return listener, nil
 }
 
@@ -258,13 +258,13 @@ func (s *Service) startDiscoveryV5(
 // Validity Conditions:
 //  1. The local node is still actively looking for peers to
 //     connect to.
-//  2. Peer has a valid IP and TCP port set in their enr.
+//  2. Peer has a valid IP and TCP port set in their znr.
 //  3. Peer hasn't been marked as 'bad'
 //  4. Peer is not currently active or connected.
 //  5. Peer is ready to receive incoming connections.
-//  6. Peer's fork digest in their ENR matches that of
+//  6. Peer's fork digest in their ZNR matches that of
 //     our localnodes.
-func (s *Service) filterPeer(node *enode.Node) bool {
+func (s *Service) filterPeer(node *znode.Node) bool {
 	// Ignore nil node entries passed in.
 	if node == nil {
 		return false
@@ -274,8 +274,8 @@ func (s *Service) filterPeer(node *enode.Node) bool {
 		return false
 	}
 	// do not dial nodes with their tcp ports not set
-	if err := node.Record().Load(enr.WithEntry("tcp", new(enr.TCP))); err != nil {
-		if !enr.IsNotFound(err) {
+	if err := node.Record().Load(znr.WithEntry("tcp", new(znr.TCP))); err != nil {
+		if !znr.IsNotFound(err) {
 			log.WithError(err).Debug("Could not retrieve tcp port")
 		}
 		return false
@@ -299,10 +299,10 @@ func (s *Service) filterPeer(node *enode.Node) bool {
 	}
 	nodeENR := node.Record()
 	// Decide whether or not to connect to peer that does not
-	// match the proper fork ENR data with our local node.
+	// match the proper fork ZNR data with our local node.
 	if s.genesisValidatorsRoot != nil {
 		if err := s.compareForkENR(nodeENR); err != nil {
-			log.WithError(err).Trace("Fork ENR mismatches between peer and local node")
+			log.WithError(err).Trace("Fork ZNR mismatches between peer and local node")
 			return false
 		}
 	}
@@ -344,9 +344,9 @@ func PeersFromStringAddrs(addrs []string) ([]ma.Multiaddr, error) {
 		allAddrs = append(allAddrs, addr)
 	}
 	for _, stringAddr := range enodeString {
-		enodeAddr, err := enode.Parse(enode.ValidSchemes, stringAddr)
+		enodeAddr, err := znode.Parse(znode.ValidSchemes, stringAddr)
 		if err != nil {
-			return nil, errors.Wrapf(err, "Could not get enode from string")
+			return nil, errors.Wrapf(err, "Could not get znode from string")
 		}
 		addr, err := convertToSingleMultiAddr(enodeAddr)
 		if err != nil {
@@ -371,7 +371,7 @@ func parseGenericAddrs(addrs []string) (enodeString, multiAddrString []string) {
 			// Ignore empty entries
 			continue
 		}
-		_, err := enode.Parse(enode.ValidSchemes, addr)
+		_, err := znode.Parse(znode.ValidSchemes, addr)
 		if err == nil {
 			enodeString = append(enodeString, addr)
 			continue
@@ -386,7 +386,7 @@ func parseGenericAddrs(addrs []string) (enodeString, multiAddrString []string) {
 	return enodeString, multiAddrString
 }
 
-func convertToMultiAddr(nodes []*enode.Node) []ma.Multiaddr {
+func convertToMultiAddr(nodes []*znode.Node) []ma.Multiaddr {
 	var multiAddrs []ma.Multiaddr
 	for _, node := range nodes {
 		// ignore nodes with no ip address stored
@@ -403,7 +403,7 @@ func convertToMultiAddr(nodes []*enode.Node) []ma.Multiaddr {
 	return multiAddrs
 }
 
-func convertToAddrInfo(node *enode.Node) (*peer.AddrInfo, ma.Multiaddr, error) {
+func convertToAddrInfo(node *znode.Node) (*peer.AddrInfo, ma.Multiaddr, error) {
 	multiAddr, err := convertToSingleMultiAddr(node)
 	if err != nil {
 		return nil, nil, err
@@ -415,7 +415,7 @@ func convertToAddrInfo(node *enode.Node) (*peer.AddrInfo, ma.Multiaddr, error) {
 	return info, multiAddr, nil
 }
 
-func convertToSingleMultiAddr(node *enode.Node) (ma.Multiaddr, error) {
+func convertToSingleMultiAddr(node *znode.Node) (ma.Multiaddr, error) {
 	pubkey := node.Pubkey()
 	assertedKey, err := ecdsaprysm.ConvertToInterfacePubkey(pubkey)
 	if err != nil {
@@ -428,7 +428,7 @@ func convertToSingleMultiAddr(node *enode.Node) (ma.Multiaddr, error) {
 	return multiAddressBuilderWithID(node.IP().String(), "tcp", uint(node.TCP()), id)
 }
 
-func convertToUdpMultiAddr(node *enode.Node) ([]ma.Multiaddr, error) {
+func convertToUdpMultiAddr(node *znode.Node) ([]ma.Multiaddr, error) {
 	pubkey := node.Pubkey()
 	assertedKey, err := ecdsaprysm.ConvertToInterfacePubkey(pubkey)
 	if err != nil {
@@ -440,8 +440,8 @@ func convertToUdpMultiAddr(node *enode.Node) ([]ma.Multiaddr, error) {
 	}
 
 	var addresses []ma.Multiaddr
-	var ip4 enr.IPv4
-	var ip6 enr.IPv6
+	var ip4 znr.IPv4
+	var ip6 znr.IPv6
 	if node.Load(&ip4) == nil {
 		address, ipErr := multiAddressBuilderWithID(net.IP(ip4).String(), "udp", uint(node.UDP()), id)
 		if ipErr != nil {

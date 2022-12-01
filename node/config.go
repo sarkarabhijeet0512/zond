@@ -2,14 +2,15 @@ package node
 
 import (
 	"fmt"
-	"github.com/theQRL/zond/common"
-	"github.com/theQRL/zond/log"
-	"github.com/theQRL/zond/rpc"
 	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
 	"sync"
+
+	"github.com/theQRL/zond/common"
+	"github.com/theQRL/zond/log"
+	"github.com/theQRL/zond/rpc"
 )
 
 const (
@@ -373,19 +374,19 @@ func (c *Config) instanceDir() string {
 //	return key
 //}
 
-// StaticNodes returns a list of node enode URLs configured as static nodes.
-//func (c *Config) StaticNodes() []*enode.Node {
+// StaticNodes returns a list of node znode URLs configured as static nodes.
+//func (c *Config) StaticNodes() []*znode.Node {
 //	return c.parsePersistentNodes(&c.staticNodesWarning, c.ResolvePath(datadirStaticNodes))
 //}
 
-// TrustedNodes returns a list of node enode URLs configured as trusted nodes.
-//func (c *Config) TrustedNodes() []*enode.Node {
+// TrustedNodes returns a list of node znode URLs configured as trusted nodes.
+//func (c *Config) TrustedNodes() []*znode.Node {
 //	return c.parsePersistentNodes(&c.trustedNodesWarning, c.ResolvePath(datadirTrustedNodes))
 //}
 
 // parsePersistentNodes parses a list of discovery node URLs loaded from a .json
 // file from within the data directory.
-//func (c *Config) parsePersistentNodes(w *bool, path string) []*enode.Node {
+//func (c *Config) parsePersistentNodes(w *bool, path string) []*znode.Node {
 //	// Short circuit if no node config is present
 //	if c.DataDir == "" {
 //		return nil
@@ -402,12 +403,12 @@ func (c *Config) instanceDir() string {
 //		return nil
 //	}
 //	// Interpret the list as a discovery node array
-//	var nodes []*enode.Node
+//	var nodes []*znode.Node
 //	for _, url := range nodelist {
 //		if url == "" {
 //			continue
 //		}
-//		node, err := enode.Parse(enode.ValidSchemes, url)
+//		node, err := znode.Parse(znode.ValidSchemes, url)
 //		if err != nil {
 //			log.Error(fmt.Sprintf("Node URL %s: %v\n", url, err))
 //			continue

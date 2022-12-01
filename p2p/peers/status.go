@@ -129,7 +129,7 @@ func (p *Status) Add(record *znr.Record, pid peer.ID, address ma.Multiaddr, dire
 		peerData.Address = address
 		peerData.Direction = direction
 		if record != nil {
-			peerData.Enr = record
+			peerData.Znr = record
 		}
 		if !sameIP(prevAddress, address) {
 			p.addIpToTracker(pid)
@@ -143,7 +143,7 @@ func (p *Status) Add(record *znr.Record, pid peer.ID, address ma.Multiaddr, dire
 		ConnState: PeerDisconnected,
 	}
 	if record != nil {
-		peerData.Enr = record
+		peerData.Znr = record
 	}
 	p.store.SetPeerData(pid, peerData)
 	p.addIpToTracker(pid)
@@ -173,13 +173,13 @@ func (p *Status) Direction(pid peer.ID) (network.Direction, error) {
 	return network.DirUnknown, peerdata.ErrPeerUnknown
 }
 
-// ENR returns the enr for the corresponding peer id.
+// ZNR returns the znr for the corresponding peer id.
 func (p *Status) ZNR(pid peer.ID) (*znr.Record, error) {
 	p.store.RLock()
 	defer p.store.RUnlock()
 
 	if peerData, ok := p.store.PeerData(pid); ok {
-		return peerData.Enr, nil
+		return peerData.Znr, nil
 	}
 	return nil, peerdata.ErrPeerUnknown
 }
@@ -259,7 +259,7 @@ func (p *Status) CommitteeIndices(pid peer.ID) ([]uint64, error) {
 	defer p.store.RUnlock()
 
 	if peerData, ok := p.store.PeerData(pid); ok {
-		if peerData.Enr == nil || peerData.MetaData == nil || peerData.MetaData.IsNil() {
+		if peerData.Znr == nil || peerData.MetaData == nil || peerData.MetaData.IsNil() {
 			return []uint64{}, nil
 		}
 		return indicesFromBitfield(peerData.MetaData.AttnetsBitfield()), nil

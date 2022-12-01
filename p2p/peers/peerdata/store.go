@@ -49,7 +49,7 @@ type PeerData struct {
 	Address       ma.Multiaddr
 	Direction     network.Direction
 	ConnState     PeerConnectionState
-	Enr           *znr.Record
+	Znr           *znr.Record
 	NextValidTime time.Time
 	// Chain related data.
 	MetaData                  metadata.Metadata

@@ -570,7 +570,7 @@ type SyncCommitteeMessageJson struct {
 
 type IdentityJson struct {
 	PeerId             string        `json:"peer_id"`
-	Enr                string        `json:"enr"`
+	Znr                string        `json:"znr"`
 	P2PAddresses       []string      `json:"p2p_addresses"`
 	DiscoveryAddresses []string      `json:"discovery_addresses"`
 	Metadata           *MetadataJson `json:"metadata"`
@@ -583,7 +583,7 @@ type MetadataJson struct {
 
 type PeerJson struct {
 	PeerId    string `json:"peer_id"`
-	Enr       string `json:"enr"`
+	Znr       string `json:"znr"`
 	Address   string `json:"last_seen_p2p_address"`
 	State     string `json:"state" enum:"true"`
 	Direction string `json:"direction" enum:"true"`
