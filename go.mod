@@ -45,6 +45,7 @@ require (
 	github.com/aristanetworks/goarista v0.0.0-20221101123548-fda6a90d1d2b // indirect
 	github.com/bazelbuild/rules_go v0.36.0 // indirect
 	github.com/btcsuite/btcd v0.20.1-beta // indirect
+	github.com/coreos/go-systemd v0.0.0-20191104093116-d3cd4ed1dbcf // indirect
 	github.com/dustin/go-humanize v1.0.0 // indirect
 	github.com/fjl/memsize v0.0.1 // indirect
 	github.com/go-logr/logr v1.2.3 // indirect
@@ -80,6 +81,7 @@ require (
 	github.com/paulbellamy/ratecounter v0.2.0 // indirect
 	github.com/prometheus/prom2json v1.3.2 // indirect
 	github.com/prysmaticlabs/gohashtree v0.0.2-alpha // indirect
+	github.com/prysmaticlabs/protoc-gen-go-cast v0.0.0-20211014160335-757fae4f38c6 // indirect
 	github.com/r3labs/sse v0.0.0-20210224172625-26fe804710bc // indirect
 	github.com/rivo/uniseg v0.4.3 // indirect
 	github.com/rogpeppe/go-internal v1.9.0 // indirect
@@ -87,6 +89,7 @@ require (
 	github.com/trailofbits/go-mutexasserts v0.0.0-20200708152505-19999e7d3cef // indirect
 	github.com/uber/jaeger-client-go v2.30.0+incompatible // indirect
 	github.com/wealdtech/go-bytesutil v1.2.0 // indirect
+	github.com/wercker/journalhook v0.0.0-20180428041537-5d0a5ae867b3 // indirect
 	github.com/whyrusleeping/timecache v0.0.0-20160911033111-cfcb2f1abfee // indirect
 	github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673 // indirect
 	go.uber.org/automaxprocs v1.5.1 // indirect
