@@ -223,11 +223,11 @@ func (s *Service) validateBeaconBlock(ctx context.Context, blk interfaces.Signed
 	if err != nil {
 		return err
 	}
-
-	if err := blocks.VerifyBlockSignatureUsingCurrentFork(parentState, blk); err != nil {
-		s.setBadBlock(ctx, blockRoot)
-		return err
-	}
+	//TODO (abhijeet): Replace bls with Dilithium
+	// if err := blocks.VerifyBlockSignatureUsingCurrentFork(parentState, blk); err != nil {
+	// 	s.setBadBlock(ctx, blockRoot)
+	// 	return err
+	// }
 	// In the event the block is more than an epoch ahead from its
 	// parent state, we have to advance the state forward.
 	parentRoot := blk.Block().ParentRoot()
