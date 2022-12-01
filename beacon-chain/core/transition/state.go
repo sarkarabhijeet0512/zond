@@ -5,7 +5,6 @@ import (
 
 	"github.com/pkg/errors"
 	b "github.com/theQRL/zond/beacon-chain/core/blocks"
-	"github.com/theQRL/zond/beacon-chain/core/helpers"
 	"github.com/theQRL/zond/beacon-chain/state"
 	state_native "github.com/theQRL/zond/beacon-chain/state/state-native"
 	"github.com/theQRL/zond/beacon-chain/state/stateutil"
@@ -60,10 +59,10 @@ func GenesisBeaconState(ctx context.Context, deposits []*ethpb.Deposit, genesisT
 	}
 
 	// Process initial deposits.
-	st, err = helpers.UpdateGenesisEth1Data(st, deposits, eth1Data)
-	if err != nil {
-		return nil, err
-	}
+	// st, err = helpers.UpdateGenesisEth1Data(st, deposits, eth1Data)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
 	st, err = b.ProcessPreGenesisDeposits(ctx, st, deposits)
 	if err != nil {

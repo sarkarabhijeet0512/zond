@@ -63,13 +63,13 @@ func (b *SignedBeaconBlock) Copy() (interfaces.SignedBeaconBlock, error) {
 		}
 		cp := eth.CopySignedBeaconBlockBellatrix(pb.(*eth.SignedBeaconBlockBellatrix))
 		return initSignedBlockFromProtoBellatrix(cp)
-	case version.Capella:
-		if b.IsBlinded() {
-			cp := eth.CopySignedBlindedBeaconBlockCapella(pb.(*eth.SignedBlindedBeaconBlockCapella))
-			return initBlindedSignedBlockFromProtoCapella(cp)
-		}
-		cp := eth.CopySignedBeaconBlockCapella(pb.(*eth.SignedBeaconBlockCapella))
-		return initSignedBlockFromProtoCapella(cp)
+	// case version.Capella:
+	// if b.IsBlinded() {
+	// 	cp := eth.CopySignedBlindedBeaconBlockCapella(pb.(*eth.SignedBlindedBeaconBlockCapella))
+	// 	return initBlindedSignedBlockFromProtoCapella(cp)
+	// }
+	// cp := eth.CopySignedBeaconBlockCapella(pb.(*eth.SignedBeaconBlockCapella))
+	// return initSignedBlockFromProtoCapella(cp)
 	default:
 		return nil, errIncorrectBlockVersion
 	}
@@ -721,11 +721,11 @@ func (b *BeaconBlock) AsSignRequestObject() (validatorpb.SignRequestObject, erro
 			return &validatorpb.SignRequest_BlindedBlockBellatrix{BlindedBlockBellatrix: pb.(*eth.BlindedBeaconBlockBellatrix)}, nil
 		}
 		return &validatorpb.SignRequest_BlockBellatrix{BlockBellatrix: pb.(*eth.BeaconBlockBellatrix)}, nil
-	case version.Capella:
-		if b.IsBlinded() {
-			return &validatorpb.SignRequest_BlindedBlockCapella{BlindedBlockCapella: pb.(*eth.BlindedBeaconBlockCapella)}, nil
-		}
-		return &validatorpb.SignRequest_BlockCapella{BlockCapella: pb.(*eth.BeaconBlockCapella)}, nil
+	// case version.Capella:
+	// 	if b.IsBlinded() {
+	// 		return &validatorpb.SignRequest_BlindedBlockCapella{BlindedBlockCapella: pb.(*eth.BlindedBeaconBlockCapella)}, nil
+	// 	}
+	// 	return &validatorpb.SignRequest_BlockCapella{BlockCapella: pb.(*eth.BeaconBlockCapella)}, nil
 	default:
 		return nil, errIncorrectBlockVersion
 	}

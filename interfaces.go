@@ -3,9 +3,10 @@ package zond
 import (
 	"context"
 	"errors"
+	"math/big"
+
 	"github.com/theQRL/zond/common"
 	"github.com/theQRL/zond/core/types"
-	"math/big"
 )
 
 // NotFound is returned by API methods if the requested item does not exist.
@@ -213,4 +214,10 @@ type GasEstimator interface {
 // pending state.
 type PendingStateEventer interface {
 	SubscribePendingTransactions(ctx context.Context, ch chan<- *types.Transaction) (Subscription, error)
+}
+type FeeHistory struct {
+	OldestBlock  *big.Int     // block corresponding to first response value
+	Reward       [][]*big.Int // list every txs priority fee per block
+	BaseFee      []*big.Int   // list of each block's base fee
+	GasUsedRatio []float64    // ratio of gas used out of the total available limit
 }

@@ -7,7 +7,6 @@ import (
 	pubsub "github.com/libp2p/go-libp2p-pubsub"
 	"github.com/libp2p/go-libp2p/core/peer"
 	"github.com/pkg/errors"
-	"github.com/theQRL/zond/beacon-chain/core/blocks"
 	"github.com/theQRL/zond/beacon-chain/core/feed"
 	"github.com/theQRL/zond/beacon-chain/core/feed/operation"
 	"github.com/theQRL/zond/beacon-chain/core/helpers"
@@ -171,32 +170,32 @@ func (s *Service) validateAggregatedAtt(ctx context.Context, signed *ethpb.Signe
 		tracing.AnnotateError(span, wrappedErr)
 		return pubsub.ValidationReject, wrappedErr
 	}
-
+	// TODO (abhijeet): Replace bls with Dilithium
 	// Verify selection proof reflects to the right validator.
-	selectionSigSet, err := validateSelectionIndex(ctx, bs, signed.Message.Aggregate.Data, signed.Message.AggregatorIndex, signed.Message.SelectionProof)
-	if err != nil {
-		wrappedErr := errors.Wrapf(err, "Could not validate selection for validator %d", signed.Message.AggregatorIndex)
-		tracing.AnnotateError(span, wrappedErr)
-		attBadSelectionProofCount.Inc()
-		return pubsub.ValidationReject, wrappedErr
-	}
+	// selectionSigSet, err := validateSelectionIndex(ctx, bs, signed.Message.Aggregate.Data, signed.Message.AggregatorIndex, signed.Message.SelectionProof)
+	// if err != nil {
+	// 	wrappedErr := errors.Wrapf(err, "Could not validate selection for validator %d", signed.Message.AggregatorIndex)
+	// 	tracing.AnnotateError(span, wrappedErr)
+	// 	attBadSelectionProofCount.Inc()
+	// 	return pubsub.ValidationReject, wrappedErr
+	// }
 
 	// Verify selection signature, aggregator signature and attestation signature are valid.
 	// We use batch verify here to save compute.
-	aggregatorSigSet, err := aggSigSet(bs, signed)
-	if err != nil {
-		wrappedErr := errors.Wrapf(err, "Could not get aggregator sig set %d", signed.Message.AggregatorIndex)
-		tracing.AnnotateError(span, wrappedErr)
-		return pubsub.ValidationIgnore, wrappedErr
-	}
-	attSigSet, err := blocks.AttestationSignatureBatch(ctx, bs, []*ethpb.Attestation{signed.Message.Aggregate})
-	if err != nil {
-		wrappedErr := errors.Wrapf(err, "Could not verify aggregator signature %d", signed.Message.AggregatorIndex)
-		tracing.AnnotateError(span, wrappedErr)
-		return pubsub.ValidationIgnore, wrappedErr
-	}
+	// aggregatorSigSet, err := aggSigSet(bs, signed)
+	// if err != nil {
+	// 	wrappedErr := errors.Wrapf(err, "Could not get aggregator sig set %d", signed.Message.AggregatorIndex)
+	// 	tracing.AnnotateError(span, wrappedErr)
+	// 	return pubsub.ValidationIgnore, wrappedErr
+	// }
+	// attSigSet, err := blocks.AttestationSignatureBatch(ctx, bs, []*ethpb.Attestation{signed.Message.Aggregate})
+	// if err != nil {
+	// 	wrappedErr := errors.Wrapf(err, "Could not verify aggregator signature %d", signed.Message.AggregatorIndex)
+	// 	tracing.AnnotateError(span, wrappedErr)
+	// 	return pubsub.ValidationIgnore, wrappedErr
+	// }
 	set := bls.NewSet()
-	set.Join(selectionSigSet).Join(aggregatorSigSet).Join(attSigSet)
+	// set.Join(selectionSigSet).Join(aggregatorSigSet).Join(attSigSet)
 
 	return s.validateWithBatchVerifier(ctx, "aggregate", set)
 }

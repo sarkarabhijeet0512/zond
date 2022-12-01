@@ -6,10 +6,10 @@ import (
 	"crypto/subtle"
 	"fmt"
 
-	"github.com/prysmaticlabs/prysm/v3/config/params"
-	"github.com/prysmaticlabs/prysm/v3/crypto/bls/common"
-	"github.com/prysmaticlabs/prysm/v3/crypto/rand"
 	blst "github.com/supranational/blst/bindings/go"
+	"github.com/theQRL/zond/config/params"
+	"github.com/theQRL/zond/crypto/bls/common"
+	"github.com/theQRL/zond/crypto/rand"
 )
 
 // bls12SecretKey used in the BLS signature scheme.

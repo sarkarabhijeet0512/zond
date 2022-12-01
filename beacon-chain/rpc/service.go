@@ -33,18 +33,17 @@ import (
 	"github.com/theQRL/zond/beacon-chain/rpc/eth/events"
 	"github.com/theQRL/zond/beacon-chain/rpc/eth/node"
 	"github.com/theQRL/zond/beacon-chain/rpc/eth/validator"
-	beaconv1alpha1 "github.com/theQRL/zond/beacon-chain/rpc/prysm/v1alpha1/beacon"
-	debugv1alpha1 "github.com/theQRL/zond/beacon-chain/rpc/prysm/v1alpha1/debug"
-	nodev1alpha1 "github.com/theQRL/zond/beacon-chain/rpc/prysm/v1alpha1/node"
-	validatorv1alpha1 "github.com/theQRL/zond/beacon-chain/rpc/prysm/v1alpha1/validator"
 	"github.com/theQRL/zond/beacon-chain/rpc/statefetcher"
+	beaconv1alpha1 "github.com/theQRL/zond/beacon-chain/rpc/zond/v1alpha1/beacon"
+	debugv1alpha1 "github.com/theQRL/zond/beacon-chain/rpc/zond/v1alpha1/debug"
+	nodev1alpha1 "github.com/theQRL/zond/beacon-chain/rpc/zond/v1alpha1/node"
+	validatorv1alpha1 "github.com/theQRL/zond/beacon-chain/rpc/zond/v1alpha1/validator"
 	slasherservice "github.com/theQRL/zond/beacon-chain/slasher"
 	"github.com/theQRL/zond/beacon-chain/state/stategen"
 	chainSync "github.com/theQRL/zond/beacon-chain/sync"
 	"github.com/theQRL/zond/config/features"
 	"github.com/theQRL/zond/config/params"
 	"github.com/theQRL/zond/io/logs"
-	"github.com/theQRL/zond/monitoring/tracing"
 	ethpbservice "github.com/theQRL/zond/protos/eth/service"
 	ethpbv1alpha1 "github.com/theQRL/zond/protos/zond/v1alpha1"
 	"go.opencensus.io/plugin/ocgrpc"
@@ -141,7 +140,7 @@ func NewService(ctx context.Context, cfg *Config) *Service {
 		grpc.StatsHandler(&ocgrpc.ServerHandler{}),
 		grpc.StreamInterceptor(middleware.ChainStreamServer(
 			recovery.StreamServerInterceptor(
-				recovery.WithRecoveryHandlerContext(tracing.RecoveryHandlerFunc),
+			// recovery.WithRecoveryHandlerContext(tracing.RecoveryHandlerFunc),
 			),
 			grpcprometheus.StreamServerInterceptor,
 			grpcopentracing.StreamServerInterceptor(),
@@ -149,7 +148,7 @@ func NewService(ctx context.Context, cfg *Config) *Service {
 		)),
 		grpc.UnaryInterceptor(middleware.ChainUnaryServer(
 			recovery.UnaryServerInterceptor(
-				recovery.WithRecoveryHandlerContext(tracing.RecoveryHandlerFunc),
+			// recovery.WithRecoveryHandlerContext(tracing.RecoveryHandlerFunc),
 			),
 			grpcprometheus.UnaryServerInterceptor,
 			grpcopentracing.UnaryServerInterceptor(),

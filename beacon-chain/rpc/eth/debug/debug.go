@@ -4,9 +4,9 @@ import (
 	"context"
 
 	"github.com/theQRL/zond/beacon-chain/rpc/eth/helpers"
-	"github.com/theQRL/zond/proto/migration"
 	ethpbv1 "github.com/theQRL/zond/protos/eth/v1"
 	ethpbv2 "github.com/theQRL/zond/protos/eth/v2"
+	"github.com/theQRL/zond/protos/migration"
 	"github.com/theQRL/zond/runtime/version"
 	"go.opencensus.io/trace"
 	"google.golang.org/grpc/codes"

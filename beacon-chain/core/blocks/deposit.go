@@ -2,14 +2,12 @@ package blocks
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/pkg/errors"
 	"github.com/theQRL/zond/beacon-chain/core/helpers"
 	"github.com/theQRL/zond/beacon-chain/core/signing"
 	"github.com/theQRL/zond/beacon-chain/state"
 	"github.com/theQRL/zond/config/params"
-	"github.com/theQRL/zond/container/trie"
 	"github.com/theQRL/zond/contracts/deposit"
 	"github.com/theQRL/zond/crypto/bls"
 	"github.com/theQRL/zond/encoding/bytesutil"
@@ -217,23 +215,23 @@ func verifyDeposit(beaconState state.ReadOnlyBeaconState, deposit *ethpb.Deposit
 		return errors.New("received nil eth1data in the beacon state")
 	}
 
-	receiptRoot := eth1Data.DepositRoot
-	leaf, err := deposit.Data.HashTreeRoot()
-	if err != nil {
-		return errors.Wrap(err, "could not tree hash deposit data")
-	}
-	if ok := trie.VerifyMerkleProofWithDepth(
-		receiptRoot,
-		leaf[:],
-		beaconState.Eth1DepositIndex(),
-		deposit.Proof,
-		params.BeaconConfig().DepositContractTreeDepth,
-	); !ok {
-		return fmt.Errorf(
-			"deposit merkle branch of deposit root did not verify for root: %#x",
-			receiptRoot,
-		)
-	}
+	// receiptRoot := eth1Data.DepositRoot
+	// leaf, err := deposit.Data.HashTreeRoot()
+	// if err != nil {
+	// 	return errors.Wrap(err, "could not tree hash deposit data")
+	// }
+	// if ok := trie.VerifyMerkleProofWithDepth(
+	// 	receiptRoot,
+	// 	leaf[:],
+	// 	beaconState.Eth1DepositIndex(),
+	// 	deposit.Proof,
+	// 	params.BeaconConfig().DepositContractTreeDepth,
+	// ); !ok {
+	// 	return fmt.Errorf(
+	// 		"deposit merkle branch of deposit root did not verify for root: %#x",
+	// 		receiptRoot,
+	// 	)
+	// }
 
 	return nil
 }

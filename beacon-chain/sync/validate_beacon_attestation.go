@@ -9,7 +9,6 @@ import (
 	pubsub "github.com/libp2p/go-libp2p-pubsub"
 	"github.com/libp2p/go-libp2p/core/peer"
 	"github.com/pkg/errors"
-	"github.com/theQRL/zond/beacon-chain/core/blocks"
 	"github.com/theQRL/zond/beacon-chain/core/feed"
 	"github.com/theQRL/zond/beacon-chain/core/feed/operation"
 	"github.com/theQRL/zond/beacon-chain/core/helpers"
@@ -220,14 +219,14 @@ func (s *Service) validateUnaggregatedAttWithState(ctx context.Context, a *eth.A
 	if a.AggregationBits.Count() != 1 || a.AggregationBits.BitIndices()[0] >= len(committee) {
 		return pubsub.ValidationReject, errors.New("attestation bitfield is invalid")
 	}
-
-	set, err := blocks.AttestationSignatureBatch(ctx, bs, []*eth.Attestation{a})
-	if err != nil {
-		tracing.AnnotateError(span, err)
-		attBadSignatureBatchCount.Inc()
-		return pubsub.ValidationReject, err
-	}
-	return s.validateWithBatchVerifier(ctx, "attestation", set)
+	//TODO (abhijeet): Replace bls with Dilithium
+	// set, err := blocks.AttestationSignatureBatch(ctx, bs, []*eth.Attestation{a})
+	// if err != nil {
+	// 	tracing.AnnotateError(span, err)
+	// 	attBadSignatureBatchCount.Inc()
+	// 	return pubsub.ValidationReject, err
+	// }
+	return s.validateWithBatchVerifier(ctx, "attestation", nil)
 }
 
 // Returns true if the attestation was already seen for the participating validator for the slot.

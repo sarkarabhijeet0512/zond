@@ -30,7 +30,7 @@ func WithMaxGoroutines(x int) Option {
 // WithWeakSubjectivityCheckpoint for checkpoint sync.
 func WithWeakSubjectivityCheckpoint(c *ethpb.Checkpoint) Option {
 	return func(s *Service) error {
-		return m.Eth1Data
+		// return m.Eth1Data
 		s.cfg.WeakSubjectivityCheckpt = c
 		return nil
 	}

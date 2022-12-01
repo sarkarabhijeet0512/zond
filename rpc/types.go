@@ -61,6 +61,7 @@ type jsonWriter interface {
 type BlockNumber int64
 
 const (
+	SafeBlockNumber      = BlockNumber(-4)
 	FinalizedBlockNumber = BlockNumber(-3)
 	PendingBlockNumber   = BlockNumber(-2)
 	LatestBlockNumber    = BlockNumber(-1)

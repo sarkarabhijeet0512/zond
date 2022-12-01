@@ -10,11 +10,11 @@ import (
 	"github.com/pkg/errors"
 	"github.com/theQRL/zond/config/params"
 	contracts "github.com/theQRL/zond/contracts/deposit"
-	"github.com/theQRL/zond/ethclient"
 	"github.com/theQRL/zond/io/logs"
 	"github.com/theQRL/zond/network"
 	"github.com/theQRL/zond/network/authorization"
 	gethRPC "github.com/theQRL/zond/rpc"
+	"github.com/theQRL/zond/zondclient"
 )
 
 func (s *Service) setupExecutionClientConnections(ctx context.Context, currEndpoint network.Endpoint) error {
@@ -23,7 +23,7 @@ func (s *Service) setupExecutionClientConnections(ctx context.Context, currEndpo
 		return errors.Wrap(err, "could not dial execution node")
 	}
 	// Attach the clients to the service struct.
-	fetcher := ethclient.NewClient(client)
+	fetcher := zondclient.NewClient(client)
 	s.rpcClient = client
 	s.httpLogger = fetcher
 	s.eth1DataFetcher = fetcher
@@ -150,7 +150,7 @@ func (s *Service) newRPCClientWithAuth(ctx context.Context, endpoint network.End
 
 // Checks the chain ID of the execution client to ensure
 // it matches local parameters of what Prysm expects.
-func ensureCorrectExecutionChain(ctx context.Context, client *ethclient.Client) error {
+func ensureCorrectExecutionChain(ctx context.Context, client *zondclient.Client) error {
 	cID, err := client.ChainID(ctx)
 	if err != nil {
 		return err

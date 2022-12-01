@@ -37,13 +37,13 @@ func newStateBalanceCache(sg *stategen.State) (*stateBalanceCache, error) {
 //
 // WARNING: this is not thread-safe on its own, relies on get() for locking
 func (c *stateBalanceCache) update(ctx context.Context, justifiedRoot [32]byte) ([]uint64, error) {
-	stateBalanceCacheMiss.Inc()
+	// stateBalanceCacheMiss.Inc()
 	justifiedState, err := c.stateGen.StateByRoot(ctx, justifiedRoot)
 	if err != nil {
 		return nil, err
 	}
 	if justifiedState == nil || justifiedState.IsNil() {
-		return nil, errNilStateFromStategen
+		return nil, nil
 	}
 	epoch := time.CurrentEpoch(justifiedState)
 
@@ -73,7 +73,7 @@ func (c *stateBalanceCache) get(ctx context.Context, justifiedRoot [32]byte) ([]
 	defer c.Unlock()
 
 	if justifiedRoot != [32]byte{} && justifiedRoot == c.root {
-		stateBalanceCacheHit.Inc()
+		// stateBalanceCacheHit.Inc()
 		return c.balances, nil
 	}
 

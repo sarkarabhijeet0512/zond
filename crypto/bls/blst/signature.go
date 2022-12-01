@@ -8,10 +8,10 @@ import (
 	"sync"
 
 	"github.com/pkg/errors"
-	fieldparams "github.com/prysmaticlabs/prysm/v3/config/fieldparams"
-	"github.com/prysmaticlabs/prysm/v3/crypto/bls/common"
-	"github.com/prysmaticlabs/prysm/v3/crypto/rand"
 	blst "github.com/supranational/blst/bindings/go"
+	fieldparams "github.com/theQRL/zond/config/fieldparams"
+	"github.com/theQRL/zond/crypto/bls/common"
+	"github.com/theQRL/zond/crypto/rand"
 )
 
 var dst = []byte("BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_POP_")

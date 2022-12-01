@@ -13,8 +13,8 @@ import (
 	"github.com/theQRL/zond/beacon-chain/operations/slashings"
 	"github.com/theQRL/zond/beacon-chain/operations/voluntaryexits"
 	"github.com/theQRL/zond/beacon-chain/p2p"
-	v1alpha1validator "github.com/theQRL/zond/beacon-chain/rpc/prysm/v1alpha1/validator"
 	"github.com/theQRL/zond/beacon-chain/rpc/statefetcher"
+	v1alpha1validator "github.com/theQRL/zond/beacon-chain/rpc/zond/v1alpha1/validator"
 	"github.com/theQRL/zond/beacon-chain/state/stategen"
 	"github.com/theQRL/zond/beacon-chain/sync"
 )

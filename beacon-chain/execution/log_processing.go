@@ -8,9 +8,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ethereum/go-ethereum"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	ethereum "github.com/theQRL/zond"
 	"github.com/theQRL/zond/accounts/abi/bind"
 	"github.com/theQRL/zond/beacon-chain/core/feed"
 	statefeed "github.com/theQRL/zond/beacon-chain/core/feed/state"

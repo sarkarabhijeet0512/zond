@@ -8,8 +8,8 @@ import (
 	fieldparams "github.com/theQRL/zond/config/fieldparams"
 	"github.com/theQRL/zond/crypto/hash"
 	"github.com/theQRL/zond/encoding/bytesutil"
-	ethpb "github.com/theQRL/zond/protos"
-	enginev1 "github.com/theQRL/zond/protos/engine"
+	enginev1 "github.com/theQRL/zond/protos/engine/v1"
+	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 )
 
 // Uint64Root computes the HashTreeRoot Merkleization of
@@ -169,7 +169,7 @@ func withdrawalRoot(hasher HashFn, w *enginev1.Withdrawal) ([32]byte, error) {
 	if w != nil {
 		binary.LittleEndian.PutUint64(fieldRoots[0][:], w.WithdrawalIndex)
 
-		binary.LittleEndian.PutUint64(fieldRoots[1][:], uint64(w.ValidatorIndex))
+		// binary.LittleEndian.PutUint64(fieldRoots[1][:], uint64(w.ValidatorIndex))
 
 		fieldRoots[2] = bytesutil.ToBytes32(w.ExecutionAddress)
 		binary.LittleEndian.PutUint64(fieldRoots[3][:], w.Amount)

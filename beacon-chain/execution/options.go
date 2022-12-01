@@ -7,7 +7,6 @@ import (
 	"github.com/theQRL/zond/beacon-chain/state"
 	"github.com/theQRL/zond/beacon-chain/state/stategen"
 	"github.com/theQRL/zond/common"
-	"github.com/theQRL/zond/network/authorization"
 )
 
 type Option func(s *Service) error
@@ -28,7 +27,7 @@ func WithHttpEndpointAndJWTSecret(endpointString string, secret []byte) Option {
 		}
 		// Overwrite authorization type for all endpoints to be of a bearer type.
 		hEndpoint := HttpEndpoint(endpointString)
-		hEndpoint.Auth.Method = authorization.Bearer
+		// hEndpoint.Auth.Method = authorization.Bearer
 		hEndpoint.Auth.Value = string(secret)
 
 		s.cfg.currHttpEndpoint = hEndpoint

@@ -4,14 +4,13 @@ package blockchain
 
 import (
 	"bytes"
-	context "context"
+	"context"
 	"fmt"
 	"runtime"
 	"sync"
 	"time"
 
 	"github.com/pkg/errors"
-	log "github.com/sirupsen/logrus"
 	"github.com/theQRL/zond/async/event"
 	"github.com/theQRL/zond/beacon-chain/cache"
 	"github.com/theQRL/zond/beacon-chain/cache/depositcache"

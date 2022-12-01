@@ -14,7 +14,6 @@ import (
 	statefeed "github.com/theQRL/zond/beacon-chain/core/feed/state"
 	"github.com/theQRL/zond/common/hexutil"
 	"github.com/theQRL/zond/config/params"
-	"github.com/theQRL/zond/network"
 	pb "github.com/theQRL/zond/protos/engine/v1"
 	"github.com/theQRL/zond/time/slots"
 )
@@ -95,11 +94,11 @@ func (s *Service) checkTransitionConfiguration(
 				log.Debug("PoS transition is complete, no longer checking for configuration changes")
 				return
 			}
-		case tm := <-ticker.C:
-			ctx, cancel := context.WithDeadline(ctx, tm.Add(network.DefaultRPCHTTPTimeout))
-			err = s.ExchangeTransitionConfiguration(ctx, cfg)
-			s.handleExchangeConfigurationError(err)
-			cancel()
+		// case tm := <-ticker.C:
+		// 	ctx, cancel := context.WithDeadline(ctx, tm.Add(network.DefaultRPCHTTPTimeout))
+		// 	err = s.ExchangeTransitionConfiguration(ctx, cfg)
+		// 	s.handleExchangeConfigurationError(err)
+		// 	cancel()
 		case <-logTtdTicker.C:
 			currentEpoch := slots.ToEpoch(slots.CurrentSlot(s.chainStartData.GetGenesisTime()))
 			if currentEpoch >= params.BeaconConfig().BellatrixForkEpoch && !hasTtdReached {

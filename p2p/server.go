@@ -25,6 +25,7 @@ import (
 	"github.com/theQRL/zond/metadata"
 	"github.com/theQRL/zond/misc"
 	"github.com/theQRL/zond/ntp"
+	"github.com/theQRL/zond/p2p/enode"
 	"github.com/theQRL/zond/p2p/messages"
 	"github.com/theQRL/zond/p2p/peers"
 	"github.com/theQRL/zond/p2p/peers/scorers"
@@ -73,6 +74,7 @@ type Server struct {
 	totalConnections uint16
 	peers            *peers.Status
 	privateKey       *ecdsa.PrivateKey
+	localnode        *enode.LocalNode
 
 	listener     net.Listener
 	dv5Listener  Listener
@@ -835,4 +837,57 @@ func NewServer(chain *chain.Chain) (*Server, error) {
 	srv.messagePriority[protos.LegacyMessage_P2P_ACK] = 0
 
 	return srv, nil
+}
+func (srv *Server) NodeInfo() *NodeInfo {
+	// Gather and assemble the generic node infos
+	node := srv.Self()
+	info := &NodeInfo{
+		// Name:       srv.Name,
+		Enode: node.URLv4(),
+		ID:    node.ID().String(),
+		IP:    node.IP().String(),
+		// ListenAddr: srv.ListenAddr,
+		Protocols: make(map[string]interface{}),
+	}
+	info.Ports.Discovery = node.UDP()
+	info.Ports.Listener = node.TCP()
+	info.ENR = node.String()
+
+	// Gather all the running protocol infos (only once per protocol type)
+	// for _, proto := range srv.Protocols {
+	// 	if _, ok := info.Protocols[proto.Name]; !ok {
+	// 		nodeInfo := interface{}("unknown")
+	// 		if query := proto.NodeInfo; query != nil {
+	// 			nodeInfo = proto.NodeInfo()
+	// 		}
+	// 		info.Protocols[proto.Name] = nodeInfo
+	// 	}
+	// }
+	return info
+}
+
+type NodeInfo struct {
+	ID    string `json:"id"`    // Unique node identifier (also the encryption key)
+	Name  string `json:"name"`  // Name of the node, including client type, version, OS, custom data
+	Enode string `json:"enode"` // Enode URL for adding this peer from remote peers
+	ENR   string `json:"enr"`   // Ethereum Node Record
+	IP    string `json:"ip"`    // IP address of the node
+	Ports struct {
+		Discovery int `json:"discovery"` // UDP listening port for discovery protocol
+		Listener  int `json:"listener"`  // TCP listening port for RLPx
+	} `json:"ports"`
+	ListenAddr string                 `json:"listenAddr"`
+	Protocols  map[string]interface{} `json:"protocols"`
+}
+
+// Self returns the local node's endpoint information.
+func (srv *Server) Self() *enode.Node {
+	srv.lock.Lock()
+	ln := srv.localnode
+	srv.lock.Unlock()
+
+	if ln == nil {
+		// return enode.NewV4(&srv.PrivateKey.PublicKey, net.ParseIP("0.0.0.0"), 0, 0)
+	}
+	return ln.Node()
 }

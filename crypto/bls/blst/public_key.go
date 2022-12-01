@@ -6,10 +6,10 @@ import (
 	"fmt"
 
 	"github.com/pkg/errors"
-	lruwrpr "github.com/prysmaticlabs/prysm/v3/cache/lru"
-	fieldparams "github.com/prysmaticlabs/prysm/v3/config/fieldparams"
-	"github.com/prysmaticlabs/prysm/v3/config/params"
-	"github.com/prysmaticlabs/prysm/v3/crypto/bls/common"
+	lruwrpr "github.com/theQRL/zond/cache/lru"
+	fieldparams "github.com/theQRL/zond/config/fieldparams"
+	"github.com/theQRL/zond/config/params"
+	"github.com/theQRL/zond/crypto/bls/common"
 )
 
 var maxKeys = 1000000

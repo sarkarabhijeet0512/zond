@@ -171,34 +171,34 @@ func ProcessBlockNoVerifyAnySig(
 		return nil, nil, fmt.Errorf("state and block are different version. %d != %d", st.Version(), signed.Block().Version())
 	}
 
-	blk := signed.Block()
+	// blk := signed.Block()
 	st, err := ProcessBlockForStateRoot(ctx, st, signed)
 	if err != nil {
 		return nil, nil, err
 	}
-
-	sig := signed.Signature()
-	bSet, err := b.BlockSignatureBatch(st, blk.ProposerIndex(), sig[:], blk.HashTreeRoot)
-	if err != nil {
-		tracing.AnnotateError(span, err)
-		return nil, nil, errors.Wrap(err, "could not retrieve block signature set")
-	}
-	randaoReveal := signed.Block().Body().RandaoReveal()
-	rSet, err := b.RandaoSignatureBatch(ctx, st, randaoReveal[:])
-	if err != nil {
-		tracing.AnnotateError(span, err)
-		return nil, nil, errors.Wrap(err, "could not retrieve randao signature set")
-	}
-	aSet, err := b.AttestationSignatureBatch(ctx, st, signed.Block().Body().Attestations())
-	if err != nil {
-		return nil, nil, errors.Wrap(err, "could not retrieve attestation signature set")
-	}
+	// TODO(abhijeet): Replace bls with Dilithium
+	// sig := signed.Signature()
+	// bSet, err := b.BlockSignatureBatch(st, blk.ProposerIndex(), sig[:], blk.HashTreeRoot)
+	// if err != nil {
+	// 	tracing.AnnotateError(span, err)
+	// 	return nil, nil, errors.Wrap(err, "could not retrieve block signature set")
+	// }
+	// randaoReveal := signed.Block().Body().RandaoReveal()
+	// rSet, err := b.RandaoSignatureBatch(ctx, st, randaoReveal[:])
+	// if err != nil {
+	// 	tracing.AnnotateError(span, err)
+	// 	return nil, nil, errors.Wrap(err, "could not retrieve randao signature set")
+	// }
+	// aSet, err := b.AttestationSignatureBatch(ctx, st, signed.Block().Body().Attestations())
+	// if err != nil {
+	// 	return nil, nil, errors.Wrap(err, "could not retrieve attestation signature set")
+	// }
 
 	// Merge beacon block, randao and attestations signatures into a set.
-	set := bls.NewSet()
-	set.Join(bSet).Join(rSet).Join(aSet)
+	// set := bls.NewSet()
+	// set.Join(bSet).Join(rSet).Join(aSet)
 
-	return set, st, nil
+	return nil, st, nil
 }
 
 // ProcessOperationsNoVerifyAttsSigs processes the operations in the beacon block and updates beacon state
@@ -332,15 +332,15 @@ func ProcessBlockForStateRoot(
 	if signed.Block().Version() == version.Phase0 {
 		return state, nil
 	}
-
-	sa, err := signed.Block().Body().SyncAggregate()
-	if err != nil {
-		return nil, errors.Wrap(err, "could not get sync aggregate from block")
-	}
-	state, err = altair.ProcessSyncAggregate(ctx, state, sa)
-	if err != nil {
-		return nil, errors.Wrap(err, "process_sync_aggregate failed")
-	}
+	//TODO (abhijeet): Replace bls with Dilithium
+	// sa, err := signed.Block().Body().SyncAggregate()
+	// if err != nil {
+	// 	return nil, errors.Wrap(err, "could not get sync aggregate from block")
+	// }
+	// state, err = altair.ProcessSyncAggregate(ctx, state, sa)
+	// if err != nil {
+	// 	return nil, errors.Wrap(err, "process_sync_aggregate failed")
+	// }
 
 	return state, nil
 }

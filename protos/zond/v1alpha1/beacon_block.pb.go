@@ -3659,7 +3659,7 @@ func file_proto_prysm_v1alpha1_beacon_block_proto_init() {
 		return
 	}
 	file_proto_prysm_v1alpha1_attestation_proto_init()
-	file_proto_prysm_v1alpha1_withdrawals_proto_init()
+	file_protos_withdrawals_proto_init()
 	if !protoimpl.UnsafeEnabled {
 		file_proto_prysm_v1alpha1_beacon_block_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*GenericSignedBeaconBlock); i {
