@@ -62,25 +62,25 @@ message SignRequest {
     // Beacon chain objects. [100-200]
     oneof object {
         // Phase0 objects.
-        zond.eth.v1alpha1.BeaconBlock block = 101;
-        zond.eth.v1alpha1.AttestationData attestation_data = 102;
-        zond.eth.v1alpha1.AggregateAttestationAndProof aggregate_attestation_and_proof = 103;
-        zond.eth.v1alpha1.VoluntaryExit exit = 104;
+        zond.zond.v1alpha1.BeaconBlock block = 101;
+        zond.zond.v1alpha1.AttestationData attestation_data = 102;
+        zond.zond.v1alpha1.AggregateAttestationAndProof aggregate_attestation_and_proof = 103;
+        zond.zond.v1alpha1.VoluntaryExit exit = 104;
         uint64 slot = 105 [(zond.eth.ext.cast_type) = "github.com/theQRL/zond/consensus-types/primitives.Slot"];
         uint64 epoch = 106 [(zond.eth.ext.cast_type) = "github.com/theQRL/zond/consensus-types/primitives.Epoch"];
 
         // Altair objects.
-        zond.eth.v1alpha1.BeaconBlockAltair block_altair = 107;
-        zond.eth.v1alpha1.SyncAggregatorSelectionData sync_aggregator_selection_data = 108;
-        zond.eth.v1alpha1.ContributionAndProof contribution_and_proof = 109;
+        zond.zond.v1alpha1.BeaconBlockAltair block_altair = 107;
+        zond.zond.v1alpha1.SyncAggregatorSelectionData sync_aggregator_selection_data = 108;
+        zond.zond.v1alpha1.ContributionAndProof contribution_and_proof = 109;
         bytes sync_message_block_root  = 110;
 
         // Bellatrix objects.
-        zond.eth.v1alpha1.BeaconBlockBellatrix block_bellatrix = 111;
-        zond.eth.v1alpha1.BlindedBeaconBlockBellatrix blinded_block_bellatrix = 112;
+        zond.zond.v1alpha1.BeaconBlockBellatrix block_bellatrix = 111;
+        zond.zond.v1alpha1.BlindedBeaconBlockBellatrix blinded_block_bellatrix = 112;
 
         // Builder objects.
-        zond.eth.v1alpha1.ValidatorRegistrationV1 registration = 113;
+        zond.zond.v1alpha1.ValidatorRegistrationV1 registration = 113;
     }
     reserved 4, 5; // Reserving old, deleted fields.
     uint64 signing_slot = 6 [(zond.eth.ext.cast_type) = "github.com/theQRL/zond/consensus-types/primitives.Slot"];

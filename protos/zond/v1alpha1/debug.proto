@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package zond.eth.v1alpha1;
+package zond.zond.v1alpha1;
 
 import "protos/eth/ext/options.proto";
 import "protos/zond/v1alpha1/node.proto";
@@ -9,11 +9,11 @@ import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 import "protos/zond/v1alpha1/attestation.proto";
 
-option csharp_namespace = "zond.eth.V1alpha1";
-option go_package = "github.com/theQRL/zond/protos/zond/v1alpha1;eth";
+option csharp_namespace = "zond.zond.V1alpha1";
+option go_package = "github.com/theQRL/zond/protos/zond/v1alpha1;zond";
 option java_multiple_files = true;
 option java_outer_classname = "DebugProto";
-option java_package = "org.zond.eth.v1alpha1";
+option java_package = "org.zond.zond.v1alpha1";
 option php_namespace = "Ethereum\\Eth\\v1alpha1";
 
 // Debug service API
@@ -47,7 +47,7 @@ service Debug {
         };
     }
     // Returns requested peer with specified peer id if it exists.
-    rpc GetPeer(zond.eth.v1alpha1.PeerRequest) returns (DebugPeerResponse) {
+    rpc GetPeer(zond.v1alpha1.PeerRequest) returns (DebugPeerResponse) {
         option (google.api.http) = {
             get: "/eth/v1alpha1/debug/peer"
         };
@@ -62,17 +62,17 @@ service Debug {
 
 message InclusionSlotRequest {
     uint64 id = 1;
-    uint64 slot = 2 [(zond.eth.ext.cast_type) = "github.com/theQRL/zond/consensus-types/primitives.Slot"];
+    uint64 slot = 2 [(eth.ext.cast_type) = "github.com/theQRL/zond/consensus-types/primitives.Slot"];
 }
 
 message InclusionSlotResponse {
-    uint64 slot = 2 [(zond.eth.ext.cast_type) = "github.com/theQRL/zond/consensus-types/primitives.Slot"];
+    uint64 slot = 2 [(eth.ext.cast_type) = "github.com/theQRL/zond/consensus-types/primitives.Slot"];
 }
 
 message BeaconStateRequest {
     oneof query_filter {
         // The slot corresponding to a desired beacon state.
-        uint64 slot = 1 [(zond.eth.ext.cast_type) = "github.com/theQRL/zond/consensus-types/primitives.Slot"];
+        uint64 slot = 1 [(eth.ext.cast_type) = "github.com/theQRL/zond/consensus-types/primitives.Slot"];
 
         // The block root corresponding to a desired beacon state.
         bytes block_root = 2;
@@ -123,9 +123,9 @@ message DebugPeerResponse {
     // Listening addresses know of the peer.
     repeated string listening_addresses = 1;
     // Direction of current connection.
-    zond.eth.v1alpha1.PeerDirection direction = 2;
+    zond.v1alpha1.PeerDirection direction = 2;
     // Current connection between host and peer.
-    zond.eth.v1alpha1.ConnectionState connection_state = 3;
+    zond.v1alpha1.ConnectionState connection_state = 3;
     // Peer ID of peer.
     string peer_id = 4;
     // ZNR of peer at the current moment.

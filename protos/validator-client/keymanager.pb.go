@@ -7,7 +7,7 @@
 package validatorpb
 
 import (
-	protos "github.com/theQRL/zond/protos"
+	protos "github.com/theQRL/zond/protos/zond/v1alpha1"
 	github_com_theQRL_zond_consensus_types_primitives "github.com/theQRL/zond/consensus-types/primitives"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"

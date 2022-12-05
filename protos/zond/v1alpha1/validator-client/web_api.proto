@@ -67,39 +67,39 @@ service Beacon {
         };
     }
     rpc GetValidatorParticipation(
-        zond.eth.v1alpha1.GetValidatorParticipationRequest
-    ) returns (zond.eth.v1alpha1.ValidatorParticipationResponse) {
+        zond.zond.v1alpha1.GetValidatorParticipationRequest
+    ) returns (zond.zond.v1alpha1.ValidatorParticipationResponse) {
         option (google.api.http) = {
             get: "/v2/validator/beacon/participation"
         };
     }
     rpc GetValidatorPerformance(
-        zond.eth.v1alpha1.ValidatorPerformanceRequest
-    ) returns (zond.eth.v1alpha1.ValidatorPerformanceResponse) {
+        zond.zond.v1alpha1.ValidatorPerformanceRequest
+    ) returns (zond.zond.v1alpha1.ValidatorPerformanceResponse) {
         option (google.api.http) = {
             get: "/v2/validator/beacon/summary"
         };
     }
     rpc GetValidators(
-        zond.eth.v1alpha1.ListValidatorsRequest
-    ) returns (zond.eth.v1alpha1.Validators) {
+        zond.zond.v1alpha1.ListValidatorsRequest
+    ) returns (zond.zond.v1alpha1.Validators) {
         option (google.api.http) = {
             get: "/v2/validator/beacon/validators"
         };
     }
     rpc GetValidatorBalances(
-        zond.eth.v1alpha1.ListValidatorBalancesRequest
-    ) returns (zond.eth.v1alpha1.ValidatorBalances) {
+        zond.zond.v1alpha1.ListValidatorBalancesRequest
+    ) returns (zond.zond.v1alpha1.ValidatorBalances) {
         option (google.api.http) = {
             get: "/v2/validator/beacon/balances"
         };
     }
-    rpc GetValidatorQueue(google.protobuf.Empty) returns (zond.eth.v1alpha1.ValidatorQueue) {
+    rpc GetValidatorQueue(google.protobuf.Empty) returns (zond.zond.v1alpha1.ValidatorQueue) {
         option (google.api.http) = {
             get: "/v2/validator/beacon/queue"
         };
     }
-    rpc GetPeers(google.protobuf.Empty) returns (zond.eth.v1alpha1.Peers) {
+    rpc GetPeers(google.protobuf.Empty) returns (zond.zond.v1alpha1.Peers) {
         option (google.api.http) = {
             get: "/v2/validator/beacon/peers"
         };
@@ -136,12 +136,12 @@ service Health {
             get: "/v2/validator/health/version"
         };
     }
-    rpc StreamBeaconLogs(google.protobuf.Empty) returns (stream zond.eth.v1alpha1.LogsResponse) {
+    rpc StreamBeaconLogs(google.protobuf.Empty) returns (stream zond.zond.v1alpha1.LogsResponse) {
         option (google.api.http) = {
             get: "/v2/validator/health/logs/beacon/stream"
         };
     }
-    rpc StreamValidatorLogs(google.protobuf.Empty) returns (stream zond.eth.v1alpha1.LogsResponse) {
+    rpc StreamValidatorLogs(google.protobuf.Empty) returns (stream zond.zond.v1alpha1.LogsResponse) {
         option (google.api.http) = {
             get: "/v2/validator/health/logs/validator/stream"
         };

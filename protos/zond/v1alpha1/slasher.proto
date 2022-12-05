@@ -13,18 +13,18 @@
 // limitations under the License.
 syntax = "proto3";
 
-package zond.eth.v1alpha1;
+package zond.zond.v1alpha1;
 
 import "protos/eth/ext/options.proto";
 import "protos/zond/v1alpha1/beacon_block.proto";
 
 import "google/api/annotations.proto";
 
-option csharp_namespace = "zond.eth.V1alpha1";
-option go_package = "github.com/theQRL/zond/protos/zond/v1alpha1;eth";
+option csharp_namespace = "zond.zond.V1alpha1";
+option go_package = "github.com/theQRL/zond/protos/zond/v1alpha1;zond";
 option java_multiple_files = true;
 option java_outer_classname = "SlasherProto";
-option java_package = "org.zond.eth.v1alpha1";
+option java_package = "org.zond.zond.v1alpha1";
 option php_namespace = "Ethereum\\Eth\\v1alpha1";
 
 // Slasher service API
@@ -33,7 +33,7 @@ option php_namespace = "Ethereum\\Eth\\v1alpha1";
 // are slashable.
 service Slasher {
   // Returns any found attester slashings for an input indexed attestation.
-  rpc IsSlashableAttestation(zond.eth.v1alpha1.IndexedAttestation)
+  rpc IsSlashableAttestation(zond.v1alpha1.IndexedAttestation)
       returns (AttesterSlashingResponse) {
     option (google.api.http) = {
       post : "/eth/v1alpha1/slasher/attestations/slashable",
@@ -42,7 +42,7 @@ service Slasher {
   }
 
   // Returns any found proposer slashings for an input signed block header.
-  rpc IsSlashableBlock(zond.eth.v1alpha1.SignedBeaconBlockHeader)
+  rpc IsSlashableBlock(zond.v1alpha1.SignedBeaconBlockHeader)
       returns (ProposerSlashingResponse) {
     option (google.api.http) = {
       get : "/eth/v1alpha1/slasher/blocks/slashable"
@@ -60,11 +60,11 @@ service Slasher {
 }
 
 message AttesterSlashingResponse {
-  repeated zond.eth.v1alpha1.AttesterSlashing attester_slashings = 1;
+  repeated zond.v1alpha1.AttesterSlashing attester_slashings = 1;
 }
 
 message ProposerSlashingResponse {
-  repeated zond.eth.v1alpha1.ProposerSlashing proposer_slashings = 1;
+  repeated zond.v1alpha1.ProposerSlashing proposer_slashings = 1;
 }
 
 message HighestAttestationRequest { repeated uint64 validator_indices = 1; }
@@ -76,9 +76,9 @@ message HighestAttestationResponse {
 message HighestAttestation {
   uint64 validator_index = 1;
   uint64 highest_source_epoch = 2
-      [ (zond.eth.ext.cast_type) =
+      [ (eth.ext.cast_type) =
             "github.com/theQRL/zond/consensus-types/primitives.Epoch" ];
   uint64 highest_target_epoch = 3
-      [ (zond.eth.ext.cast_type) =
+      [ (eth.ext.cast_type) =
             "github.com/theQRL/zond/consensus-types/primitives.Epoch" ];
 }

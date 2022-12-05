@@ -13,7 +13,7 @@
 // limitations under the License.
 syntax = "proto3";
 
-package zond.eth.v1alpha1;
+package zond.zond.v1alpha1;
 
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
@@ -21,11 +21,11 @@ import "google/protobuf/timestamp.proto";
 
 import "protos/eth/ext/options.proto";
 
-option csharp_namespace = "zond.eth.v1alpha1";
-option go_package = "github.com/theQRL/zond/protos/zond/v1alpha1;eth";
+option csharp_namespace = "zond.zond.v1alpha1";
+option go_package = "github.com/theQRL/zond/protos/zond/v1alpha1;zond";
 option java_multiple_files = true;
 option java_outer_classname = "NodeProto";
-option java_package = "org.zond.eth.v1alpha1";
+option java_package = "org.zond.zond.v1alpha1";
 option php_namespace = "Ethereum\\Eth\\v1alpha1";
 
 // Node service API
@@ -110,7 +110,7 @@ message Genesis {
 
     // Root of the genesis validators deposits; used for domain separation
     // when signing data structures for this chain.
-    bytes genesis_validators_root = 3 [(zond.eth.ext.ssz_size) = "32"];
+    bytes genesis_validators_root = 3 [(eth.ext.ssz_size) = "32"];
 }
 
 // Information about the node version.
