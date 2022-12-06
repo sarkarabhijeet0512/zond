@@ -34,7 +34,7 @@ type Listener interface {
 	LocalNode() *znode.LocalNode
 }
 
-// RefreshENR uses an epoch to refresh the znr entry for our node
+// RefreshZNR uses an epoch to refresh the znr entry for our node
 // with the tracked committee ids for the epoch, allowing our node
 // to be dynamically discoverable by others given our tracked committee ids.
 func (s *Service) RefreshZNR() {
@@ -249,7 +249,7 @@ func (s *Service) startDiscoveryV5(
 		return nil, errors.Wrap(err, "could not create listener")
 	}
 	record := listener.Self()
-	log.WithField("ENR", record.String()).Info("Started discovery v5")
+	log.WithField("ZNR", record.String()).Info("Started discovery v5")
 	return listener, nil
 }
 
@@ -297,17 +297,17 @@ func (s *Service) filterPeer(node *znode.Node) bool {
 	if !s.peers.IsReadyToDial(peerData.ID) {
 		return false
 	}
-	nodeENR := node.Record()
+	nodeZNR := node.Record()
 	// Decide whether or not to connect to peer that does not
-	// match the proper fork ENR data with our local node.
+	// match the proper fork ZNR data with our local node.
 	if s.genesisValidatorsRoot != nil {
-		if err := s.compareForkENR(nodeENR); err != nil {
-			log.WithError(err).Trace("Fork ENR mismatches between peer and local node")
+		if err := s.compareForkZNR(nodeZNR); err != nil {
+			log.WithError(err).Trace("Fork ZNR mismatches between peer and local node")
 			return false
 		}
 	}
 	// Add peer to peer handler.
-	s.peers.Add(nodeENR, peerData.ID, multiAddr, network.DirUnknown)
+	s.peers.Add(nodeZNR, peerData.ID, multiAddr, network.DirUnknown)
 	return true
 }
 
@@ -332,7 +332,7 @@ func (s *Service) isPeerAtLimit(inbound bool) bool {
 	return activePeers >= maxPeers || numOfConns >= maxPeers
 }
 
-// PeersFromStringAddrs convers peer raw ENRs into multiaddrs for p2p.
+// PeersFromStringAddrs convers peer raw ZNRs into multiaddrs for p2p.
 func PeersFromStringAddrs(addrs []string) ([]ma.Multiaddr, error) {
 	var allAddrs []ma.Multiaddr
 	enodeString, multiAddrString := parseGenericAddrs(addrs)

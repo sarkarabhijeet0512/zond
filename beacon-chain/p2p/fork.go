@@ -30,7 +30,7 @@ func (s *Service) currentForkDigest() ([4]byte, error) {
 
 // Compares fork ENRs between an incoming peer's record and our node's
 // local record values for current and next fork version/epoch.
-func (s *Service) compareForkENR(record *znr.Record) error {
+func (s *Service) compareForkZNR(record *znr.Record) error {
 	currentRecord := s.dv5Listener.LocalNode().Node().Record()
 	peerForkENR, err := forkEntry(record)
 	if err != nil {

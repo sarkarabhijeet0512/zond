@@ -29,7 +29,6 @@ import (
 	"github.com/theQRL/zond/runtime/fdlimits"
 	prefixed "github.com/theQRL/zond/runtime/logging/logrus-prefixed-formatter"
 	_ "github.com/theQRL/zond/runtime/maxprocs"
-	"github.com/theQRL/zond/runtime/tos"
 	"github.com/theQRL/zond/runtime/version"
 	"github.com/urfave/cli/v2"
 )
@@ -226,9 +225,9 @@ func startNode(ctx *cli.Context) error {
 	}
 
 	// verify if ToS accepted
-	if err := tos.VerifyTosAcceptedOrPrompt(ctx); err != nil {
-		return err
-	}
+	// if err := tos.VerifyTosAcceptedOrPrompt(ctx); err != nil {
+	// 	return err
+	// }
 
 	verbosity := ctx.String(cmd.VerbosityFlag.Name)
 	level, err := logrus.ParseLevel(verbosity)
