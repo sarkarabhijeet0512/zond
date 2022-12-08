@@ -82,6 +82,11 @@ func (s *Service) Start() {
 		log.Debug("Exiting Initial Sync Service")
 		return
 	}
+	if flags.Get().DisableSync {
+		s.markSynced(genesis)
+		log.WithField("genesisTime", genesis).Info("Due to Sync Being Disabled, entering regular sync immediately.")
+		return
+	}
 	if genesis.After(prysmTime.Now()) {
 		s.markSynced(genesis)
 		log.WithField("genesisTime", genesis).Info("Genesis time has not arrived - not syncing")
@@ -101,7 +106,7 @@ func (s *Service) Start() {
 		s.markSynced(genesis)
 		return
 	}
-	s.waitForMinimumPeers()
+	// s.waitForMinimumPeers()
 	if err := s.roundRobinSync(genesis); err != nil {
 		if errors.Is(s.ctx.Err(), context.Canceled) {
 			return

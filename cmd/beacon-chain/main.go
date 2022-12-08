@@ -51,6 +51,7 @@ var appFlags = []cli.Flag{
 	flags.MinSyncPeers,
 	flags.ContractDeploymentBlock,
 	flags.SetGCPercent,
+	flags.DisableSync,
 	flags.BlockBatchLimit,
 	flags.BlockBatchLimitBurstFactor,
 	flags.InteropMockEth1DataVotesFlag,

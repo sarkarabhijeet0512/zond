@@ -32,6 +32,7 @@ import (
 	"github.com/theQRL/zond/beacon-chain/p2p"
 	"github.com/theQRL/zond/beacon-chain/state/stategen"
 	lruwrpr "github.com/theQRL/zond/cache/lru"
+	"github.com/theQRL/zond/cmd/beacon-chain/flags"
 	"github.com/theQRL/zond/config/params"
 	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 	"github.com/theQRL/zond/runtime"
@@ -178,7 +179,9 @@ func (s *Service) Start() {
 	s.processPendingBlocksQueue()
 	s.processPendingAttsQueue()
 	s.maintainPeerStatuses()
-	s.resyncIfBehind()
+	if !flags.Get().DisableSync {
+		s.resyncIfBehind()
+	}
 
 	// Update sync metrics.
 	async.RunEvery(s.ctx, syncMetricsInterval, s.updateMetrics)
