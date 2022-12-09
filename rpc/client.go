@@ -22,6 +22,7 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
+	"os"
 	"reflect"
 	"strconv"
 	"sync/atomic"
@@ -31,6 +32,7 @@ import (
 )
 
 var (
+	ErrBadResult                 = errors.New("bad result in JSON-RPC response")
 	ErrClientQuit                = errors.New("client is closed")
 	ErrNoResult                  = errors.New("no result in JSON-RPC response")
 	ErrSubscriptionQueueOverflow = errors.New("subscription queue overflow")
@@ -168,22 +170,46 @@ func Dial(rawurl string) (*Client, error) {
 // The context is used to cancel or time out the initial connection establishment. It does
 // not affect subsequent interactions with the client.
 func DialContext(ctx context.Context, rawurl string) (*Client, error) {
+	return DialOptions(ctx, rawurl)
+}
+
+// DialOptions creates a new RPC client for the given URL. You can supply any of the
+// pre-defined client options to configure the underlying transport.
+//
+// The context is used to cancel or time out the initial connection establishment. It does
+// not affect subsequent interactions with the client.
+//
+// The client reconnects automatically when the connection is lost.
+func DialOptions(ctx context.Context, rawurl string, options ...ClientOption) (*Client, error) {
 	u, err := url.Parse(rawurl)
 	if err != nil {
 		return nil, err
 	}
+
+	cfg := new(clientConfig)
+	for _, opt := range options {
+		opt.applyOption(cfg)
+	}
+
+	var reconnect reconnectFunc
 	switch u.Scheme {
 	case "http", "https":
-		return DialHTTP(rawurl)
+		reconnect = newClientTransportHTTP(rawurl, cfg)
 	case "ws", "wss":
-		return DialWebsocket(ctx, rawurl, "")
+		rc, err := newClientTransportWS(rawurl, cfg)
+		if err != nil {
+			return nil, err
+		}
+		reconnect = rc
 	case "stdio":
-		return DialStdIO(ctx)
+		reconnect = newClientTransportIO(os.Stdin, os.Stdout)
 	case "":
-		return DialIPC(ctx, rawurl)
+		reconnect = newClientTransportIPC(rawurl)
 	default:
 		return nil, fmt.Errorf("no known transport for URL scheme %q", u.Scheme)
 	}
+
+	return newClient(ctx, reconnect)
 }
 
 // ClientFromContext retrieves the client from the context, if any. This can be used to perform
