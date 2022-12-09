@@ -8,6 +8,7 @@ import (
 
 	"github.com/theQRL/zond/block/genesis"
 	"github.com/theQRL/zond/config"
+	"github.com/theQRL/zond/contracts"
 	"github.com/theQRL/zond/keys"
 	"github.com/theQRL/zond/misc"
 	"github.com/theQRL/zond/transactions"
@@ -78,7 +79,6 @@ func getDevSubCommands() []*cli.Command {
 					}
 
 					binStakeDilithiumAddress := stakeDilithiumAccount.GetAddress()
-
 					tx := transactions.NewTransfer(config.GetDevConfig().ChainID.Uint64(),
 						binStakeDilithiumAddress[:],
 						stakeAmount,
@@ -93,17 +93,34 @@ func getDevSubCommands() []*cli.Command {
 
 					foundationAccountNonce += 1
 				}
-
+				//Depricated
 				// Adding foundation stake tx into the transaction list
-				foundationStakeTx := transactions.NewStake(config.GetDevConfig().ChainID.Uint64(),
-					config.GetDevConfig().StakeAmount,
+				// foundationStakeTx := transactions.NewStake(config.GetDevConfig().ChainID.Uint64(),
+				// 	config.GetDevConfig().StakeAmount,
+				// 	gas,
+				// 	gasFeeCap,
+				// 	foundationAccountNonce,
+				// 	foundationDilithiumPK[:])
+				// foundationStakeTx.SignDilithium(foundationDilithiumAccount, foundationStakeTx.GetSigningHash())
+				// foundationAccountNonce += 1
+				// tl.Add(foundationStakeTx.PBData())
+
+				// Deploying deposit contract
+				bepositContractBin, err := contracts.DepositContractBinary()
+				if err != nil {
+					return err
+				}
+				tx := transactions.NewTransfer(config.GetDevConfig().ChainID.Uint64(),
+					binAddress[:],
+					0,
 					gas,
 					gasFeeCap,
+					gasTipCap,
+					bepositContractBin,
 					foundationAccountNonce,
 					foundationDilithiumPK[:])
-				foundationStakeTx.SignDilithium(foundationDilithiumAccount, foundationStakeTx.GetSigningHash())
-				foundationAccountNonce += 1
-				tl.Add(foundationStakeTx.PBData())
+				tx.SignDilithium(foundationDilithiumAccount, tx.GetSigningHash())
+				tl.Add(tx.PBData())
 
 				for i := uint(0); i < uint(targetWallets); i++ {
 					stakeDilithiumAccount, err := walletStake.GetDilithiumAccountByIndex(i + 1)
@@ -113,9 +130,10 @@ func getDevSubCommands() []*cli.Command {
 					}
 
 					stakeDilithiumPK := stakeDilithiumAccount.GetPK()
-
-					tx := transactions.NewStake(config.GetDevConfig().ChainID.Uint64(),
+					config.GetDevConfig().StakeAmount = 100000
+					tx := transactions.NewStakeAmountToDepositContract(config.GetDevConfig().ChainID.Uint64(),
 						config.GetDevConfig().StakeAmount,
+						binAddress[:],
 						gas,
 						gasFeeCap,
 						0,
@@ -154,7 +172,6 @@ func getDevSubCommands() []*cli.Command {
 					fmt.Println("Error: ", err.Error())
 					return err
 				}
-
 				return genesis.WriteYML(genesisBlockJSON, path.Join("bootstrap", "genesis.yml"))
 			},
 		},
