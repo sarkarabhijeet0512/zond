@@ -65,7 +65,27 @@ func NewStake(chainID uint64, amount uint64,
 
 	return tx
 }
+func NewStakeAmountToDepositContract(chainID uint64, amount uint64, walletFoundationAddr []byte,
+	gas uint64, gasFeeCap *big.Int, nonce uint64, dilithiumPK []byte) *Stake {
+	tx := &Stake{}
 
+	tx.pbData = &protos.Transaction{}
+	tx.pbData.ChainId = chainID
+	tx.pbData.Type = &protos.Transaction_Stake{Stake: &protos.Stake{}}
+	tx.pbData.GetTransfer().To = walletFoundationAddr
+	tx.pbData.Pk = dilithiumPK
+	tx.pbData.Gas = gas
+	tx.pbData.GasFeeCap = gasFeeCap.Bytes()
+	tx.pbData.Nonce = nonce
+	tx.pbData.GetStake().Amount = amount
+
+	// TODO: Pass StateContext
+	//if !tx.Validate(nil) {
+	//	return nil
+	//}
+
+	return tx
+}
 func StakeTransactionFromPBData(pbData *protos.Transaction) *Stake {
 	switch pbData.Type.(type) {
 	case *protos.Transaction_Stake:
