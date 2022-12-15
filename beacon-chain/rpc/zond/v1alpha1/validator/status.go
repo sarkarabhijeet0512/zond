@@ -4,11 +4,11 @@ import (
 	"context"
 	"errors"
 
+	"github.com/theQRL/go-qrllib/dilithium"
 	"github.com/theQRL/zond/beacon-chain/core/helpers"
 	"github.com/theQRL/zond/beacon-chain/core/signing"
 	"github.com/theQRL/zond/beacon-chain/core/time"
 	"github.com/theQRL/zond/beacon-chain/state"
-	fieldparams "github.com/theQRL/zond/config/fieldparams"
 	"github.com/theQRL/zond/config/params"
 	types "github.com/theQRL/zond/consensus-types/primitives"
 	"github.com/theQRL/zond/contracts/deposit"
@@ -65,11 +65,11 @@ func (vs *Server) MultipleValidatorStatus(
 	}
 	responseCap := len(req.PublicKeys) + len(req.Indices)
 	pubKeys := make([][]byte, 0, responseCap)
-	filtered := make(map[[fieldparams.BLSPubkeyLength]byte]bool)
-	filtered[[fieldparams.BLSPubkeyLength]byte{}] = true // Filter out keys with all zeros.
+	filtered := make(map[[dilithium.PKSizePacked]byte]bool)
+	filtered[[dilithium.PKSizePacked]byte{}] = true // Filter out keys with all zeros.
 	// Filter out duplicate public keys.
 	for _, pubKey := range req.PublicKeys {
-		pubkeyBytes := bytesutil.ToBytes48(pubKey)
+		pubkeyBytes := bytesutil.ToBytes1472Dilthium(pubKey)
 		if !filtered[pubkeyBytes] {
 			pubKeys = append(pubKeys, pubKey)
 			filtered[pubkeyBytes] = true
@@ -185,7 +185,7 @@ func (vs *Server) CheckDoppelGanger(ctx context.Context, req *ethpb.DoppelGanger
 				})
 			continue
 		}
-		valIndex, ok := prevState.ValidatorIndexByPubkey(bytesutil.ToBytes48(v.PublicKey))
+		valIndex, ok := prevState.ValidatorIndexByPubkey(bytesutil.ToBytes1472Dilthium(v.PublicKey))
 		if !ok {
 			// Ignore if validator pubkey doesn't exist.
 			continue
@@ -394,7 +394,7 @@ func statusForPubKey(headState state.ReadOnlyBeaconState, pubKey []byte) (ethpb.
 	if headState == nil || headState.IsNil() {
 		return ethpb.ValidatorStatus_UNKNOWN_STATUS, 0, errors.New("head state does not exist")
 	}
-	idx, ok := headState.ValidatorIndexByPubkey(bytesutil.ToBytes48(pubKey))
+	idx, ok := headState.ValidatorIndexByPubkey(bytesutil.ToBytes1472Dilthium(pubKey))
 	if !ok || uint64(idx) >= uint64(headState.NumValidators()) {
 		return ethpb.ValidatorStatus_UNKNOWN_STATUS, 0, errPubkeyDoesNotExist
 	}

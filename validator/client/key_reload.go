@@ -4,14 +4,14 @@ import (
 	"context"
 
 	"github.com/pkg/errors"
-	fieldparams "github.com/theQRL/zond/config/fieldparams"
+	"github.com/theQRL/go-qrllib/dilithium"
 	eth "github.com/theQRL/zond/protos/zond/v1alpha1"
 	"go.opencensus.io/trace"
 )
 
 // HandleKeyReload makes sure the validator keeps operating correctly after a change to the underlying keys.
 // It is also responsible for logging out information about the new state of keys.
-func (v *validator) HandleKeyReload(ctx context.Context, newKeys [][fieldparams.BLSPubkeyLength]byte) (anyActive bool, err error) {
+func (v *validator) HandleKeyReload(ctx context.Context, newKeys [][dilithium.PKSizePacked]byte) (anyActive bool, err error) {
 	ctx, span := trace.StartSpan(ctx, "validator.HandleKeyReload")
 	defer span.End()
 

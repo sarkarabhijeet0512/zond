@@ -8,7 +8,7 @@ import (
 
 	"github.com/k0kubun/go-ansi"
 	"github.com/schollz/progressbar/v3"
-	fieldparams "github.com/theQRL/zond/config/fieldparams"
+	"github.com/theQRL/go-qrllib/dilithium"
 	types "github.com/theQRL/zond/consensus-types/primitives"
 )
 
@@ -54,16 +54,16 @@ func SlotFromString(str string) (types.Slot, error) {
 }
 
 // PubKeyFromHex takes in a hex string, verifies its length as 48 bytes, and converts that representation.
-func PubKeyFromHex(str string) ([fieldparams.BLSPubkeyLength]byte, error) {
+func PubKeyFromHex(str string) ([dilithium.PKSizePacked]byte, error) {
 	pubKeyBytes, err := hex.DecodeString(strings.TrimPrefix(str, "0x"))
 	if err != nil {
-		return [fieldparams.BLSPubkeyLength]byte{}, err
+		return [dilithium.PKSizePacked]byte{}, err
 	}
 	if len(pubKeyBytes) != 48 {
-		return [fieldparams.BLSPubkeyLength]byte{}, fmt.Errorf("public key is not correct, 48-byte length: %s", str)
+		return [dilithium.PKSizePacked]byte{}, fmt.Errorf("public key is not correct, 48-byte length: %s", str)
 	}
-	var pk [fieldparams.BLSPubkeyLength]byte
-	copy(pk[:], pubKeyBytes[:fieldparams.BLSPubkeyLength])
+	var pk [dilithium.PKSizePacked]byte
+	copy(pk[:], pubKeyBytes[:dilithium.PKSizePacked])
 	return pk, nil
 }
 

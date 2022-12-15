@@ -6,7 +6,7 @@ import (
 	"time"
 
 	log "github.com/sirupsen/logrus"
-	fieldparams "github.com/theQRL/zond/config/fieldparams"
+	"github.com/theQRL/go-qrllib/dilithium"
 	validatorserviceconfig "github.com/theQRL/zond/config/validator/service"
 	types "github.com/theQRL/zond/consensus-types/primitives"
 	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
@@ -48,10 +48,10 @@ type FakeValidator struct {
 	UpdateDutiesRet                   error
 	ProposerSettingsErr               error
 	RolesAtRet                        []iface.ValidatorRole
-	Balances                          map[[fieldparams.BLSPubkeyLength]byte]uint64
-	IndexToPubkeyMap                  map[uint64][fieldparams.BLSPubkeyLength]byte
-	PubkeyToIndexMap                  map[[fieldparams.BLSPubkeyLength]byte]uint64
-	PubkeysToStatusesMap              map[[fieldparams.BLSPubkeyLength]byte]ethpb.ValidatorStatus
+	Balances                          map[[dilithium.PKSizePacked]byte]uint64
+	IndexToPubkeyMap                  map[uint64][dilithium.PKSizePacked]byte
+	PubkeyToIndexMap                  map[[dilithium.PKSizePacked]byte]uint64
+	PubkeysToStatusesMap              map[[dilithium.PKSizePacked]byte]ethpb.ValidatorStatus
 	proposerSettings                  *validatorserviceconfig.ProposerSettings
 	Km                                keymanager.IKeymanager
 }
@@ -85,7 +85,7 @@ func (fv *FakeValidator) WaitForChainStart(_ context.Context) error {
 }
 
 // WaitForActivation for mocking.
-func (fv *FakeValidator) WaitForActivation(_ context.Context, _ chan [][fieldparams.BLSPubkeyLength]byte) error {
+func (fv *FakeValidator) WaitForActivation(_ context.Context, _ chan [][dilithium.PKSizePacked]byte) error {
 	fv.WaitForActivationCalled++
 	if fv.RetryTillSuccess >= fv.WaitForActivationCalled {
 		return iface.ErrConnectionIssue
@@ -154,32 +154,32 @@ func (fv *FakeValidator) ResetAttesterProtectionData() {
 }
 
 // RolesAt for mocking.
-func (fv *FakeValidator) RolesAt(_ context.Context, slot types.Slot) (map[[fieldparams.BLSPubkeyLength]byte][]iface.ValidatorRole, error) {
+func (fv *FakeValidator) RolesAt(_ context.Context, slot types.Slot) (map[[dilithium.PKSizePacked]byte][]iface.ValidatorRole, error) {
 	fv.RoleAtCalled = true
 	fv.RoleAtArg1 = uint64(slot)
-	vr := make(map[[fieldparams.BLSPubkeyLength]byte][]iface.ValidatorRole)
-	vr[[fieldparams.BLSPubkeyLength]byte{1}] = fv.RolesAtRet
+	vr := make(map[[dilithium.PKSizePacked]byte][]iface.ValidatorRole)
+	vr[[dilithium.PKSizePacked]byte{1}] = fv.RolesAtRet
 	return vr, nil
 }
 
 // SubmitAttestation for mocking.
-func (fv *FakeValidator) SubmitAttestation(_ context.Context, slot types.Slot, _ [fieldparams.BLSPubkeyLength]byte) {
+func (fv *FakeValidator) SubmitAttestation(_ context.Context, slot types.Slot, _ [dilithium.PKSizePacked]byte) {
 	fv.AttestToBlockHeadCalled = true
 	fv.AttestToBlockHeadArg1 = uint64(slot)
 }
 
 // ProposeBlock for mocking.
-func (fv *FakeValidator) ProposeBlock(_ context.Context, slot types.Slot, _ [fieldparams.BLSPubkeyLength]byte) {
+func (fv *FakeValidator) ProposeBlock(_ context.Context, slot types.Slot, _ [dilithium.PKSizePacked]byte) {
 	fv.ProposeBlockCalled = true
 	fv.ProposeBlockArg1 = uint64(slot)
 }
 
 // SubmitAggregateAndProof for mocking.
-func (_ *FakeValidator) SubmitAggregateAndProof(_ context.Context, _ types.Slot, _ [fieldparams.BLSPubkeyLength]byte) {
+func (_ *FakeValidator) SubmitAggregateAndProof(_ context.Context, _ types.Slot, _ [dilithium.PKSizePacked]byte) {
 }
 
 // SubmitSyncCommitteeMessage for mocking.
-func (_ *FakeValidator) SubmitSyncCommitteeMessage(_ context.Context, _ types.Slot, _ [fieldparams.BLSPubkeyLength]byte) {
+func (_ *FakeValidator) SubmitSyncCommitteeMessage(_ context.Context, _ types.Slot, _ [dilithium.PKSizePacked]byte) {
 }
 
 // LogAttestationsSubmitted for mocking.
@@ -189,22 +189,22 @@ func (_ *FakeValidator) LogAttestationsSubmitted() {}
 func (_ *FakeValidator) UpdateDomainDataCaches(context.Context, types.Slot) {}
 
 // BalancesByPubkeys for mocking.
-func (fv *FakeValidator) BalancesByPubkeys(_ context.Context) map[[fieldparams.BLSPubkeyLength]byte]uint64 {
+func (fv *FakeValidator) BalancesByPubkeys(_ context.Context) map[[dilithium.PKSizePacked]byte]uint64 {
 	return fv.Balances
 }
 
 // IndicesToPubkeys for mocking.
-func (fv *FakeValidator) IndicesToPubkeys(_ context.Context) map[uint64][fieldparams.BLSPubkeyLength]byte {
+func (fv *FakeValidator) IndicesToPubkeys(_ context.Context) map[uint64][dilithium.PKSizePacked]byte {
 	return fv.IndexToPubkeyMap
 }
 
 // PubkeysToIndices for mocking.
-func (fv *FakeValidator) PubkeysToIndices(_ context.Context) map[[fieldparams.BLSPubkeyLength]byte]uint64 {
+func (fv *FakeValidator) PubkeysToIndices(_ context.Context) map[[dilithium.PKSizePacked]byte]uint64 {
 	return fv.PubkeyToIndexMap
 }
 
 // PubkeysToStatuses for mocking.
-func (fv *FakeValidator) PubkeysToStatuses(_ context.Context) map[[fieldparams.BLSPubkeyLength]byte]ethpb.ValidatorStatus {
+func (fv *FakeValidator) PubkeysToStatuses(_ context.Context) map[[dilithium.PKSizePacked]byte]ethpb.ValidatorStatus {
 	return fv.PubkeysToStatusesMap
 }
 
@@ -235,7 +235,7 @@ func (fv *FakeValidator) ReceiveBlocks(_ context.Context, connectionErrorChannel
 }
 
 // HandleKeyReload for mocking
-func (fv *FakeValidator) HandleKeyReload(_ context.Context, newKeys [][fieldparams.BLSPubkeyLength]byte) (anyActive bool, err error) {
+func (fv *FakeValidator) HandleKeyReload(_ context.Context, newKeys [][dilithium.PKSizePacked]byte) (anyActive bool, err error) {
 	fv.HandleKeyReloadCalled = true
 	for _, key := range newKeys {
 		if bytes.Equal(key[:], ActiveKey[:]) {
@@ -246,7 +246,7 @@ func (fv *FakeValidator) HandleKeyReload(_ context.Context, newKeys [][fieldpara
 }
 
 // SubmitSignedContributionAndProof for mocking
-func (_ *FakeValidator) SubmitSignedContributionAndProof(_ context.Context, _ types.Slot, _ [fieldparams.BLSPubkeyLength]byte) {
+func (_ *FakeValidator) SubmitSignedContributionAndProof(_ context.Context, _ types.Slot, _ [dilithium.PKSizePacked]byte) {
 }
 
 // HasProposerSettings for mocking

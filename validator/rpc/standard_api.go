@@ -7,9 +7,9 @@ import (
 	"fmt"
 
 	"github.com/golang/protobuf/ptypes/empty"
+	"github.com/theQRL/go-qrllib/dilithium"
 	"github.com/theQRL/zond/common"
 	"github.com/theQRL/zond/common/hexutil"
-	fieldparams "github.com/theQRL/zond/config/fieldparams"
 	"github.com/theQRL/zond/config/params"
 	validatorServiceConfig "github.com/theQRL/zond/config/validator/service"
 	"github.com/theQRL/zond/encoding/bytesutil"
@@ -218,7 +218,7 @@ func (s *Server) transformDeletedKeysStatuses(
 	}
 	if len(pubKeysInDB) > 0 {
 		for i := 0; i < len(pubKeys); i++ {
-			keyExistsInDB := pubKeysInDB[bytesutil.ToBytes48(pubKeys[i])]
+			keyExistsInDB := pubKeysInDB[bytesutil.ToBytes1472Dilthium(pubKeys[i])]
 			if keyExistsInDB && statuses[i].Status == ethpbservice.DeletedKeystoreStatus_NOT_FOUND {
 				statuses[i].Status = ethpbservice.DeletedKeystoreStatus_NOT_ACTIVE
 			}
@@ -228,8 +228,8 @@ func (s *Server) transformDeletedKeysStatuses(
 }
 
 // Gets a map of all public keys in the database, useful for O(1) lookups.
-func (s *Server) publicKeysInDB(ctx context.Context) (map[[fieldparams.BLSPubkeyLength]byte]bool, error) {
-	pubKeysInDB := make(map[[fieldparams.BLSPubkeyLength]byte]bool)
+func (s *Server) publicKeysInDB(ctx context.Context) (map[[dilithium.PKSizePacked]byte]bool, error) {
+	pubKeysInDB := make(map[[dilithium.PKSizePacked]byte]bool)
 	attestedPublicKeys, err := s.valDB.AttestedPublicKeys(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("could not get attested public keys from DB: %v", err)
@@ -314,10 +314,10 @@ func (s *Server) ImportRemoteKeys(ctx context.Context, req *ethpbservice.ImportR
 		return &ethpbservice.ImportRemoteKeysResponse{Data: statuses}, nil
 	}
 
-	remoteKeys := make([][fieldparams.BLSPubkeyLength]byte, len(req.RemoteKeys))
+	remoteKeys := make([][dilithium.PKSizePacked]byte, len(req.RemoteKeys))
 	isUrlUsed := false
 	for i, obj := range req.RemoteKeys {
-		remoteKeys[i] = bytesutil.ToBytes48(obj.Pubkey)
+		remoteKeys[i] = bytesutil.ToBytes1472Dilthium(obj.Pubkey)
 		if obj.Url != "" {
 			isUrlUsed = true
 		}
@@ -367,9 +367,9 @@ func (s *Server) DeleteRemoteKeys(ctx context.Context, req *ethpbservice.DeleteR
 		statuses := groupDeleteRemoteKeysErrors(req, "Keymanager kind cannot delete public keys for web3signer keymanager type.")
 		return &ethpbservice.DeleteRemoteKeysResponse{Data: statuses}, nil
 	}
-	remoteKeys := make([][fieldparams.BLSPubkeyLength]byte, len(req.Pubkeys))
+	remoteKeys := make([][dilithium.PKSizePacked]byte, len(req.Pubkeys))
 	for i, key := range req.Pubkeys {
-		remoteKeys[i] = bytesutil.ToBytes48(key)
+		remoteKeys[i] = bytesutil.ToBytes1472Dilthium(key)
 	}
 	statuses, err := deleter.DeletePublicKeys(ctx, remoteKeys)
 	if err != nil {
@@ -406,7 +406,7 @@ func (s *Server) GetGasLimit(_ context.Context, req *ethpbservice.PubkeyRequest)
 		},
 	}
 	if s.validatorService.ProposerSettings() != nil {
-		proposerOption, found := s.validatorService.ProposerSettings().ProposeConfig[bytesutil.ToBytes48(validatorKey)]
+		proposerOption, found := s.validatorService.ProposerSettings().ProposeConfig[bytesutil.ToBytes1472Dilthium(validatorKey)]
 		if found {
 			if proposerOption.BuilderConfig != nil {
 				resp.Data.GasLimit = uint64(proposerOption.BuilderConfig.GasLimit)
@@ -457,15 +457,15 @@ func (s *Server) SetGasLimit(ctx context.Context, req *ethpbservice.SetGasLimitR
 		})
 		if resp == nil || len(resp.FeeRecipient) == 0 || err != nil {
 			s.validatorService.SetProposerSettings(&validatorServiceConfig.ProposerSettings{
-				ProposeConfig: map[[fieldparams.BLSPubkeyLength]byte]*validatorServiceConfig.ProposerOption{
-					bytesutil.ToBytes48(validatorKey): &pOption,
+				ProposeConfig: map[[dilithium.PKSizePacked]byte]*validatorServiceConfig.ProposerOption{
+					bytesutil.ToBytes1472Dilthium(validatorKey): &pOption,
 				},
 				DefaultConfig: &defaultOption,
 			})
 		} else {
 			s.validatorService.SetProposerSettings(&validatorServiceConfig.ProposerSettings{
-				ProposeConfig: map[[fieldparams.BLSPubkeyLength]byte]*validatorServiceConfig.ProposerOption{
-					bytesutil.ToBytes48(validatorKey): &pOption,
+				ProposeConfig: map[[dilithium.PKSizePacked]byte]*validatorServiceConfig.ProposerOption{
+					bytesutil.ToBytes1472Dilthium(validatorKey): &pOption,
 				},
 				DefaultConfig: &validatorServiceConfig.ProposerOption{
 					FeeRecipient: common.BytesToAddress(resp.FeeRecipient),
@@ -474,11 +474,11 @@ func (s *Server) SetGasLimit(ctx context.Context, req *ethpbservice.SetGasLimitR
 		}
 	} else if s.validatorService.ProposerSettings().ProposeConfig == nil {
 		settings := s.validatorService.ProposerSettings()
-		settings.ProposeConfig = make(map[[fieldparams.BLSPubkeyLength]byte]*validatorServiceConfig.ProposerOption)
-		settings.ProposeConfig[bytesutil.ToBytes48(validatorKey)] = &pOption
+		settings.ProposeConfig = make(map[[dilithium.PKSizePacked]byte]*validatorServiceConfig.ProposerOption)
+		settings.ProposeConfig[bytesutil.ToBytes1472Dilthium(validatorKey)] = &pOption
 		s.validatorService.SetProposerSettings(settings)
 	} else {
-		proposerOption, found := s.validatorService.ProposerSettings().ProposeConfig[bytesutil.ToBytes48(validatorKey)]
+		proposerOption, found := s.validatorService.ProposerSettings().ProposeConfig[bytesutil.ToBytes1472Dilthium(validatorKey)]
 		if found {
 			if proposerOption.BuilderConfig == nil {
 				proposerOption.BuilderConfig = pBuilderConfig
@@ -486,7 +486,7 @@ func (s *Server) SetGasLimit(ctx context.Context, req *ethpbservice.SetGasLimitR
 				proposerOption.BuilderConfig.GasLimit = validatorServiceConfig.Uint64(req.GasLimit)
 			}
 		} else {
-			s.validatorService.ProposerSettings().ProposeConfig[bytesutil.ToBytes48(validatorKey)] = &pOption
+			s.validatorService.ProposerSettings().ProposeConfig[bytesutil.ToBytes1472Dilthium(validatorKey)] = &pOption
 		}
 	}
 	// override the 200 success with 202 according to the specs
@@ -507,7 +507,7 @@ func (s *Server) DeleteGasLimit(ctx context.Context, req *ethpbservice.DeleteGas
 
 	proposerSettings := s.validatorService.ProposerSettings()
 	if proposerSettings != nil && proposerSettings.ProposeConfig != nil {
-		proposerOption, found := proposerSettings.ProposeConfig[bytesutil.ToBytes48(validatorKey)]
+		proposerOption, found := proposerSettings.ProposeConfig[bytesutil.ToBytes1472Dilthium(validatorKey)]
 		if found && proposerOption.BuilderConfig != nil {
 			// If proposerSettings has default value, use it.
 			if proposerSettings.DefaultConfig != nil && proposerSettings.DefaultConfig.BuilderConfig != nil {
@@ -557,7 +557,7 @@ func (s *Server) ListFeeRecipientByPubkey(ctx context.Context, req *ethpbservice
 	if s.validatorService.ProposerSettings().ProposeConfig != nil {
 		hexv := hexutil.Encode(validatorKey)
 		fmt.Println(hexv)
-		proposerOption, found := s.validatorService.ProposerSettings().ProposeConfig[bytesutil.ToBytes48(validatorKey)]
+		proposerOption, found := s.validatorService.ProposerSettings().ProposeConfig[bytesutil.ToBytes1472Dilthium(validatorKey)]
 		if found {
 			finalResp.Data.Ethaddress = proposerOption.FeeRecipient.Bytes()
 			return finalResp, nil
@@ -594,8 +594,8 @@ func (s *Server) SetFeeRecipientByPubkey(ctx context.Context, req *ethpbservice.
 			PublicKey: []byte(nonExistantPublicKey),
 		})
 		settings := &validatorServiceConfig.ProposerSettings{
-			ProposeConfig: map[[fieldparams.BLSPubkeyLength]byte]*validatorServiceConfig.ProposerOption{
-				bytesutil.ToBytes48(validatorKey): &pOption,
+			ProposeConfig: map[[dilithium.PKSizePacked]byte]*validatorServiceConfig.ProposerOption{
+				bytesutil.ToBytes1472Dilthium(validatorKey): &pOption,
 			},
 		}
 		if resp == nil || len(resp.FeeRecipient) == 0 || err != nil {
@@ -609,18 +609,18 @@ func (s *Server) SetFeeRecipientByPubkey(ctx context.Context, req *ethpbservice.
 	case s.validatorService.ProposerSettings().ProposeConfig == nil:
 		settings := s.validatorService.ProposerSettings()
 		pOption.BuilderConfig = settings.DefaultConfig.BuilderConfig
-		settings.ProposeConfig = map[[fieldparams.BLSPubkeyLength]byte]*validatorServiceConfig.ProposerOption{
-			bytesutil.ToBytes48(validatorKey): &pOption,
+		settings.ProposeConfig = map[[dilithium.PKSizePacked]byte]*validatorServiceConfig.ProposerOption{
+			bytesutil.ToBytes1472Dilthium(validatorKey): &pOption,
 		}
 		s.validatorService.SetProposerSettings(settings)
 	default:
-		proposerOption, found := s.validatorService.ProposerSettings().ProposeConfig[bytesutil.ToBytes48(validatorKey)]
+		proposerOption, found := s.validatorService.ProposerSettings().ProposeConfig[bytesutil.ToBytes1472Dilthium(validatorKey)]
 		if found {
 			proposerOption.FeeRecipient = common.BytesToAddress(req.Ethaddress)
 		} else {
 			settings := s.validatorService.ProposerSettings()
 			pOption.BuilderConfig = settings.DefaultConfig.BuilderConfig
-			settings.ProposeConfig[bytesutil.ToBytes48(validatorKey)] = &pOption
+			settings.ProposeConfig[bytesutil.ToBytes1472Dilthium(validatorKey)] = &pOption
 			s.validatorService.SetProposerSettings(settings)
 		}
 	}
@@ -645,7 +645,7 @@ func (s *Server) DeleteFeeRecipientByPubkey(ctx context.Context, req *ethpbservi
 		defaultFeeRecipient = s.validatorService.ProposerSettings().DefaultConfig.FeeRecipient
 	}
 	if s.validatorService.ProposerSettings() != nil && s.validatorService.ProposerSettings().ProposeConfig != nil {
-		proposerOption, found := s.validatorService.ProposerSettings().ProposeConfig[bytesutil.ToBytes48(validatorKey)]
+		proposerOption, found := s.validatorService.ProposerSettings().ProposeConfig[bytesutil.ToBytes1472Dilthium(validatorKey)]
 		if found {
 			proposerOption.FeeRecipient = defaultFeeRecipient
 		}
@@ -658,9 +658,9 @@ func (s *Server) DeleteFeeRecipientByPubkey(ctx context.Context, req *ethpbservi
 }
 
 func validatePublicKey(pubkey []byte) error {
-	if len(pubkey) != fieldparams.BLSPubkeyLength {
+	if len(pubkey) != dilithium.PKSizePacked {
 		return status.Errorf(
-			codes.InvalidArgument, "Provided public key in path is not byte length %d and not a valid bls public key", fieldparams.BLSPubkeyLength)
+			codes.InvalidArgument, "Provided public key in path is not byte length %d and not a valid bls public key", dilithium.PKSizePacked)
 	}
 	return nil
 }

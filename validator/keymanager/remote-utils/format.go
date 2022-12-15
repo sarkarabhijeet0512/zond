@@ -8,7 +8,7 @@ import (
 )
 
 // DisplayRemotePublicKeys prints remote public keys to stdout.
-func DisplayRemotePublicKeys(validatingPubKeys [][48]byte) {
+func DisplayRemotePublicKeys(validatingPubKeys [][1472]byte) {
 	au := aurora.NewAurora(true)
 	for i := 0; i < len(validatingPubKeys); i++ {
 		fmt.Println("")

@@ -8,7 +8,7 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
-	fieldparams "github.com/theQRL/zond/config/fieldparams"
+	"github.com/theQRL/go-qrllib/dilithium"
 	"github.com/theQRL/zond/encoding/bytesutil"
 	ethpbservice "github.com/theQRL/zond/protos/eth/service"
 )
@@ -20,14 +20,14 @@ func (km *Keymanager) DeleteKeystores(
 	ctx context.Context, publicKeys [][]byte,
 ) ([]*ethpbservice.DeletedKeystoreStatus, error) {
 	// Check for duplicate keys and filter them out.
-	trackedPublicKeys := make(map[[fieldparams.BLSPubkeyLength]byte]bool)
+	trackedPublicKeys := make(map[[dilithium.PKSizePacked]byte]bool)
 	statuses := make([]*ethpbservice.DeletedKeystoreStatus, 0, len(publicKeys))
 	var store *AccountsKeystoreRepresentation
 	var err error
 	deletedKeys := make([][]byte, 0, len(publicKeys))
 	for _, publicKey := range publicKeys {
 		// Check if the key in the request is a duplicate.
-		if _, ok := trackedPublicKeys[bytesutil.ToBytes48(publicKey)]; ok {
+		if _, ok := trackedPublicKeys[bytesutil.ToBytes1472Dilthium(publicKey)]; ok {
 			statuses = append(statuses, &ethpbservice.DeletedKeystoreStatus{
 				Status: ethpbservice.DeletedKeystoreStatus_NOT_ACTIVE,
 			})
@@ -59,7 +59,7 @@ func (km *Keymanager) DeleteKeystores(
 		statuses = append(statuses, &ethpbservice.DeletedKeystoreStatus{
 			Status: ethpbservice.DeletedKeystoreStatus_DELETED,
 		})
-		trackedPublicKeys[bytesutil.ToBytes48(publicKey)] = true
+		trackedPublicKeys[bytesutil.ToBytes1472Dilthium(publicKey)] = true
 	}
 	if len(deletedKeys) == 0 {
 		return statuses, nil

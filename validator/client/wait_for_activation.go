@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	fieldparams "github.com/theQRL/zond/config/fieldparams"
+	"github.com/theQRL/go-qrllib/dilithium"
 	"github.com/theQRL/zond/config/params"
 	"github.com/theQRL/zond/encoding/bytesutil"
 	"github.com/theQRL/zond/math"
@@ -23,10 +23,10 @@ import (
 // from the gRPC server.
 //
 // If the channel parameter is nil, WaitForActivation creates and manages its own channel.
-func (v *validator) WaitForActivation(ctx context.Context, accountsChangedChan chan [][fieldparams.BLSPubkeyLength]byte) error {
+func (v *validator) WaitForActivation(ctx context.Context, accountsChangedChan chan [][dilithium.PKSizePacked]byte) error {
 	// Monitor the key manager for updates.
 	if accountsChangedChan == nil {
-		accountsChangedChan = make(chan [][fieldparams.BLSPubkeyLength]byte, 1)
+		accountsChangedChan = make(chan [][dilithium.PKSizePacked]byte, 1)
 		km, err := v.Keymanager()
 		if err != nil {
 			return err
@@ -48,7 +48,7 @@ func (v *validator) WaitForActivation(ctx context.Context, accountsChangedChan c
 // the accountsChangedChan. When an event signal is received, restart the waitForActivation routine.
 // 4) If the stream is reset in error, restart the routine.
 // 5) If the stream returns a response indicating one or more validators are active, exit the routine.
-func (v *validator) waitForActivation(ctx context.Context, accountsChangedChan <-chan [][fieldparams.BLSPubkeyLength]byte) error {
+func (v *validator) waitForActivation(ctx context.Context, accountsChangedChan <-chan [][dilithium.PKSizePacked]byte) error {
 	ctx, span := trace.StartSpan(ctx, "validator.WaitForActivation")
 	defer span.End()
 
@@ -81,7 +81,7 @@ func (v *validator) waitForActivation(ctx context.Context, accountsChangedChan <
 	}
 
 	req := &ethpb.ValidatorActivationRequest{
-		PublicKeys: bytesutil.FromBytes48Array(validatingKeys),
+		PublicKeys: bytesutil.FromBytes1472Array(validatingKeys),
 	}
 	stream, err := v.validatorClient.WaitForActivation(ctx, req)
 	if err != nil {
@@ -109,7 +109,7 @@ func (v *validator) waitForActivation(ctx context.Context, accountsChangedChan <
 	return nil
 }
 
-func (v *validator) handleWithRemoteKeyManager(ctx context.Context, accountsChangedChan <-chan [][fieldparams.BLSPubkeyLength]byte, remoteKm *remote.RemoteKeymanager) error {
+func (v *validator) handleWithRemoteKeyManager(ctx context.Context, accountsChangedChan <-chan [][dilithium.PKSizePacked]byte, remoteKm *remote.RemoteKeymanager) error {
 	for {
 		select {
 		case <-accountsChangedChan:
@@ -159,7 +159,7 @@ func (v *validator) handleWithRemoteKeyManager(ctx context.Context, accountsChan
 	return nil
 }
 
-func (v *validator) handleWithoutRemoteKeyManager(ctx context.Context, accountsChangedChan <-chan [][fieldparams.BLSPubkeyLength]byte, stream *ethpb.BeaconNodeValidator_WaitForActivationClient, span *trace.Span) error {
+func (v *validator) handleWithoutRemoteKeyManager(ctx context.Context, accountsChangedChan <-chan [][dilithium.PKSizePacked]byte, stream *ethpb.BeaconNodeValidator_WaitForActivationClient, span *trace.Span) error {
 	for {
 		select {
 		case <-accountsChangedChan:

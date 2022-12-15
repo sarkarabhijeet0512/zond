@@ -7,7 +7,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/sirupsen/logrus"
-	fieldparams "github.com/theQRL/zond/config/fieldparams"
+	"github.com/theQRL/go-qrllib/dilithium"
 	"github.com/theQRL/zond/config/params"
 	types "github.com/theQRL/zond/consensus-types/primitives"
 	"github.com/theQRL/zond/encoding/bytesutil"
@@ -216,13 +216,13 @@ func (v *validator) LogValidatorGainsAndLosses(ctx context.Context, slot types.S
 		return nil
 	}
 
-	var pks [][fieldparams.BLSPubkeyLength]byte
+	var pks [][dilithium.PKSizePacked]byte
 	var err error
 	pks, err = v.keyManager.FetchValidatingPublicKeys(ctx)
 	if err != nil {
 		return err
 	}
-	pubKeys := bytesutil.FromBytes48Array(pks)
+	pubKeys := bytesutil.FromBytes1472Array(pks)
 
 	req := &ethpb.ValidatorPerformanceRequest{
 		PublicKeys: pubKeys,
@@ -258,7 +258,7 @@ func (v *validator) LogValidatorGainsAndLosses(ctx context.Context, slot types.S
 
 func (v *validator) logForEachValidator(index int, pubKey []byte, resp *ethpb.ValidatorPerformanceResponse, slot types.Slot, prevEpoch types.Epoch) {
 	truncatedKey := fmt.Sprintf("%#x", bytesutil.Trunc(pubKey))
-	pubKeyBytes := bytesutil.ToBytes48(pubKey)
+	pubKeyBytes := bytesutil.ToBytes1472Dilthium(pubKey)
 	if slot < params.BeaconConfig().SlotsPerEpoch {
 		v.prevBalance[pubKeyBytes] = params.BeaconConfig().MaxEffectiveBalance
 	}

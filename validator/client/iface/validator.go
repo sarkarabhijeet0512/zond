@@ -5,7 +5,7 @@ import (
 	"errors"
 	"time"
 
-	fieldparams "github.com/theQRL/zond/config/fieldparams"
+	"github.com/theQRL/go-qrllib/dilithium"
 	validatorserviceconfig "github.com/theQRL/zond/config/validator/service"
 	types "github.com/theQRL/zond/consensus-types/primitives"
 	"github.com/theQRL/zond/crypto/bls"
@@ -40,18 +40,18 @@ type Validator interface {
 	Done()
 	WaitForChainStart(ctx context.Context) error
 	WaitForSync(ctx context.Context) error
-	WaitForActivation(ctx context.Context, accountsChangedChan chan [][fieldparams.BLSPubkeyLength]byte) error
+	WaitForActivation(ctx context.Context, accountsChangedChan chan [][dilithium.PKSizePacked]byte) error
 	CanonicalHeadSlot(ctx context.Context) (types.Slot, error)
 	NextSlot() <-chan types.Slot
 	SlotDeadline(slot types.Slot) time.Time
 	LogValidatorGainsAndLosses(ctx context.Context, slot types.Slot) error
 	UpdateDuties(ctx context.Context, slot types.Slot) error
-	RolesAt(ctx context.Context, slot types.Slot) (map[[fieldparams.BLSPubkeyLength]byte][]ValidatorRole, error) // validator pubKey -> roles
-	SubmitAttestation(ctx context.Context, slot types.Slot, pubKey [fieldparams.BLSPubkeyLength]byte)
-	ProposeBlock(ctx context.Context, slot types.Slot, pubKey [fieldparams.BLSPubkeyLength]byte)
-	SubmitAggregateAndProof(ctx context.Context, slot types.Slot, pubKey [fieldparams.BLSPubkeyLength]byte)
-	SubmitSyncCommitteeMessage(ctx context.Context, slot types.Slot, pubKey [fieldparams.BLSPubkeyLength]byte)
-	SubmitSignedContributionAndProof(ctx context.Context, slot types.Slot, pubKey [fieldparams.BLSPubkeyLength]byte)
+	RolesAt(ctx context.Context, slot types.Slot) (map[[dilithium.PKSizePacked]byte][]ValidatorRole, error) // validator pubKey -> roles
+	SubmitAttestation(ctx context.Context, slot types.Slot, pubKey [dilithium.PKSizePacked]byte)
+	ProposeBlock(ctx context.Context, slot types.Slot, pubKey [dilithium.PKSizePacked]byte)
+	SubmitAggregateAndProof(ctx context.Context, slot types.Slot, pubKey [dilithium.PKSizePacked]byte)
+	SubmitSyncCommitteeMessage(ctx context.Context, slot types.Slot, pubKey [dilithium.PKSizePacked]byte)
+	SubmitSignedContributionAndProof(ctx context.Context, slot types.Slot, pubKey [dilithium.PKSizePacked]byte)
 	LogAttestationsSubmitted()
 	LogSyncCommitteeMessagesSubmitted()
 	UpdateDomainDataCaches(ctx context.Context, slot types.Slot)
@@ -59,7 +59,7 @@ type Validator interface {
 	AllValidatorsAreExited(ctx context.Context) (bool, error)
 	Keymanager() (keymanager.IKeymanager, error)
 	ReceiveBlocks(ctx context.Context, connectionErrorChannel chan<- error)
-	HandleKeyReload(ctx context.Context, newKeys [][fieldparams.BLSPubkeyLength]byte) (bool, error)
+	HandleKeyReload(ctx context.Context, newKeys [][dilithium.PKSizePacked]byte) (bool, error)
 	CheckDoppelGanger(ctx context.Context) error
 	PushProposerSettings(ctx context.Context, km keymanager.IKeymanager) error
 	SignValidatorRegistrationRequest(ctx context.Context, signer SigningFunc, newValidatorRegistration *ethpb.ValidatorRegistrationV1) (*ethpb.SignedValidatorRegistrationV1, error)

@@ -16,8 +16,8 @@ import (
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/logrusorgru/aurora"
 	"github.com/pkg/errors"
+	"github.com/theQRL/go-qrllib/dilithium"
 	"github.com/theQRL/zond/async/event"
-	fieldparams "github.com/theQRL/zond/config/fieldparams"
 	"github.com/theQRL/zond/crypto/bls"
 	"github.com/theQRL/zond/encoding/bytesutil"
 	ethpbservice "github.com/theQRL/zond/protos/eth/service"
@@ -40,7 +40,7 @@ var (
 // RemoteKeymanager defines the interface for remote Prysm wallets.
 type RemoteKeymanager interface {
 	keymanager.IKeymanager
-	ReloadPublicKeys(ctx context.Context) ([][fieldparams.BLSPubkeyLength]byte, error)
+	ReloadPublicKeys(ctx context.Context) ([][dilithium.PKSizePacked]byte, error)
 }
 
 // KeymanagerOpts for a remote keymanager.
@@ -70,7 +70,7 @@ type SetupConfig struct {
 type Keymanager struct {
 	opts                *KeymanagerOpts
 	client              validatorpb.RemoteSignerClient
-	orderedPubKeys      [][fieldparams.BLSPubkeyLength]byte
+	orderedPubKeys      [][dilithium.PKSizePacked]byte
 	accountsChangedFeed *event.Feed
 }
 
@@ -134,7 +134,7 @@ func NewKeymanager(_ context.Context, cfg *SetupConfig) (*Keymanager, error) {
 	k := &Keymanager{
 		opts:                cfg.Opts,
 		client:              client,
-		orderedPubKeys:      make([][fieldparams.BLSPubkeyLength]byte, 0),
+		orderedPubKeys:      make([][dilithium.PKSizePacked]byte, 0),
 		accountsChangedFeed: new(event.Feed),
 	}
 	return k, nil
@@ -212,7 +212,7 @@ func (km *Keymanager) KeymanagerOpts() *KeymanagerOpts {
 }
 
 // ReloadPublicKeys reloads public keys.
-func (km *Keymanager) ReloadPublicKeys(ctx context.Context) ([][fieldparams.BLSPubkeyLength]byte, error) {
+func (km *Keymanager) ReloadPublicKeys(ctx context.Context) ([][dilithium.PKSizePacked]byte, error) {
 	pubKeys, err := km.FetchValidatingPublicKeys(ctx)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not reload public keys")
@@ -237,14 +237,14 @@ func (km *Keymanager) ReloadPublicKeys(ctx context.Context) ([][fieldparams.BLSP
 }
 
 // FetchValidatingPublicKeys fetches the list of public keys that should be used to validate with.
-func (km *Keymanager) FetchValidatingPublicKeys(ctx context.Context) ([][fieldparams.BLSPubkeyLength]byte, error) {
+func (km *Keymanager) FetchValidatingPublicKeys(ctx context.Context) ([][dilithium.PKSizePacked]byte, error) {
 	resp, err := km.client.ListValidatingPublicKeys(ctx, &empty.Empty{})
 	if err != nil {
 		return nil, errors.Wrap(err, "could not list accounts from remote server")
 	}
-	pubKeys := make([][fieldparams.BLSPubkeyLength]byte, len(resp.ValidatingPublicKeys))
+	pubKeys := make([][dilithium.PKSizePacked]byte, len(resp.ValidatingPublicKeys))
 	for i := range resp.ValidatingPublicKeys {
-		pubKeys[i] = bytesutil.ToBytes48(resp.ValidatingPublicKeys[i])
+		pubKeys[i] = bytesutil.ToBytes1472Dilthium(resp.ValidatingPublicKeys[i])
 	}
 	return pubKeys, nil
 }
@@ -267,7 +267,7 @@ func (km *Keymanager) Sign(ctx context.Context, req *validatorpb.SignRequest) (b
 // SubscribeAccountChanges creates an event subscription for a channel
 // to listen for public key changes at runtime, such as when new validator accounts
 // are imported into the keymanager while the validator process is running.
-func (km *Keymanager) SubscribeAccountChanges(pubKeysChan chan [][fieldparams.BLSPubkeyLength]byte) event.Subscription {
+func (km *Keymanager) SubscribeAccountChanges(pubKeysChan chan [][dilithium.PKSizePacked]byte) event.Subscription {
 	return km.accountsChangedFeed.Subscribe(pubKeysChan)
 }
 

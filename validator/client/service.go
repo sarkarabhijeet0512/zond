@@ -11,10 +11,10 @@ import (
 	grpcopentracing "github.com/grpc-ecosystem/go-grpc-middleware/tracing/opentracing"
 	grpcprometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/pkg/errors"
+	"github.com/theQRL/go-qrllib/dilithium"
 	grpcutil "github.com/theQRL/zond/api/grpc"
 	"github.com/theQRL/zond/async/event"
 	lruwrpr "github.com/theQRL/zond/cache/lru"
-	fieldparams "github.com/theQRL/zond/config/fieldparams"
 	"github.com/theQRL/zond/config/params"
 	validatorserviceconfig "github.com/theQRL/zond/config/validator/service"
 	"github.com/theQRL/zond/consensus-types/interfaces"
@@ -174,7 +174,7 @@ func (v *ValidatorService) Start() {
 		log.WithError(err).Error("Could not read slashable public keys from disk")
 		return
 	}
-	slashablePublicKeys := make(map[[fieldparams.BLSPubkeyLength]byte]bool)
+	slashablePublicKeys := make(map[[dilithium.PKSizePacked]byte]bool)
 	for _, pubKey := range sPubKeys {
 		slashablePublicKeys[pubKey] = true
 	}
@@ -194,10 +194,10 @@ func (v *ValidatorService) Start() {
 		graffiti:                       v.graffiti,
 		logValidatorBalances:           v.logValidatorBalances,
 		emitAccountMetrics:             v.emitAccountMetrics,
-		startBalances:                  make(map[[fieldparams.BLSPubkeyLength]byte]uint64),
-		prevBalance:                    make(map[[fieldparams.BLSPubkeyLength]byte]uint64),
-		pubkeyToValidatorIndex:         make(map[[fieldparams.BLSPubkeyLength]byte]types.ValidatorIndex),
-		signedValidatorRegistrations:   make(map[[fieldparams.BLSPubkeyLength]byte]*ethpb.SignedValidatorRegistrationV1),
+		startBalances:                  make(map[[dilithium.PKSizePacked]byte]uint64),
+		prevBalance:                    make(map[[dilithium.PKSizePacked]byte]uint64),
+		pubkeyToValidatorIndex:         make(map[[dilithium.PKSizePacked]byte]types.ValidatorIndex),
+		signedValidatorRegistrations:   make(map[[dilithium.PKSizePacked]byte]*ethpb.SignedValidatorRegistrationV1),
 		attLogs:                        make(map[[32]byte]*attSubmitted),
 		domainDataCache:                cache,
 		aggregatedSlotCommitteeIDCache: aggregatedSlotCommitteeIDCache,

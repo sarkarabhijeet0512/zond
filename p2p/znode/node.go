@@ -1,7 +1,6 @@
 package znode
 
 import (
-	"crypto/ecdsa"
 	"encoding/base64"
 	"encoding/hex"
 	"fmt"
@@ -10,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/syndtr/goleveldb/leveldb/errors"
+	"github.com/theQRL/go-qrllib/dilithium"
 	"github.com/theQRL/zond/p2p/znr"
 	"github.com/theQRL/zond/rlp"
 )
@@ -104,12 +104,17 @@ func (n *Node) TCP() int {
 }
 
 // Pubkey returns the secp256k1 public key of the node, if present.
-func (n *Node) Pubkey() *ecdsa.PublicKey {
-	var key ecdsa.PublicKey
-	if n.Load((*Secp256k1)(&key)) != nil {
-		return nil
-	}
-	return &key
+// func (n *Node) Pubkey() *ecdsa.PublicKey {
+// 	var key ecdsa.PublicKey
+// 	if n.Load((*Secp256k1)(&key)) != nil {
+// 		return nil
+// 	}
+// 	return &key
+// }
+
+// Pubkey returns the secp256k1 public key of the node, if present.
+func (n *Node) Pubkey() *dilithium.Dilithium {
+	return n.Pubkey()
 }
 
 // Record returns the node's record. The return value is a copy and may

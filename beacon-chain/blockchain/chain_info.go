@@ -6,11 +6,11 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+	"github.com/theQRL/go-qrllib/dilithium"
 	"github.com/theQRL/zond/beacon-chain/core/helpers"
 	"github.com/theQRL/zond/beacon-chain/forkchoice"
 	doublylinkedtree "github.com/theQRL/zond/beacon-chain/forkchoice/doubly-linked-tree"
 	"github.com/theQRL/zond/beacon-chain/state"
-	fieldparams "github.com/theQRL/zond/config/fieldparams"
 	"github.com/theQRL/zond/config/params"
 	"github.com/theQRL/zond/consensus-types/interfaces"
 	types "github.com/theQRL/zond/consensus-types/primitives"
@@ -57,8 +57,8 @@ type HeadFetcher interface {
 	HeadValidatorsIndices(ctx context.Context, epoch types.Epoch) ([]types.ValidatorIndex, error)
 	HeadGenesisValidatorsRoot() [32]byte
 	HeadETH1Data() *ethpb.Eth1Data
-	HeadPublicKeyToValidatorIndex(pubKey [fieldparams.BLSPubkeyLength]byte) (types.ValidatorIndex, bool)
-	HeadValidatorIndexToPublicKey(ctx context.Context, index types.ValidatorIndex) ([fieldparams.BLSPubkeyLength]byte, error)
+	HeadPublicKeyToValidatorIndex(pubKey [dilithium.PKSizePacked]byte) (types.ValidatorIndex, bool)
+	HeadValidatorIndexToPublicKey(ctx context.Context, index types.ValidatorIndex) ([dilithium.PKSizePacked]byte, error)
 	ChainHeads() ([][32]byte, []types.Slot)
 	HeadSyncCommitteeFetcher
 	HeadDomainFetcher
@@ -270,7 +270,7 @@ func (s *Service) ChainHeads() ([][32]byte, []types.Slot) {
 }
 
 // HeadPublicKeyToValidatorIndex returns the validator index of the `pubkey` in current head state.
-func (s *Service) HeadPublicKeyToValidatorIndex(pubKey [fieldparams.BLSPubkeyLength]byte) (types.ValidatorIndex, bool) {
+func (s *Service) HeadPublicKeyToValidatorIndex(pubKey [dilithium.PKSizePacked]byte) (types.ValidatorIndex, bool) {
 	s.headLock.RLock()
 	defer s.headLock.RUnlock()
 	if !s.hasHeadState() {
@@ -280,15 +280,15 @@ func (s *Service) HeadPublicKeyToValidatorIndex(pubKey [fieldparams.BLSPubkeyLen
 }
 
 // HeadValidatorIndexToPublicKey returns the pubkey of the validator `index`  in current head state.
-func (s *Service) HeadValidatorIndexToPublicKey(_ context.Context, index types.ValidatorIndex) ([fieldparams.BLSPubkeyLength]byte, error) {
+func (s *Service) HeadValidatorIndexToPublicKey(_ context.Context, index types.ValidatorIndex) ([dilithium.PKSizePacked]byte, error) {
 	s.headLock.RLock()
 	defer s.headLock.RUnlock()
 	if !s.hasHeadState() {
-		return [fieldparams.BLSPubkeyLength]byte{}, nil
+		return [dilithium.PKSizePacked]byte{}, nil
 	}
 	v, err := s.headValidatorAtIndex(index)
 	if err != nil {
-		return [fieldparams.BLSPubkeyLength]byte{}, err
+		return [dilithium.PKSizePacked]byte{}, err
 	}
 	return v.PublicKey(), nil
 }

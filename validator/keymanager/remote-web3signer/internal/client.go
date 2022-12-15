@@ -15,8 +15,8 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	"github.com/theQRL/go-qrllib/dilithium"
 	"github.com/theQRL/zond/common/hexutil"
-	fieldparams "github.com/theQRL/zond/config/fieldparams"
 	"github.com/theQRL/zond/crypto/bls"
 	"github.com/theQRL/zond/encoding/bytesutil"
 	"github.com/theQRL/zond/monitoring/tracing"
@@ -37,7 +37,7 @@ type SignatureResponse struct {
 // HttpSignerClient defines the interface for interacting with a remote web3signer.
 type HttpSignerClient interface {
 	Sign(ctx context.Context, pubKey string, request SignRequestJson) (bls.Signature, error)
-	GetPublicKeys(ctx context.Context, url string) ([][48]byte, error)
+	GetPublicKeys(ctx context.Context, url string) ([][1472]byte, error)
 }
 
 // ApiClient a wrapper object around web3signer APIs. Please refer to the docs from Consensys' web3signer project.
@@ -87,7 +87,7 @@ func (client *ApiClient) Sign(ctx context.Context, pubKey string, request SignRe
 }
 
 // GetPublicKeys is a wrapper method around the web3signer publickeys api (this may be removed in the future or moved to another location due to its usage).
-func (client *ApiClient) GetPublicKeys(ctx context.Context, url string) ([][fieldparams.BLSPubkeyLength]byte, error) {
+func (client *ApiClient) GetPublicKeys(ctx context.Context, url string) ([][dilithium.PKSizePacked]byte, error) {
 	resp, err := client.doRequest(ctx, http.MethodGet, url, nil /* no body needed on get request */)
 	if err != nil {
 		return nil, err
@@ -96,7 +96,7 @@ func (client *ApiClient) GetPublicKeys(ctx context.Context, url string) ([][fiel
 	if err := unmarshalResponse(resp.Body, &publicKeys); err != nil {
 		return nil, err
 	}
-	decodedKeys := make([][fieldparams.BLSPubkeyLength]byte, len(publicKeys))
+	decodedKeys := make([][dilithium.PKSizePacked]byte, len(publicKeys))
 	var errorKeyPositions string
 	for i, value := range publicKeys {
 		decodedKey, err := hexutil.Decode(value)
@@ -104,7 +104,7 @@ func (client *ApiClient) GetPublicKeys(ctx context.Context, url string) ([][fiel
 			errorKeyPositions += fmt.Sprintf("%v, ", i)
 			continue
 		}
-		decodedKeys[i] = bytesutil.ToBytes48(decodedKey)
+		decodedKeys[i] = bytesutil.ToBytes1472Dilthium(decodedKey)
 	}
 	if errorKeyPositions != "" {
 		return nil, errors.New("failed to decode from Hex from the following public key index locations: " + errorKeyPositions)

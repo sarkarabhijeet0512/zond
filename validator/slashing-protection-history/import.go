@@ -8,7 +8,7 @@ import (
 	"io"
 
 	"github.com/pkg/errors"
-	fieldparams "github.com/theQRL/zond/config/fieldparams"
+	"github.com/theQRL/go-qrllib/dilithium"
 	types "github.com/theQRL/zond/consensus-types/primitives"
 	"github.com/theQRL/zond/encoding/bytesutil"
 	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
@@ -52,8 +52,8 @@ func ImportStandardProtectionJSON(ctx context.Context, validatorDB db.Database, 
 		return errors.Wrap(err, "could not parse unique entries for attestations by public key")
 	}
 
-	attestingHistoryByPubKey := make(map[[fieldparams.BLSPubkeyLength]byte][]*kv.AttestationRecord)
-	proposalHistoryByPubKey := make(map[[fieldparams.BLSPubkeyLength]byte]kv.ProposalHistoryForPubkey)
+	attestingHistoryByPubKey := make(map[[dilithium.PKSizePacked]byte][]*kv.AttestationRecord)
+	proposalHistoryByPubKey := make(map[[dilithium.PKSizePacked]byte]kv.ProposalHistoryForPubkey)
 	for pubKey, signedBlocks := range signedBlocksByPubKey {
 		// Transform the processed signed blocks data from the JSON
 		// file into the internal Prysm representation of proposal history.
@@ -84,7 +84,7 @@ func ImportStandardProtectionJSON(ctx context.Context, validatorDB db.Database, 
 		return errors.Wrap(err, "could not filter slashable attester public keys from JSON data")
 	}
 
-	slashablePublicKeys := make([][fieldparams.BLSPubkeyLength]byte, 0, len(slashableAttesterKeys)+len(slashableProposerKeys))
+	slashablePublicKeys := make([][dilithium.PKSizePacked]byte, 0, len(slashableAttesterKeys)+len(slashableProposerKeys))
 	for _, pubKey := range slashableProposerKeys {
 		delete(proposalHistoryByPubKey, pubKey)
 		slashablePublicKeys = append(slashablePublicKeys, pubKey)
@@ -186,8 +186,8 @@ func validateMetadata(ctx context.Context, validatorDB db.Database, interchangeJ
 // "0x2932232930: {
 //   SignedBlocks: [Slot: 5, Slot: 5, Slot: 6, Slot: 7, Slot: 10, Slot: 11],
 //  }
-func parseBlocksForUniquePublicKeys(data []*format.ProtectionData) (map[[fieldparams.BLSPubkeyLength]byte][]*format.SignedBlock, error) {
-	signedBlocksByPubKey := make(map[[fieldparams.BLSPubkeyLength]byte][]*format.SignedBlock)
+func parseBlocksForUniquePublicKeys(data []*format.ProtectionData) (map[[dilithium.PKSizePacked]byte][]*format.SignedBlock, error) {
+	signedBlocksByPubKey := make(map[[dilithium.PKSizePacked]byte][]*format.SignedBlock)
 	for _, validatorData := range data {
 		pubKey, err := PubKeyFromHex(validatorData.Pubkey)
 		if err != nil {
@@ -218,8 +218,8 @@ func parseBlocksForUniquePublicKeys(data []*format.ProtectionData) (map[[fieldpa
 // "0x2932232930: {
 //   SignedAttestations: [{Source: 5, Target: 6}, {Source: 5, Target: 6}, {Source: 6, Target: 7}],
 //  }
-func parseAttestationsForUniquePublicKeys(data []*format.ProtectionData) (map[[fieldparams.BLSPubkeyLength]byte][]*format.SignedAttestation, error) {
-	signedAttestationsByPubKey := make(map[[fieldparams.BLSPubkeyLength]byte][]*format.SignedAttestation)
+func parseAttestationsForUniquePublicKeys(data []*format.ProtectionData) (map[[dilithium.PKSizePacked]byte][]*format.SignedAttestation, error) {
+	signedAttestationsByPubKey := make(map[[dilithium.PKSizePacked]byte][]*format.SignedAttestation)
 	for _, validatorData := range data {
 		pubKey, err := PubKeyFromHex(validatorData.Pubkey)
 		if err != nil {
@@ -235,14 +235,14 @@ func parseAttestationsForUniquePublicKeys(data []*format.ProtectionData) (map[[f
 	return signedAttestationsByPubKey, nil
 }
 
-func filterSlashablePubKeysFromBlocks(_ context.Context, historyByPubKey map[[fieldparams.BLSPubkeyLength]byte]kv.ProposalHistoryForPubkey) [][fieldparams.BLSPubkeyLength]byte {
+func filterSlashablePubKeysFromBlocks(_ context.Context, historyByPubKey map[[dilithium.PKSizePacked]byte]kv.ProposalHistoryForPubkey) [][dilithium.PKSizePacked]byte {
 	// Given signing roots are optional in the EIP standard, we behave as follows:
 	// For a given block:
 	//   If we have a previous block with the same slot in our history:
 	//     If signing root is nil, we consider that proposer public key as slashable
 	//     If signing root is not nil , then we compare signing roots. If they are different,
 	//     then we consider that proposer public key as slashable.
-	slashablePubKeys := make([][fieldparams.BLSPubkeyLength]byte, 0)
+	slashablePubKeys := make([][dilithium.PKSizePacked]byte, 0)
 	for pubKey, proposals := range historyByPubKey {
 		seenSigningRootsBySlot := make(map[types.Slot][]byte)
 		for _, blk := range proposals.Proposals {
@@ -261,9 +261,9 @@ func filterSlashablePubKeysFromBlocks(_ context.Context, historyByPubKey map[[fi
 func filterSlashablePubKeysFromAttestations(
 	ctx context.Context,
 	validatorDB db.Database,
-	signedAttsByPubKey map[[fieldparams.BLSPubkeyLength]byte][]*kv.AttestationRecord,
-) ([][fieldparams.BLSPubkeyLength]byte, error) {
-	slashablePubKeys := make([][fieldparams.BLSPubkeyLength]byte, 0)
+	signedAttsByPubKey map[[dilithium.PKSizePacked]byte][]*kv.AttestationRecord,
+) ([][dilithium.PKSizePacked]byte, error) {
+	slashablePubKeys := make([][dilithium.PKSizePacked]byte, 0)
 	// First we need to find attestations that are slashable with respect to other
 	// attestations within the same JSON import.
 	for pubKey, signedAtts := range signedAttsByPubKey {
@@ -336,7 +336,7 @@ func transformSignedBlocks(_ context.Context, signedBlocks []*format.SignedBlock
 	}, nil
 }
 
-func transformSignedAttestations(pubKey [fieldparams.BLSPubkeyLength]byte, atts []*format.SignedAttestation) ([]*kv.AttestationRecord, error) {
+func transformSignedAttestations(pubKey [dilithium.PKSizePacked]byte, atts []*format.SignedAttestation) ([]*kv.AttestationRecord, error) {
 	historicalAtts := make([]*kv.AttestationRecord, 0)
 	for _, attestation := range atts {
 		target, err := EpochFromString(attestation.TargetEpoch)

@@ -4,7 +4,7 @@
 package stateutils
 
 import (
-	fieldparams "github.com/theQRL/zond/config/fieldparams"
+	"github.com/theQRL/go-qrllib/dilithium"
 	types "github.com/theQRL/zond/consensus-types/primitives"
 	"github.com/theQRL/zond/encoding/bytesutil"
 	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
@@ -12,8 +12,8 @@ import (
 
 // ValidatorIndexMap builds a lookup map for quickly determining the index of
 // a validator by their public key.
-func ValidatorIndexMap(validators []*ethpb.Validator) map[[fieldparams.BLSPubkeyLength]byte]types.ValidatorIndex {
-	m := make(map[[fieldparams.BLSPubkeyLength]byte]types.ValidatorIndex, len(validators))
+func ValidatorIndexMap(validators []*ethpb.Validator) map[[dilithium.PKSizePacked]byte]types.ValidatorIndex {
+	m := make(map[[dilithium.PKSizePacked]byte]types.ValidatorIndex, len(validators))
 	if validators == nil {
 		return m
 	}
@@ -21,7 +21,7 @@ func ValidatorIndexMap(validators []*ethpb.Validator) map[[fieldparams.BLSPubkey
 		if record == nil {
 			continue
 		}
-		key := bytesutil.ToBytes48(record.PublicKey)
+		key := bytesutil.ToBytes1472Dilthium(record.PublicKey)
 		m[key] = types.ValidatorIndex(idx)
 	}
 	return m

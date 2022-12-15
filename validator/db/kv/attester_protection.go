@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	fieldparams "github.com/theQRL/zond/config/fieldparams"
+	"github.com/theQRL/go-qrllib/dilithium"
 	types "github.com/theQRL/zond/consensus-types/primitives"
 	"github.com/theQRL/zond/encoding/bytesutil"
 	"github.com/theQRL/zond/monitoring/tracing"
@@ -23,7 +23,7 @@ type SlashingKind int
 // AttestationRecord which can be represented by these simple values
 // for manipulation by database methods.
 type AttestationRecord struct {
-	PubKey      [fieldparams.BLSPubkeyLength]byte
+	PubKey      [dilithium.PKSizePacked]byte
 	Source      types.Epoch
 	Target      types.Epoch
 	SigningRoot [32]byte
@@ -93,7 +93,7 @@ var (
 
 // AttestationHistoryForPubKey retrieves a list of attestation records for data
 // we have stored in the database for the given validator public key.
-func (s *Store) AttestationHistoryForPubKey(ctx context.Context, pubKey [fieldparams.BLSPubkeyLength]byte) ([]*AttestationRecord, error) {
+func (s *Store) AttestationHistoryForPubKey(ctx context.Context, pubKey [dilithium.PKSizePacked]byte) ([]*AttestationRecord, error) {
 	records := make([]*AttestationRecord, 0)
 	ctx, span := trace.StartSpan(ctx, "Validator.AttestationHistoryForPubKey")
 	defer span.End()
@@ -134,7 +134,7 @@ func (s *Store) AttestationHistoryForPubKey(ctx context.Context, pubKey [fieldpa
 // CheckSlashableAttestation verifies an incoming attestation is
 // not a double vote for a validator public key nor a surround vote.
 func (s *Store) CheckSlashableAttestation(
-	ctx context.Context, pubKey [fieldparams.BLSPubkeyLength]byte, signingRoot [32]byte, att *ethpb.IndexedAttestation,
+	ctx context.Context, pubKey [dilithium.PKSizePacked]byte, signingRoot [32]byte, att *ethpb.IndexedAttestation,
 ) (SlashingKind, error) {
 	ctx, span := trace.StartSpan(ctx, "Validator.CheckSlashableAttestation")
 	defer span.End()
@@ -274,7 +274,7 @@ func (_ *Store) checkSurroundingVote(
 
 // SaveAttestationsForPubKey stores a batch of attestations all at once.
 func (s *Store) SaveAttestationsForPubKey(
-	ctx context.Context, pubKey [fieldparams.BLSPubkeyLength]byte, signingRoots [][32]byte, atts []*ethpb.IndexedAttestation,
+	ctx context.Context, pubKey [dilithium.PKSizePacked]byte, signingRoots [][32]byte, atts []*ethpb.IndexedAttestation,
 ) error {
 	ctx, span := trace.StartSpan(ctx, "Validator.SaveAttestationsForPubKey")
 	defer span.End()
@@ -300,7 +300,7 @@ func (s *Store) SaveAttestationsForPubKey(
 // SaveAttestationForPubKey saves an attestation for a validator public
 // key for local validator slashing protection.
 func (s *Store) SaveAttestationForPubKey(
-	ctx context.Context, pubKey [fieldparams.BLSPubkeyLength]byte, signingRoot [32]byte, att *ethpb.IndexedAttestation,
+	ctx context.Context, pubKey [dilithium.PKSizePacked]byte, signingRoot [32]byte, att *ethpb.IndexedAttestation,
 ) error {
 	ctx, span := trace.StartSpan(ctx, "Validator.SaveAttestationForPubKey")
 	defer span.End()
@@ -492,15 +492,15 @@ func (s *Store) saveAttestationRecords(ctx context.Context, atts []*AttestationR
 }
 
 // AttestedPublicKeys retrieves all public keys that have attested.
-func (s *Store) AttestedPublicKeys(ctx context.Context) ([][fieldparams.BLSPubkeyLength]byte, error) {
+func (s *Store) AttestedPublicKeys(ctx context.Context) ([][dilithium.PKSizePacked]byte, error) {
 	ctx, span := trace.StartSpan(ctx, "Validator.AttestedPublicKeys")
 	defer span.End()
 	var err error
-	attestedPublicKeys := make([][fieldparams.BLSPubkeyLength]byte, 0)
+	attestedPublicKeys := make([][dilithium.PKSizePacked]byte, 0)
 	err = s.view(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket(pubKeysBucket)
 		return bucket.ForEach(func(pubKey []byte, _ []byte) error {
-			var pk [fieldparams.BLSPubkeyLength]byte
+			var pk [dilithium.PKSizePacked]byte
 			copy(pk[:], pubKey)
 			attestedPublicKeys = append(attestedPublicKeys, pk)
 			return nil
@@ -511,7 +511,7 @@ func (s *Store) AttestedPublicKeys(ctx context.Context) ([][fieldparams.BLSPubke
 
 // SigningRootAtTargetEpoch checks for an existing signing root at a specified
 // target epoch for a given validator public key.
-func (s *Store) SigningRootAtTargetEpoch(ctx context.Context, pubKey [fieldparams.BLSPubkeyLength]byte, target types.Epoch) ([32]byte, error) {
+func (s *Store) SigningRootAtTargetEpoch(ctx context.Context, pubKey [dilithium.PKSizePacked]byte, target types.Epoch) ([32]byte, error) {
 	ctx, span := trace.StartSpan(ctx, "Validator.SigningRootAtTargetEpoch")
 	defer span.End()
 	var signingRoot [32]byte
@@ -534,7 +534,7 @@ func (s *Store) SigningRootAtTargetEpoch(ctx context.Context, pubKey [fieldparam
 
 // LowestSignedSourceEpoch returns the lowest signed source epoch for a validator public key.
 // If no data exists, returning 0 is a sensible default.
-func (s *Store) LowestSignedSourceEpoch(ctx context.Context, publicKey [fieldparams.BLSPubkeyLength]byte) (types.Epoch, bool, error) {
+func (s *Store) LowestSignedSourceEpoch(ctx context.Context, publicKey [dilithium.PKSizePacked]byte) (types.Epoch, bool, error) {
 	ctx, span := trace.StartSpan(ctx, "Validator.LowestSignedSourceEpoch")
 	defer span.End()
 
@@ -557,7 +557,7 @@ func (s *Store) LowestSignedSourceEpoch(ctx context.Context, publicKey [fieldpar
 
 // LowestSignedTargetEpoch returns the lowest signed target epoch for a validator public key.
 // If no data exists, returning 0 is a sensible default.
-func (s *Store) LowestSignedTargetEpoch(ctx context.Context, publicKey [fieldparams.BLSPubkeyLength]byte) (types.Epoch, bool, error) {
+func (s *Store) LowestSignedTargetEpoch(ctx context.Context, publicKey [dilithium.PKSizePacked]byte) (types.Epoch, bool, error) {
 	ctx, span := trace.StartSpan(ctx, "Validator.LowestSignedTargetEpoch")
 	defer span.End()
 

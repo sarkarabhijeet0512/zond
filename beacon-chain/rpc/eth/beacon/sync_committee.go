@@ -108,7 +108,7 @@ func (bs *Server) ListSyncCommittees(ctx context.Context, req *ethpbv2.StateSync
 func committeeIndicesFromState(st state.BeaconState, committee *ethpbalpha.SyncCommittee) ([]types.ValidatorIndex, *ethpbalpha.SyncCommittee, error) {
 	committeeIndices := make([]types.ValidatorIndex, len(committee.Pubkeys))
 	for i, key := range committee.Pubkeys {
-		index, ok := st.ValidatorIndexByPubkey(bytesutil.ToBytes48(key))
+		index, ok := st.ValidatorIndexByPubkey(bytesutil.ToBytes1472Dilthium(key))
 		if !ok {
 			return nil, nil, fmt.Errorf(
 				"validator index not found for pubkey %#x",
@@ -154,7 +154,7 @@ func extractSyncSubcommittees(st state.BeaconState, committee *ethpbalpha.SyncCo
 		}
 		subcommittee := &ethpbv2.SyncSubcommitteeValidators{Validators: make([]types.ValidatorIndex, len(pubkeys))}
 		for j, key := range pubkeys {
-			index, ok := st.ValidatorIndexByPubkey(bytesutil.ToBytes48(key))
+			index, ok := st.ValidatorIndexByPubkey(bytesutil.ToBytes1472Dilthium(key))
 			if !ok {
 				return nil, fmt.Errorf(
 					"validator index not found for pubkey %#x",

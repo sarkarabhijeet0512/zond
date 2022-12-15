@@ -7,9 +7,9 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
+	"github.com/theQRL/go-qrllib/dilithium"
 	"github.com/theQRL/zond/beacon-chain/core/blocks"
 	"github.com/theQRL/zond/common/hexutil"
-	fieldparams "github.com/theQRL/zond/config/fieldparams"
 	"github.com/theQRL/zond/config/params"
 	"github.com/theQRL/zond/encoding/bytesutil"
 	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
@@ -111,7 +111,7 @@ func PerformVoluntaryExit(
 	return rawExitedKeys, formattedExitedKeys, nil
 }
 
-func prepareAllKeys(validatingKeys [][fieldparams.BLSPubkeyLength]byte) (raw [][]byte, formatted []string) {
+func prepareAllKeys(validatingKeys [][dilithium.PKSizePacked]byte) (raw [][]byte, formatted []string) {
 	raw = make([][]byte, len(validatingKeys))
 	formatted = make([]string, len(validatingKeys))
 	for i, pk := range validatingKeys {

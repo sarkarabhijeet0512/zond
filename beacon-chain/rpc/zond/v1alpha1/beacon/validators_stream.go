@@ -13,6 +13,7 @@ import (
 	"github.com/patrickmn/go-cache"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
+	"github.com/theQRL/go-qrllib/dilithium"
 	"github.com/theQRL/zond/async/event"
 	"github.com/theQRL/zond/beacon-chain/blockchain"
 	"github.com/theQRL/zond/beacon-chain/cache/depositcache"
@@ -23,7 +24,6 @@ import (
 	"github.com/theQRL/zond/beacon-chain/db"
 	"github.com/theQRL/zond/beacon-chain/execution"
 	"github.com/theQRL/zond/beacon-chain/state"
-	fieldparams "github.com/theQRL/zond/config/fieldparams"
 	"github.com/theQRL/zond/config/params"
 	types "github.com/theQRL/zond/consensus-types/primitives"
 	"github.com/theQRL/zond/encoding/bytesutil"
@@ -193,13 +193,13 @@ func (is *infostream) handleMessage(msg *ethpb.ValidatorChangeSet) {
 func (is *infostream) handleAddValidatorKeys(reqPubKeys [][]byte) error {
 	is.pubKeysMutex.Lock()
 	// Create existence map to ensure we don't duplicate keys.
-	pubKeysMap := make(map[[fieldparams.BLSPubkeyLength]byte]bool, len(is.pubKeys))
+	pubKeysMap := make(map[[dilithium.PKSizePacked]byte]bool, len(is.pubKeys))
 	for _, pubKey := range is.pubKeys {
-		pubKeysMap[bytesutil.ToBytes48(pubKey)] = true
+		pubKeysMap[bytesutil.ToBytes1472Dilthium(pubKey)] = true
 	}
 	addedPubKeys := make([][]byte, 0, len(reqPubKeys))
 	for _, pubKey := range reqPubKeys {
-		if _, exists := pubKeysMap[bytesutil.ToBytes48(pubKey)]; !exists {
+		if _, exists := pubKeysMap[bytesutil.ToBytes1472Dilthium(pubKey)]; !exists {
 			is.pubKeys = append(is.pubKeys, pubKey)
 			addedPubKeys = append(addedPubKeys, pubKey)
 		}
@@ -223,13 +223,13 @@ func (is *infostream) handleSetValidatorKeys(reqPubKeys [][]byte) error {
 func (is *infostream) handleRemoveValidatorKeys(reqPubKeys [][]byte) {
 	is.pubKeysMutex.Lock()
 	// Create existence map to track what we have to delete.
-	pubKeysMap := make(map[[fieldparams.BLSPubkeyLength]byte]bool, len(reqPubKeys))
+	pubKeysMap := make(map[[dilithium.PKSizePacked]byte]bool, len(reqPubKeys))
 	for _, pubKey := range reqPubKeys {
-		pubKeysMap[bytesutil.ToBytes48(pubKey)] = true
+		pubKeysMap[bytesutil.ToBytes1472Dilthium(pubKey)] = true
 	}
 	max := len(is.pubKeys)
 	for i := 0; i < max; i++ {
-		if _, exists := pubKeysMap[bytesutil.ToBytes48(is.pubKeys[i])]; exists {
+		if _, exists := pubKeysMap[bytesutil.ToBytes1472Dilthium(is.pubKeys[i])]; exists {
 			copy(is.pubKeys[i:], is.pubKeys[i+1:])
 			is.pubKeys = is.pubKeys[:len(is.pubKeys)-1]
 			i--
@@ -275,7 +275,7 @@ func (is *infostream) generateValidatorsInfo(pubKeys [][]byte) ([]*ethpb.Validat
 
 	res := make([]*ethpb.ValidatorInfo, 0, len(pubKeys))
 	for _, pubKey := range pubKeys {
-		i, e := headState.ValidatorIndexByPubkey(bytesutil.ToBytes48(pubKey))
+		i, e := headState.ValidatorIndexByPubkey(bytesutil.ToBytes1472Dilthium(pubKey))
 		if !e {
 			return nil, errors.New("could not find public key")
 		}
@@ -314,7 +314,7 @@ func (is *infostream) generateValidatorInfo(
 
 	// Index
 	var ok bool
-	info.Index, ok = headState.ValidatorIndexByPubkey(bytesutil.ToBytes48(pubKey))
+	info.Index, ok = headState.ValidatorIndexByPubkey(bytesutil.ToBytes1472Dilthium(pubKey))
 	if !ok {
 		// We don't know of this validator; it's either a pending deposit or totally unknown.
 		return is.generatePendingValidatorInfo(info)
@@ -377,10 +377,10 @@ func (is *infostream) generatePendingValidatorInfo(info *ethpb.ValidatorInfo) (*
 
 func (is *infostream) calculateActivationTimeForPendingValidators(res []*ethpb.ValidatorInfo, headState state.ReadOnlyBeaconState, epoch types.Epoch) error {
 	// pendingValidatorsMap is map from the validator pubkey to the index in our return array
-	pendingValidatorsMap := make(map[[fieldparams.BLSPubkeyLength]byte]int)
+	pendingValidatorsMap := make(map[[dilithium.PKSizePacked]byte]int)
 	for i, info := range res {
 		if info.Status == ethpb.ValidatorStatus_PENDING {
-			pendingValidatorsMap[bytesutil.ToBytes48(info.PublicKey)] = i
+			pendingValidatorsMap[bytesutil.ToBytes1472Dilthium(info.PublicKey)] = i
 		}
 	}
 	if len(pendingValidatorsMap) == 0 {

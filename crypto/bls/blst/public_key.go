@@ -6,8 +6,8 @@ import (
 	"fmt"
 
 	"github.com/pkg/errors"
+	"github.com/theQRL/go-qrllib/dilithium"
 	lruwrpr "github.com/theQRL/zond/cache/lru"
-	fieldparams "github.com/theQRL/zond/config/fieldparams"
 	"github.com/theQRL/zond/config/params"
 	"github.com/theQRL/zond/crypto/bls/common"
 )
@@ -25,7 +25,7 @@ func PublicKeyFromBytes(pubKey []byte) (common.PublicKey, error) {
 	if len(pubKey) != params.BeaconConfig().BLSPubkeyLength {
 		return nil, fmt.Errorf("public key must be %d bytes", params.BeaconConfig().BLSPubkeyLength)
 	}
-	newKey := (*[fieldparams.BLSPubkeyLength]byte)(pubKey)
+	newKey := (*[dilithium.PKSizePacked]byte)(pubKey)
 	if cv, ok := pubkeyCache.Get(*newKey); ok {
 		return cv.(*PublicKey).Copy(), nil
 	}

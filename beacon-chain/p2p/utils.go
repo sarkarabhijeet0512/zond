@@ -30,7 +30,7 @@ const metaDataPath = "metaData"
 
 const dialTimeout = 1 * time.Second
 
-// SerializeZNR takes the znr record in its key-value form and serializes it.
+// SerializeENR takes the znr record in its key-value form and serializes it.
 func SerializeZNR(record *znr.Record) (string, error) {
 	if record == nil {
 		return "", errors.New("could not serialize nil record")

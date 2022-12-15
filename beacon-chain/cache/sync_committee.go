@@ -129,7 +129,7 @@ func (s *SyncCommitteeCache) UpdatePositionsInCommittee(syncCommitteeBoundaryRoo
 	}
 	positionsMap := make(map[types.ValidatorIndex]*positionInCommittee)
 	for i, pubkey := range csc.Pubkeys {
-		p := bytesutil.ToBytes48(pubkey)
+		p := bytesutil.ToBytes1472Dilthium(pubkey)
 		validatorIndex, ok := st.ValidatorIndexByPubkey(p)
 		if !ok {
 			continue
@@ -147,7 +147,7 @@ func (s *SyncCommitteeCache) UpdatePositionsInCommittee(syncCommitteeBoundaryRoo
 		return err
 	}
 	for i, pubkey := range nsc.Pubkeys {
-		p := bytesutil.ToBytes48(pubkey)
+		p := bytesutil.ToBytes1472Dilthium(pubkey)
 		validatorIndex, ok := st.ValidatorIndexByPubkey(p)
 		if !ok {
 			continue

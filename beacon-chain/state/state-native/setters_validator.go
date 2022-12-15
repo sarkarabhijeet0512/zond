@@ -175,7 +175,7 @@ func (b *BeaconState) AppendValidator(val *ethpb.Validator) error {
 	b.validators = append(vals, val)
 	valIdx := types.ValidatorIndex(len(b.validators) - 1)
 
-	b.valMapHandler.Set(bytesutil.ToBytes48(val.PublicKey), valIdx)
+	b.valMapHandler.Set(bytesutil.ToBytes1472Dilthium(val.PublicKey), valIdx)
 
 	b.markFieldAsDirty(nativetypes.Validators)
 	b.addDirtyIndices(nativetypes.Validators, []uint64{uint64(valIdx)})

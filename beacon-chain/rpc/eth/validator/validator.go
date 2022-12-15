@@ -11,6 +11,7 @@ import (
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
+	"github.com/theQRL/go-qrllib/dilithium"
 	"github.com/theQRL/zond/beacon-chain/builder"
 	"github.com/theQRL/zond/beacon-chain/cache"
 	"github.com/theQRL/zond/beacon-chain/core/helpers"
@@ -82,7 +83,7 @@ func (vs *Server) GetAttesterDuties(ctx context.Context, req *ethpbv1.AttesterDu
 	duties := make([]*ethpbv1.AttesterDuty, 0, len(req.Index))
 	for _, index := range req.Index {
 		pubkey := s.PubkeyAtIndex(index)
-		zeroPubkey := [fieldparams.BLSPubkeyLength]byte{}
+		zeroPubkey := [dilithium.PKSizePacked]byte{}
 		if bytes.Equal(pubkey[:], zeroPubkey[:]) {
 			return nil, status.Errorf(codes.InvalidArgument, "Invalid validator index")
 		}
@@ -246,10 +247,10 @@ func (vs *Server) GetSyncCommitteeDuties(ctx context.Context, req *ethpbv2.SyncC
 			return nil, status.Errorf(codes.Internal, "Could not get sync committee: %v", err)
 		}
 	}
-	committeePubkeys := make(map[[fieldparams.BLSPubkeyLength]byte][]uint64)
+	committeePubkeys := make(map[[dilithium.PKSizePacked]byte][]uint64)
 	for j, pubkey := range committee.Pubkeys {
-		pubkey48 := bytesutil.ToBytes48(pubkey)
-		committeePubkeys[pubkey48] = append(committeePubkeys[pubkey48], uint64(j))
+		pubkey1472 := bytesutil.ToBytes1472Dilthium(pubkey)
+		committeePubkeys[pubkey1472] = append(committeePubkeys[pubkey1472], uint64(j))
 	}
 
 	duties, err := syncCommitteeDuties(req.Index, st, committeePubkeys)
@@ -1060,7 +1061,7 @@ func syncCommitteeDutiesLastValidEpoch(currentEpoch types.Epoch) types.Epoch {
 func syncCommitteeDuties(
 	valIndices []types.ValidatorIndex,
 	st state.BeaconState,
-	committeePubkeys map[[fieldparams.BLSPubkeyLength]byte][]uint64,
+	committeePubkeys map[[dilithium.PKSizePacked]byte][]uint64,
 ) ([]*ethpbv2.SyncCommitteeDuty, error) {
 	duties := make([]*ethpbv2.SyncCommitteeDuty, 0)
 	for _, index := range valIndices {
@@ -1068,7 +1069,7 @@ func syncCommitteeDuties(
 			ValidatorIndex: index,
 		}
 		valPubkey48 := st.PubkeyAtIndex(index)
-		zeroPubkey := [fieldparams.BLSPubkeyLength]byte{}
+		zeroPubkey := [dilithium.PKSizePacked]byte{}
 		if bytes.Equal(valPubkey48[:], zeroPubkey[:]) {
 			return nil, errInvalidValIndex
 		}

@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"context"
 
-	fieldparams "github.com/theQRL/zond/config/fieldparams"
+	"github.com/theQRL/go-qrllib/dilithium"
 	"github.com/theQRL/zond/config/params"
 	types "github.com/theQRL/zond/consensus-types/primitives"
 	"github.com/theQRL/zond/encoding/bytesutil"
@@ -225,8 +225,8 @@ func (s *Store) migrateOptimalAttesterProtectionDown(_ context.Context) error {
 	})
 }
 
-func (s *Store) extractPubKeysForMigratingDown() ([][fieldparams.BLSPubkeyLength]byte, error) {
-	pubKeys := make([][fieldparams.BLSPubkeyLength]byte, 0)
+func (s *Store) extractPubKeysForMigratingDown() ([][dilithium.PKSizePacked]byte, error) {
+	pubKeys := make([][dilithium.PKSizePacked]byte, 0)
 	err := s.view(func(tx *bolt.Tx) error {
 		mb := tx.Bucket(migrationsBucket)
 		if b := mb.Get(migrationOptimalAttesterProtectionKey); b == nil {
@@ -246,7 +246,7 @@ func (s *Store) extractPubKeysForMigratingDown() ([][fieldparams.BLSPubkeyLength
 			if pkBucket == nil {
 				return nil
 			}
-			pubKeys = append(pubKeys, bytesutil.ToBytes48(pubKey))
+			pubKeys = append(pubKeys, bytesutil.ToBytes1472Dilthium(pubKey))
 			return nil
 		})
 	})

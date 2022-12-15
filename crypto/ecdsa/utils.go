@@ -4,9 +4,9 @@ import (
 	"crypto/ecdsa"
 	"math/big"
 
-	"github.com/btcsuite/btcd/btcec/v2"
 	"github.com/libp2p/go-libp2p/core/crypto"
 	"github.com/pkg/errors"
+	"github.com/theQRL/go-qrllib/dilithium"
 	gcrypto "github.com/theQRL/zond/crypto"
 )
 
@@ -38,17 +38,33 @@ func ConvertToInterfacePrivkey(privkey *ecdsa.PrivateKey) (crypto.PrivKey, error
 	return crypto.UnmarshalSecp256k1PrivateKey(privBytes)
 }
 
-func ConvertToInterfacePubkey(pubkey *ecdsa.PublicKey) (crypto.PubKey, error) {
-	xVal, yVal := new(btcec.FieldVal), new(btcec.FieldVal)
-	if xVal.SetByteSlice(pubkey.X.Bytes()) {
-		return nil, errors.Errorf("X value overflows")
-	}
-	if yVal.SetByteSlice(pubkey.Y.Bytes()) {
-		return nil, errors.Errorf("Y value overflows")
-	}
-	newKey := crypto.PubKey((*crypto.Secp256k1PublicKey)(btcec.NewPublicKey(xVal, yVal)))
-	// Zero out temporary values.
-	xVal.Zero()
-	yVal.Zero()
-	return newKey, nil
+// func ConvertToInterfacePubkey(pubkey *ecdsa.PublicKey) (crypto.PubKey, error) {
+// 	xVal, yVal := new(btcec.FieldVal), new(btcec.FieldVal)
+// 	if xVal.SetByteSlice(pubkey.X.Bytes()) {
+// 		return nil, errors.Errorf("X value overflows")
+// 	}
+// 	if yVal.SetByteSlice(pubkey.Y.Bytes()) {
+// 		return nil, errors.Errorf("Y value overflows")
+// 	}
+// 	newKey := crypto.PubKey((*crypto.Secp256k1PublicKey)(btcec.NewPublicKey(xVal, yVal)))
+// 	// Zero out temporary values.
+// 	xVal.Zero()
+// 	yVal.Zero()
+// 	return newKey, nil
+// }
+
+func ConvertToInterfacePubkey(pubkey *dilithium.Dilithium) ([1472]byte, error) {
+	// xVal, yVal := new(btcec.FieldVal), new(btcec.FieldVal)
+	// if xVal.SetByteSlice(pubkey.X.Bytes()) {
+	// 	return nil, errors.Errorf("X value overflows")
+	// }
+	// if yVal.SetByteSlice(pubkey.Y.Bytes()) {
+	// 	return nil, errors.Errorf("Y value overflows")
+	// }
+	// newKey := crypto.PubKey((*crypto.Secp256k1PublicKey)(btcec.NewPublicKey(xVal, yVal)))
+	// // Zero out temporary values.
+	// xVal.Zero()
+	// yVal.Zero()
+
+	return pubkey.GetPK(), nil
 }

@@ -7,7 +7,7 @@ import (
 	"context"
 
 	"github.com/prysmaticlabs/go-bitfield"
-	fieldparams "github.com/theQRL/zond/config/fieldparams"
+	"github.com/theQRL/go-qrllib/dilithium"
 	"github.com/theQRL/zond/consensus-types/interfaces"
 	types "github.com/theQRL/zond/consensus-types/primitives"
 	enginev1 "github.com/theQRL/zond/protos/engine/v1"
@@ -97,7 +97,7 @@ type ReadOnlyValidator interface {
 	ActivationEpoch() types.Epoch
 	WithdrawableEpoch() types.Epoch
 	ExitEpoch() types.Epoch
-	PublicKey() [fieldparams.BLSPubkeyLength]byte
+	PublicKey() [dilithium.PKSizePacked]byte
 	WithdrawalCredentials() []byte
 	HasETH1WithdrawalCredential() bool
 	IsFullyWithdrawable(types.Epoch) bool
@@ -111,8 +111,8 @@ type ReadOnlyValidators interface {
 	Validators() []*ethpb.Validator
 	ValidatorAtIndex(idx types.ValidatorIndex) (*ethpb.Validator, error)
 	ValidatorAtIndexReadOnly(idx types.ValidatorIndex) (ReadOnlyValidator, error)
-	ValidatorIndexByPubkey(key [fieldparams.BLSPubkeyLength]byte) (types.ValidatorIndex, bool)
-	PubkeyAtIndex(idx types.ValidatorIndex) [fieldparams.BLSPubkeyLength]byte
+	ValidatorIndexByPubkey(key [dilithium.PKSizePacked]byte) (types.ValidatorIndex, bool)
+	PubkeyAtIndex(idx types.ValidatorIndex) [dilithium.PKSizePacked]byte
 	NumValidators() int
 	ReadFromEveryValidator(f func(idx int, val ReadOnlyValidator) error) error
 }

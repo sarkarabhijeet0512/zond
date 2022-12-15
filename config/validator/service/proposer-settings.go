@@ -3,8 +3,8 @@ package validator_service_config
 import (
 	"strconv"
 
+	"github.com/theQRL/go-qrllib/dilithium"
 	"github.com/theQRL/zond/common"
-	fieldparams "github.com/theQRL/zond/config/fieldparams"
 	"github.com/theQRL/zond/config/params"
 )
 
@@ -65,7 +65,7 @@ func (u *Uint64) UnmarshalYAML(unmarshal func(interface{}) error) error {
 // ProposerSettings is a Prysm internal representation of the fee recipient config on the validator client.
 // ProposerSettingsPayload maps to ProposerSettings on import through the CLI.
 type ProposerSettings struct {
-	ProposeConfig map[[fieldparams.BLSPubkeyLength]byte]*ProposerOption
+	ProposeConfig map[[dilithium.PKSizePacked]byte]*ProposerOption
 	DefaultConfig *ProposerOption
 }
 

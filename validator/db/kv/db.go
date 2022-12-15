@@ -10,10 +10,10 @@ import (
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	prombolt "github.com/prysmaticlabs/prombbolt"
+	"github.com/theQRL/go-qrllib/dilithium"
 	"github.com/theQRL/zond/async/abool"
 	"github.com/theQRL/zond/async/event"
 	"github.com/theQRL/zond/config/features"
-	fieldparams "github.com/theQRL/zond/config/fieldparams"
 	"github.com/theQRL/zond/config/params"
 	"github.com/theQRL/zond/io/file"
 	bolt "go.etcd.io/bbolt"
@@ -55,7 +55,7 @@ var blockedBuckets = [][]byte{
 
 // Config represents store's config object.
 type Config struct {
-	PubKeys [][fieldparams.BLSPubkeyLength]byte
+	PubKeys [][dilithium.PKSizePacked]byte
 }
 
 // Store defines an implementation of the Prysm Database interface
@@ -179,7 +179,7 @@ func NewKVStore(ctx context.Context, dirPath string, config *Config) (*Store, er
 }
 
 // UpdatePublicKeysBuckets for a specified list of keys.
-func (s *Store) UpdatePublicKeysBuckets(pubKeys [][fieldparams.BLSPubkeyLength]byte) error {
+func (s *Store) UpdatePublicKeysBuckets(pubKeys [][dilithium.PKSizePacked]byte) error {
 	return s.update(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket(historicProposalsBucket)
 		for _, pubKey := range pubKeys {
