@@ -6,8 +6,8 @@ import (
 	"fmt"
 
 	"github.com/pkg/errors"
+	"github.com/theQRL/go-qrllib/dilithium"
 	"github.com/theQRL/zond/config/features"
-	fieldparams "github.com/theQRL/zond/config/fieldparams"
 	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 	"github.com/theQRL/zond/protos/zond/v1alpha1/slashings"
 	"github.com/theQRL/zond/validator/db/kv"
@@ -23,7 +23,7 @@ var failedPostAttSignExternalErr = "attempted to make slashable attestation, rej
 func (v *validator) slashableAttestationCheck(
 	ctx context.Context,
 	indexedAtt *ethpb.IndexedAttestation,
-	pubKey [fieldparams.BLSPubkeyLength]byte,
+	pubKey [dilithium.PKSizePacked]byte,
 	signingRoot [32]byte,
 ) error {
 	ctx, span := trace.StartSpan(ctx, "validator.postAttSignUpdate")

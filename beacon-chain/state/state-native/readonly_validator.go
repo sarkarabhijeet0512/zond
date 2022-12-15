@@ -2,8 +2,8 @@ package state_native
 
 import (
 	"github.com/pkg/errors"
+	"github.com/theQRL/go-qrllib/dilithium"
 	"github.com/theQRL/zond/beacon-chain/state"
-	fieldparams "github.com/theQRL/zond/config/fieldparams"
 	"github.com/theQRL/zond/config/params"
 	types "github.com/theQRL/zond/consensus-types/primitives"
 	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
@@ -65,8 +65,8 @@ func (v readOnlyValidator) ExitEpoch() types.Epoch {
 
 // PublicKey returns the public key of the
 // read only validator.
-func (v readOnlyValidator) PublicKey() [fieldparams.BLSPubkeyLength]byte {
-	var pubkey [fieldparams.BLSPubkeyLength]byte
+func (v readOnlyValidator) PublicKey() [dilithium.PKSizePacked]byte {
+	var pubkey [dilithium.PKSizePacked]byte
 	copy(pubkey[:], v.validator.PublicKey)
 	return pubkey
 }

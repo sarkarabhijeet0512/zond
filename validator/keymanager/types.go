@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/theQRL/go-qrllib/dilithium"
 	"github.com/theQRL/zond/async/event"
-	fieldparams "github.com/theQRL/zond/config/fieldparams"
 	"github.com/theQRL/zond/crypto/bls"
 	ethpbservice "github.com/theQRL/zond/protos/eth/service"
 	validatorpb "github.com/theQRL/zond/protos/zond/v1alpha1/validator-client"
@@ -30,7 +30,7 @@ type KeysFetcher interface {
 
 // PublicKeysFetcher for validating public keys.
 type PublicKeysFetcher interface {
-	FetchValidatingPublicKeys(ctx context.Context) ([][fieldparams.BLSPubkeyLength]byte, error)
+	FetchValidatingPublicKeys(ctx context.Context) ([][dilithium.PKSizePacked]byte, error)
 }
 
 // Signer allows signing messages using a validator private key.
@@ -52,7 +52,7 @@ type Deleter interface {
 
 // KeyChangeSubscriber allows subscribing to changes made to the underlying keys.
 type KeyChangeSubscriber interface {
-	SubscribeAccountChanges(pubKeysChan chan [][fieldparams.BLSPubkeyLength]byte) event.Subscription
+	SubscribeAccountChanges(pubKeysChan chan [][dilithium.PKSizePacked]byte) event.Subscription
 }
 
 // KeyStoreExtractor allows keys to be extracted from the keymanager.
@@ -62,12 +62,12 @@ type KeyStoreExtractor interface {
 
 // PublicKeyAdder allows adding public keys to the keymanager.
 type PublicKeyAdder interface {
-	AddPublicKeys(ctx context.Context, publicKeys [][fieldparams.BLSPubkeyLength]byte) ([]*ethpbservice.ImportedRemoteKeysStatus, error)
+	AddPublicKeys(ctx context.Context, publicKeys [][dilithium.PKSizePacked]byte) ([]*ethpbservice.ImportedRemoteKeysStatus, error)
 }
 
 // PublicKeyDeleter allows deleting public keys set in keymanager.
 type PublicKeyDeleter interface {
-	DeletePublicKeys(ctx context.Context, publicKeys [][fieldparams.BLSPubkeyLength]byte) ([]*ethpbservice.DeletedRemoteKeysStatus, error)
+	DeletePublicKeys(ctx context.Context, publicKeys [][dilithium.PKSizePacked]byte) ([]*ethpbservice.DeletedRemoteKeysStatus, error)
 }
 
 type ListKeymanagerAccountConfig struct {

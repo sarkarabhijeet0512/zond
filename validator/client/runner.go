@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+	"github.com/theQRL/go-qrllib/dilithium"
 	"github.com/theQRL/zond/cmd/validator/flags"
-	fieldparams "github.com/theQRL/zond/config/fieldparams"
 	"github.com/theQRL/zond/config/params"
 	types "github.com/theQRL/zond/consensus-types/primitives"
 	"github.com/theQRL/zond/encoding/bytesutil"
@@ -49,7 +49,7 @@ func run(ctx context.Context, v iface.Validator) {
 		handleAssignmentError(err, headSlot)
 	}
 
-	accountsChangedChan := make(chan [][fieldparams.BLSPubkeyLength]byte, 1)
+	accountsChangedChan := make(chan [][dilithium.PKSizePacked]byte, 1)
 	km, err := v.Keymanager()
 	if err != nil {
 		log.WithError(err).Fatal("Could not get keymanager")
@@ -235,11 +235,11 @@ func waitForActivation(ctx context.Context, v iface.Validator) (types.Slot, erro
 	return headSlot, nil
 }
 
-func performRoles(slotCtx context.Context, allRoles map[[48]byte][]iface.ValidatorRole, v iface.Validator, slot types.Slot, wg *sync.WaitGroup, span *trace.Span) {
+func performRoles(slotCtx context.Context, allRoles map[[1472]byte][]iface.ValidatorRole, v iface.Validator, slot types.Slot, wg *sync.WaitGroup, span *trace.Span) {
 	for pubKey, roles := range allRoles {
 		wg.Add(len(roles))
 		for _, role := range roles {
-			go func(role iface.ValidatorRole, pubKey [fieldparams.BLSPubkeyLength]byte) {
+			go func(role iface.ValidatorRole, pubKey [dilithium.PKSizePacked]byte) {
 				defer wg.Done()
 				switch role {
 				case iface.RoleAttester:

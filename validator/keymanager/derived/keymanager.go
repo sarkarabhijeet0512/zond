@@ -6,8 +6,8 @@ import (
 
 	"github.com/logrusorgru/aurora"
 	"github.com/pkg/errors"
+	"github.com/theQRL/go-qrllib/dilithium"
 	"github.com/theQRL/zond/async/event"
-	fieldparams "github.com/theQRL/zond/config/fieldparams"
 	"github.com/theQRL/zond/crypto/bls"
 	ethpbservice "github.com/theQRL/zond/protos/eth/service"
 	validatorpb "github.com/theQRL/zond/protos/zond/v1alpha1/validator-client"
@@ -100,7 +100,7 @@ func (km *Keymanager) Sign(ctx context.Context, req *validatorpb.SignRequest) (b
 }
 
 // FetchValidatingPublicKeys fetches the list of validating public keys from the keymanager.
-func (km *Keymanager) FetchValidatingPublicKeys(ctx context.Context) ([][fieldparams.BLSPubkeyLength]byte, error) {
+func (km *Keymanager) FetchValidatingPublicKeys(ctx context.Context) ([][dilithium.PKSizePacked]byte, error) {
 	return km.localKM.FetchValidatingPublicKeys(ctx)
 }
 
@@ -126,7 +126,7 @@ func (km *Keymanager) DeleteKeystores(
 // SubscribeAccountChanges creates an event subscription for a channel
 // to listen for public key changes at runtime, such as when new validator accounts
 // are imported into the keymanager while the validator process is running.
-func (km *Keymanager) SubscribeAccountChanges(pubKeysChan chan [][fieldparams.BLSPubkeyLength]byte) event.Subscription {
+func (km *Keymanager) SubscribeAccountChanges(pubKeysChan chan [][dilithium.PKSizePacked]byte) event.Subscription {
 	return km.localKM.SubscribeAccountChanges(pubKeysChan)
 }
 

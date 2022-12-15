@@ -240,6 +240,18 @@ func (s *Service) createLocalNode(
 	return initializeSyncCommSubnets(localNode), nil
 }
 
+// func (s *Service) startDiscoveryV5(
+// 	addr net.IP,
+// 	privKey *ecdsa.PrivateKey,
+// ) (*discover.UDPv5, error) {
+// 	listener, err := s.createListener(addr, privKey)
+// 	if err != nil {
+// 		return nil, errors.Wrap(err, "could not create listener")
+// 	}
+// 	record := listener.Self()
+// 	log.WithField("ZNR", record.String()).Info("Started discovery v5")
+// 	return listener, nil
+// }
 func (s *Service) startDiscoveryV5(
 	addr net.IP,
 	privKey *ecdsa.PrivateKey,
@@ -415,6 +427,18 @@ func convertToAddrInfo(node *znode.Node) (*peer.AddrInfo, ma.Multiaddr, error) {
 	return info, multiAddr, nil
 }
 
+// func convertToSingleMultiAddr(node *znode.Node) (ma.Multiaddr, error) {
+// 	pubkey := node.Pubkey()
+// 	assertedKey, err := ecdsaprysm.ConvertToInterfacePubkey(pubkey)
+// 	if err != nil {
+// 		return nil, errors.Wrap(err, "could not get pubkey")
+// 	}
+// 	id, err := peer.IDFromPublicKey(assertedKey)
+// 	if err != nil {
+// 		return nil, errors.Wrap(err, "could not get peer id")
+// 	}
+// 	return multiAddressBuilderWithID(node.IP().String(), "tcp", uint(node.TCP()), id)
+// }
 func convertToSingleMultiAddr(node *znode.Node) (ma.Multiaddr, error) {
 	pubkey := node.Pubkey()
 	assertedKey, err := ecdsaprysm.ConvertToInterfacePubkey(pubkey)
@@ -427,7 +451,6 @@ func convertToSingleMultiAddr(node *znode.Node) (ma.Multiaddr, error) {
 	}
 	return multiAddressBuilderWithID(node.IP().String(), "tcp", uint(node.TCP()), id)
 }
-
 func convertToUdpMultiAddr(node *znode.Node) ([]ma.Multiaddr, error) {
 	pubkey := node.Pubkey()
 	assertedKey, err := ecdsaprysm.ConvertToInterfacePubkey(pubkey)

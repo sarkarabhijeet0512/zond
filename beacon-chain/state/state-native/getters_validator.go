@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/pkg/errors"
+	"github.com/theQRL/go-qrllib/dilithium"
 	"github.com/theQRL/zond/beacon-chain/state"
-	fieldparams "github.com/theQRL/zond/config/fieldparams"
 	types "github.com/theQRL/zond/consensus-types/primitives"
 	"github.com/theQRL/zond/encoding/bytesutil"
 	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
@@ -115,7 +115,7 @@ func (b *BeaconState) ValidatorAtIndexReadOnly(idx types.ValidatorIndex) (state.
 }
 
 // ValidatorIndexByPubkey returns a given validator by its 48-byte public key.
-func (b *BeaconState) ValidatorIndexByPubkey(key [fieldparams.BLSPubkeyLength]byte) (types.ValidatorIndex, bool) {
+func (b *BeaconState) ValidatorIndexByPubkey(key [dilithium.PKSizePacked]byte) (types.ValidatorIndex, bool) {
 	if b == nil || b.valMapHandler == nil || b.valMapHandler.IsNil() {
 		return 0, false
 	}
@@ -132,17 +132,17 @@ func (b *BeaconState) ValidatorIndexByPubkey(key [fieldparams.BLSPubkeyLength]by
 
 // PubkeyAtIndex returns the pubkey at the given
 // validator index.
-func (b *BeaconState) PubkeyAtIndex(idx types.ValidatorIndex) [fieldparams.BLSPubkeyLength]byte {
+func (b *BeaconState) PubkeyAtIndex(idx types.ValidatorIndex) [dilithium.PKSizePacked]byte {
 	if uint64(idx) >= uint64(len(b.validators)) {
-		return [fieldparams.BLSPubkeyLength]byte{}
+		return [dilithium.PKSizePacked]byte{}
 	}
 	b.lock.RLock()
 	defer b.lock.RUnlock()
 
 	if b.validators[idx] == nil {
-		return [fieldparams.BLSPubkeyLength]byte{}
+		return [dilithium.PKSizePacked]byte{}
 	}
-	return bytesutil.ToBytes48(b.validators[idx].PublicKey)
+	return bytesutil.ToBytes1472Dilthium(b.validators[idx].PublicKey)
 }
 
 // NumValidators returns the size of the validator registry.

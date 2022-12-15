@@ -4,13 +4,13 @@ import (
 	"context"
 	"testing"
 
-	fieldparams "github.com/theQRL/zond/config/fieldparams"
+	"github.com/theQRL/go-qrllib/dilithium"
 	"github.com/theQRL/zond/validator/db/iface"
 	"github.com/theQRL/zond/validator/db/kv"
 )
 
 // SetupDB instantiates and returns a DB instance for the validator client.
-func SetupDB(t testing.TB, pubkeys [][fieldparams.BLSPubkeyLength]byte) iface.ValidatorDB {
+func SetupDB(t testing.TB, pubkeys [][dilithium.PKSizePacked]byte) iface.ValidatorDB {
 	db, err := kv.NewKVStore(context.Background(), t.TempDir(), &kv.Config{
 		PubKeys: pubkeys,
 	})

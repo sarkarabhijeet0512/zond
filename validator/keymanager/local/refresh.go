@@ -8,9 +8,9 @@ import (
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/pkg/errors"
+	"github.com/theQRL/go-qrllib/dilithium"
 	"github.com/theQRL/zond/async"
 	"github.com/theQRL/zond/config/features"
-	fieldparams "github.com/theQRL/zond/config/fieldparams"
 	"github.com/theQRL/zond/crypto/bls"
 	"github.com/theQRL/zond/encoding/bytesutil"
 	"github.com/theQRL/zond/io/file"
@@ -107,14 +107,14 @@ func (km *Keymanager) reloadAccountsFromKeystore(keystore *AccountsKeystoreRepre
 	if len(newAccountsStore.PublicKeys) != len(newAccountsStore.PrivateKeys) {
 		return errors.New("number of public and private keys in keystore do not match")
 	}
-	pubKeys := make([][fieldparams.BLSPubkeyLength]byte, len(newAccountsStore.PublicKeys))
+	pubKeys := make([][dilithium.PKSizePacked]byte, len(newAccountsStore.PublicKeys))
 	for i := 0; i < len(newAccountsStore.PrivateKeys); i++ {
 		privKey, err := bls.SecretKeyFromBytes(newAccountsStore.PrivateKeys[i])
 		if err != nil {
 			return errors.Wrap(err, "could not initialize private key")
 		}
 		pubKeyBytes := privKey.PublicKey().Marshal()
-		pubKeys[i] = bytesutil.ToBytes48(pubKeyBytes)
+		pubKeys[i] = bytesutil.ToBytes1472Dilthium(pubKeyBytes)
 	}
 	km.accountsStore = newAccountsStore
 	if err := km.initializeKeysCachesFromKeystore(); err != nil {

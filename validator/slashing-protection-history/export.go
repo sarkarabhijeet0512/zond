@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
-	fieldparams "github.com/theQRL/zond/config/fieldparams"
+	"github.com/theQRL/go-qrllib/dilithium"
 	"github.com/theQRL/zond/config/params"
 	"github.com/theQRL/zond/encoding/bytesutil"
 	"github.com/theQRL/zond/monitoring/progress"
@@ -55,7 +55,7 @@ func ExportStandardProtectionJSON(
 	if err != nil {
 		return nil, errors.Wrap(err, "could not retrieve attested public keys from DB")
 	}
-	dataByPubKey := make(map[[fieldparams.BLSPubkeyLength]byte]*format.ProtectionData)
+	dataByPubKey := make(map[[dilithium.PKSizePacked]byte]*format.ProtectionData)
 
 	// Extract the signed proposals by public key.
 	bar := progress.InitializeProgressBar(
@@ -131,7 +131,7 @@ func ExportStandardProtectionJSON(
 	return interchangeJSON, nil
 }
 
-func signedAttestationsByPubKey(ctx context.Context, validatorDB db.Database, pubKey [fieldparams.BLSPubkeyLength]byte) ([]*format.SignedAttestation, error) {
+func signedAttestationsByPubKey(ctx context.Context, validatorDB db.Database, pubKey [dilithium.PKSizePacked]byte) ([]*format.SignedAttestation, error) {
 	// If a key does not have an attestation history in our database, we return nil.
 	// This way, a user will be able to export their slashing protection history
 	// even if one of their keys does not have a history of signed attestations.
@@ -173,7 +173,7 @@ func signedAttestationsByPubKey(ctx context.Context, validatorDB db.Database, pu
 	return signedAttestations, nil
 }
 
-func signedBlocksByPubKey(ctx context.Context, validatorDB db.Database, pubKey [fieldparams.BLSPubkeyLength]byte) ([]*format.SignedBlock, error) {
+func signedBlocksByPubKey(ctx context.Context, validatorDB db.Database, pubKey [dilithium.PKSizePacked]byte) ([]*format.SignedBlock, error) {
 	// If a key does not have a lowest or highest signed proposal history
 	// in our database, we return nil. This way, a user will be able to export their
 	// slashing protection history even if one of their keys does not have a history

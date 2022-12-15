@@ -7,12 +7,12 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	"github.com/theQRL/go-qrllib/dilithium"
 	"github.com/theQRL/zond/beacon-chain/core/feed"
 	statefeed "github.com/theQRL/zond/beacon-chain/core/feed/state"
 	"github.com/theQRL/zond/beacon-chain/core/helpers"
 	"github.com/theQRL/zond/beacon-chain/forkchoice"
 	"github.com/theQRL/zond/beacon-chain/state"
-	fieldparams "github.com/theQRL/zond/config/fieldparams"
 	"github.com/theQRL/zond/config/params"
 	"github.com/theQRL/zond/consensus-types/blocks"
 	"github.com/theQRL/zond/consensus-types/interfaces"
@@ -281,7 +281,7 @@ func (s *Service) headValidatorAtIndex(index types.ValidatorIndex) (state.ReadOn
 // This returns the validator index referenced by the provided pubkey in
 // the head state.
 // This is a lock free version.
-func (s *Service) headValidatorIndexAtPubkey(pubKey [fieldparams.BLSPubkeyLength]byte) (types.ValidatorIndex, bool) {
+func (s *Service) headValidatorIndexAtPubkey(pubKey [dilithium.PKSizePacked]byte) (types.ValidatorIndex, bool) {
 	return s.head.state.ValidatorIndexByPubkey(pubKey)
 }
 

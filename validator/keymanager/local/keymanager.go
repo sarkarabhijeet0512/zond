@@ -10,8 +10,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/logrusorgru/aurora"
 	"github.com/pkg/errors"
+	"github.com/theQRL/go-qrllib/dilithium"
 	"github.com/theQRL/zond/async/event"
-	fieldparams "github.com/theQRL/zond/config/fieldparams"
 	"github.com/theQRL/zond/crypto/bls"
 	"github.com/theQRL/zond/encoding/bytesutil"
 	validatorpb "github.com/theQRL/zond/protos/zond/v1alpha1/validator-client"
@@ -25,8 +25,8 @@ import (
 
 var (
 	lock              sync.RWMutex
-	orderedPublicKeys = make([][fieldparams.BLSPubkeyLength]byte, 0)
-	secretKeysCache   = make(map[[fieldparams.BLSPubkeyLength]byte]bls.SecretKey)
+	orderedPublicKeys = make([][dilithium.PKSizePacked]byte, 0)
+	secretKeysCache   = make(map[[dilithium.PKSizePacked]byte]bls.SecretKey)
 )
 
 const (
@@ -71,8 +71,8 @@ type AccountsKeystoreRepresentation struct {
 // ResetCaches for the keymanager.
 func ResetCaches() {
 	lock.Lock()
-	orderedPublicKeys = make([][fieldparams.BLSPubkeyLength]byte, 0)
-	secretKeysCache = make(map[[fieldparams.BLSPubkeyLength]byte]bls.SecretKey)
+	orderedPublicKeys = make([][dilithium.PKSizePacked]byte, 0)
+	secretKeysCache = make(map[[dilithium.PKSizePacked]byte]bls.SecretKey)
 	lock.Unlock()
 }
 
@@ -117,9 +117,9 @@ func NewInteropKeymanager(_ context.Context, offset, numValidatorKeys uint64) (*
 		return nil, errors.Wrap(err, "could not generate interop keys")
 	}
 	lock.Lock()
-	pubKeys := make([][fieldparams.BLSPubkeyLength]byte, numValidatorKeys)
+	pubKeys := make([][dilithium.PKSizePacked]byte, numValidatorKeys)
 	for i := uint64(0); i < numValidatorKeys; i++ {
-		publicKey := bytesutil.ToBytes48(publicKeys[i].Marshal())
+		publicKey := bytesutil.ToBytes1472Dilthium(publicKeys[i].Marshal())
 		pubKeys[i] = publicKey
 		secretKeysCache[publicKey] = secretKeys[i]
 	}
@@ -131,7 +131,7 @@ func NewInteropKeymanager(_ context.Context, offset, numValidatorKeys uint64) (*
 // SubscribeAccountChanges creates an event subscription for a channel
 // to listen for public key changes at runtime, such as when new validator accounts
 // are imported into the keymanager while the validator process is running.
-func (km *Keymanager) SubscribeAccountChanges(pubKeysChan chan [][fieldparams.BLSPubkeyLength]byte) event.Subscription {
+func (km *Keymanager) SubscribeAccountChanges(pubKeysChan chan [][dilithium.PKSizePacked]byte) event.Subscription {
 	return km.accountsChangedFeed.Subscribe(pubKeysChan)
 }
 
@@ -140,7 +140,7 @@ func (_ *Keymanager) ValidatingAccountNames() ([]string, error) {
 	lock.RLock()
 	names := make([]string, len(orderedPublicKeys))
 	for i, pubKey := range orderedPublicKeys {
-		names[i] = petnames.DeterministicName(bytesutil.FromBytes48(pubKey), "-")
+		names[i] = petnames.DeterministicName(bytesutil.FromBytes1472(pubKey), "-")
 	}
 	lock.RUnlock()
 	return names, nil
@@ -152,10 +152,10 @@ func (km *Keymanager) initializeKeysCachesFromKeystore() error {
 	lock.Lock()
 	defer lock.Unlock()
 	count := len(km.accountsStore.PrivateKeys)
-	orderedPublicKeys = make([][fieldparams.BLSPubkeyLength]byte, count)
-	secretKeysCache = make(map[[fieldparams.BLSPubkeyLength]byte]bls.SecretKey, count)
+	orderedPublicKeys = make([][dilithium.PKSizePacked]byte, count)
+	secretKeysCache = make(map[[dilithium.PKSizePacked]byte]bls.SecretKey, count)
 	for i, publicKey := range km.accountsStore.PublicKeys {
-		publicKey48 := bytesutil.ToBytes48(publicKey)
+		publicKey48 := bytesutil.ToBytes1472Dilthium(publicKey)
 		orderedPublicKeys[i] = publicKey48
 		secretKey, err := bls.SecretKeyFromBytes(km.accountsStore.PrivateKeys[i])
 		if err != nil {
@@ -167,13 +167,13 @@ func (km *Keymanager) initializeKeysCachesFromKeystore() error {
 }
 
 // FetchValidatingPublicKeys fetches the list of active public keys from the local account keystores.
-func (_ *Keymanager) FetchValidatingPublicKeys(ctx context.Context) ([][fieldparams.BLSPubkeyLength]byte, error) {
+func (_ *Keymanager) FetchValidatingPublicKeys(ctx context.Context) ([][dilithium.PKSizePacked]byte, error) {
 	ctx, span := trace.StartSpan(ctx, "keymanager.FetchValidatingPublicKeys")
 	defer span.End()
 
 	lock.RLock()
 	keys := orderedPublicKeys
-	result := make([][fieldparams.BLSPubkeyLength]byte, len(keys))
+	result := make([][dilithium.PKSizePacked]byte, len(keys))
 	copy(result, keys)
 	lock.RUnlock()
 	return result, nil
@@ -208,7 +208,7 @@ func (_ *Keymanager) Sign(ctx context.Context, req *validatorpb.SignRequest) (bl
 		return nil, errors.New("nil public key in request")
 	}
 	lock.RLock()
-	secretKey, ok := secretKeysCache[bytesutil.ToBytes48(publicKey)]
+	secretKey, ok := secretKeysCache[bytesutil.ToBytes1472Dilthium(publicKey)]
 	lock.RUnlock()
 	if !ok {
 		return nil, errors.New("no signing key found in keys cache")

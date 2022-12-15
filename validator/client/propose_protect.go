@@ -6,8 +6,8 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	"github.com/theQRL/go-qrllib/dilithium"
 	"github.com/theQRL/zond/config/features"
-	fieldparams "github.com/theQRL/zond/config/fieldparams"
 	"github.com/theQRL/zond/config/params"
 	"github.com/theQRL/zond/consensus-types/interfaces"
 )
@@ -16,7 +16,7 @@ var failedBlockSignLocalErr = "attempted to sign a double proposal, block reject
 var failedBlockSignExternalErr = "attempted a double proposal, block rejected by remote slashing protection"
 
 func (v *validator) slashableProposalCheck(
-	ctx context.Context, pubKey [fieldparams.BLSPubkeyLength]byte, signedBlock interfaces.SignedBeaconBlock, signingRoot [32]byte,
+	ctx context.Context, pubKey [dilithium.PKSizePacked]byte, signedBlock interfaces.SignedBeaconBlock, signingRoot [32]byte,
 ) error {
 	fmtKey := fmt.Sprintf("%#x", pubKey[:])
 
@@ -83,7 +83,7 @@ func (v *validator) slashableProposalCheck(
 	return nil
 }
 
-func blockLogFields(pubKey [fieldparams.BLSPubkeyLength]byte, blk interfaces.BeaconBlock, sig []byte) logrus.Fields {
+func blockLogFields(pubKey [dilithium.PKSizePacked]byte, blk interfaces.BeaconBlock, sig []byte) logrus.Fields {
 	fields := logrus.Fields{
 		"proposerPublicKey": fmt.Sprintf("%#x", pubKey),
 		"proposerIndex":     blk.ProposerIndex(),

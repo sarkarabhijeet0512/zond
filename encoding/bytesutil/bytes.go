@@ -117,6 +117,15 @@ func ToBytes48(x []byte) [48]byte {
 	return y
 }
 
+// ToBytes1472Dilthium is a convenience method for converting a byte slice to a fix
+// sized 1472 byte array. This method will truncate the input if it is larger
+// than 1472 bytes.
+func ToBytes1472Dilthium(x []byte) [1472]byte {
+	var y [1472]byte
+	copy(y[:], x)
+	return y
+}
+
 // ToBytes48Array is a convenience method for converting an array of
 // byte slices to an array of fixed-sized byte arrays.
 func ToBytes48Array(x [][]byte) [][48]byte {
@@ -174,10 +183,23 @@ func FromBool(x bool) byte {
 func FromBytes48(x [48]byte) []byte {
 	return x[:]
 }
+func FromBytes1472(x [1472]byte) []byte {
+	return x[:]
+}
 
 // FromBytes48Array is a convenience method for converting an array of
 // fixed-size byte arrays to an array of byte slices.
 func FromBytes48Array(x [][48]byte) [][]byte {
+	y := make([][]byte, len(x))
+	for i := range x {
+		y[i] = x[i][:]
+	}
+	return y
+}
+
+// FromBytes48Array is a convenience method for converting an array of
+// fixed-size byte arrays to an array of byte slices.
+func FromBytes1472Array(x [][1472]byte) [][]byte {
 	y := make([][]byte, len(x))
 	for i := range x {
 		y[i] = x[i][:]

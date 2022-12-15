@@ -11,9 +11,9 @@ import (
 	"github.com/logrusorgru/aurora"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
+	"github.com/theQRL/go-qrllib/dilithium"
 	"github.com/theQRL/zond/async/event"
 	"github.com/theQRL/zond/common/hexutil"
-	fieldparams "github.com/theQRL/zond/config/fieldparams"
 	"github.com/theQRL/zond/crypto/bls"
 	"github.com/theQRL/zond/encoding/bytesutil"
 	ethpbservice "github.com/theQRL/zond/protos/eth/service"
@@ -39,7 +39,7 @@ type SetupConfig struct {
 	// Either URL or keylist must be set.
 	// a static list of public keys to be passed by the user to determine what accounts should sign.
 	// This will provide a layer of safety against slashing if the web3signer is shared across validators.
-	ProvidedPublicKeys [][48]byte
+	ProvidedPublicKeys [][1472]byte
 }
 
 // Keymanager defines the web3signer keymanager.
@@ -47,7 +47,7 @@ type Keymanager struct {
 	client                internal.HttpSignerClient
 	genesisValidatorsRoot []byte
 	publicKeysURL         string
-	providedPublicKeys    [][48]byte
+	providedPublicKeys    [][1472]byte
 	accountsChangedFeed   *event.Feed
 	validator             *validator.Validate
 	publicKeysUrlCalled   bool
@@ -76,7 +76,7 @@ func NewKeymanager(_ context.Context, cfg *SetupConfig) (*Keymanager, error) {
 // FetchValidatingPublicKeys fetches the validating public keys
 // from the remote server or from the provided keys if there are no existing public keys set
 // or provides the existing keys in the keymanager.
-func (km *Keymanager) FetchValidatingPublicKeys(ctx context.Context) ([][fieldparams.BLSPubkeyLength]byte, error) {
+func (km *Keymanager) FetchValidatingPublicKeys(ctx context.Context) ([][dilithium.PKSizePacked]byte, error) {
 	if km.publicKeysURL != "" && !km.publicKeysUrlCalled {
 		providedPublicKeys, err := km.client.GetPublicKeys(ctx, km.publicKeysURL)
 		if err != nil {
@@ -254,7 +254,7 @@ func getSignRequestJson(ctx context.Context, validator *validator.Validate, requ
 }
 
 // SubscribeAccountChanges returns the event subscription for changes to public keys.
-func (km *Keymanager) SubscribeAccountChanges(pubKeysChan chan [][fieldparams.BLSPubkeyLength]byte) event.Subscription {
+func (km *Keymanager) SubscribeAccountChanges(pubKeysChan chan [][dilithium.PKSizePacked]byte) event.Subscription {
 	return km.accountsChangedFeed.Subscribe(pubKeysChan)
 }
 
@@ -298,7 +298,7 @@ func (km *Keymanager) ListKeymanagerAccounts(ctx context.Context, cfg keymanager
 }
 
 // AddPublicKeys imports a list of public keys into the keymanager for web3signer use. Returns status with message.
-func (km *Keymanager) AddPublicKeys(ctx context.Context, pubKeys [][fieldparams.BLSPubkeyLength]byte) ([]*ethpbservice.ImportedRemoteKeysStatus, error) {
+func (km *Keymanager) AddPublicKeys(ctx context.Context, pubKeys [][dilithium.PKSizePacked]byte) ([]*ethpbservice.ImportedRemoteKeysStatus, error) {
 	if ctx == nil {
 		return nil, errors.New("context is nil")
 	}
@@ -330,7 +330,7 @@ func (km *Keymanager) AddPublicKeys(ctx context.Context, pubKeys [][fieldparams.
 }
 
 // DeletePublicKeys removes a list of public keys from the keymanager for web3signer use. Returns status with message.
-func (km *Keymanager) DeletePublicKeys(ctx context.Context, pubKeys [][fieldparams.BLSPubkeyLength]byte) ([]*ethpbservice.DeletedRemoteKeysStatus, error) {
+func (km *Keymanager) DeletePublicKeys(ctx context.Context, pubKeys [][dilithium.PKSizePacked]byte) ([]*ethpbservice.DeletedRemoteKeysStatus, error) {
 	if ctx == nil {
 		return nil, errors.New("context is nil")
 	}
