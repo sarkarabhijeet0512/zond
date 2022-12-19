@@ -5,7 +5,6 @@ package p2p
 
 import (
 	"context"
-	"crypto/ecdsa"
 	"sync"
 	"time"
 
@@ -19,6 +18,7 @@ import (
 	"github.com/multiformats/go-multiaddr"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	crypto2 "github.com/theQRL/go-libp2p-qrl/crypto"
 	"github.com/theQRL/zond/async"
 	"github.com/theQRL/zond/beacon-chain/core/feed"
 	statefeed "github.com/theQRL/zond/beacon-chain/core/feed/state"
@@ -60,15 +60,16 @@ var maxDialTimeout = params.BeaconNetworkConfig().RespTimeout
 
 // Service for managing peer to peer (p2p) networking.
 type Service struct {
-	started               bool
-	isPreGenesis          bool
-	pingMethod            func(ctx context.Context, id peer.ID) error
-	cancel                context.CancelFunc
-	cfg                   *Config
-	peers                 *peers.Status
-	addrFilter            *multiaddr.Filters
-	ipLimiter             *leakybucket.Collector
-	privKey               *ecdsa.PrivateKey
+	started      bool
+	isPreGenesis bool
+	pingMethod   func(ctx context.Context, id peer.ID) error
+	cancel       context.CancelFunc
+	cfg          *Config
+	peers        *peers.Status
+	addrFilter   *multiaddr.Filters
+	ipLimiter    *leakybucket.Collector
+	// privKey               *ecdsa.PrivateKey
+	privKey               *crypto2.DilithiumPrivateKey
 	metaData              metadata.Metadata
 	pubsub                *pubsub.PubSub
 	joinedTopics          map[string]*pubsub.Topic

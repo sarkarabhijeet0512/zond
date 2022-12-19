@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
-	"crypto/ecdsa"
 	crand "crypto/rand"
 	"crypto/sha256"
 	"encoding/binary"
@@ -12,6 +11,7 @@ import (
 	"fmt"
 	"hash"
 
+	crypto2 "github.com/theQRL/go-libp2p-qrl/crypto"
 	"github.com/theQRL/zond/common/mclock"
 	"github.com/theQRL/zond/p2p/znode"
 	"github.com/theQRL/zond/p2p/znr"
@@ -119,8 +119,9 @@ var (
 type Codec struct {
 	sha256    hash.Hash
 	localnode *znode.LocalNode
-	privkey   *ecdsa.PrivateKey
-	sc        *SessionCache
+	// privkey   *ecdsa.PrivateKey
+	privkey *crypto2.DilithiumPrivateKey
+	sc      *SessionCache
 
 	// encoder buffers
 	buf      bytes.Buffer // whole packet
@@ -133,7 +134,16 @@ type Codec struct {
 }
 
 // NewCodec creates a wire codec.
-func NewCodec(ln *znode.LocalNode, key *ecdsa.PrivateKey, clock mclock.Clock) *Codec {
+// func NewCodec(ln *znode.LocalNode, key *ecdsa.PrivateKey, clock mclock.Clock) *Codec {
+// 	c := &Codec{
+// 		sha256:    sha256.New(),
+// 		localnode: ln,
+// 		privkey:   key,
+// 		sc:        NewSessionCache(1024, clock),
+// 	}
+// 	return c
+// }
+func NewCodec(ln *znode.LocalNode, key *crypto2.DilithiumPrivateKey, clock mclock.Clock) *Codec {
 	c := &Codec{
 		sha256:    sha256.New(),
 		localnode: ln,
@@ -332,21 +342,23 @@ func (c *Codec) makeHandshakeAuth(toID znode.ID, addr string, challenge *Whoarey
 
 	// Create the ephemeral key. This needs to be first because the
 	// key is part of the ID nonce signature.
-	var remotePubkey = new(ecdsa.PublicKey)
+	// var remotePubkey = new(ecdsa.PublicKey)
+	var remotePubkey = new(crypto2.DilithiumPublicKey)
+
 	if err := challenge.Node.Load((*znode.Secp256k1)(remotePubkey)); err != nil {
 		return nil, nil, fmt.Errorf("can't find secp256k1 key for recipient")
 	}
-	ephkey, err := c.sc.ephemeralKeyGen()
-	if err != nil {
-		return nil, nil, fmt.Errorf("can't generate ephemeral key")
-	}
-	ephpubkey := EncodePubkey(&ephkey.PublicKey)
-	auth.pubkey = ephpubkey[:]
-	auth.h.PubkeySize = byte(len(auth.pubkey))
-
+	// ephkey, err := c.sc.ephemeralKeyGen()
+	// if err != nil {
+	// 	return nil, nil, fmt.Errorf("can't generate ephemeral key")
+	// }
+	// ephpubkey := EncodePubkey(&ephkey.PublicKey)
+	// auth.pubkey = ephpubkey[:]
+	// auth.h.PubkeySize = byte(len(auth.pubkey))
+	pubkeyBytes, _ := remotePubkey.Bytes()
 	// Add ID nonce signature to response.
 	cdata := challenge.ChallengeData
-	idsig, err := makeIDSignature(c.sha256, c.privkey, cdata, ephpubkey[:], toID)
+	idsig, err := makeIDSignature(c.sha256, c.privkey, cdata, pubkeyBytes[:], toID)
 	if err != nil {
 		return nil, nil, fmt.Errorf("can't sign: %v", err)
 	}
@@ -358,9 +370,9 @@ func (c *Codec) makeHandshakeAuth(toID znode.ID, addr string, challenge *Whoarey
 	if challenge.RecordSeq < ln.Seq() {
 		auth.record, _ = rlp.EncodeToBytes(ln.Record())
 	}
-
+	derivedPubKey := c.privkey.GetPublic()
 	// Create session keys.
-	sec := deriveKeys(sha256.New, ephkey, remotePubkey, c.localnode.ID(), challenge.Node.ID(), cdata)
+	sec := deriveKeys(sha256.New, c.privkey, &derivedPubKey, c.localnode.ID(), challenge.Node.ID(), cdata)
 	if sec == nil {
 		return nil, nil, fmt.Errorf("key derivation failed")
 	}
@@ -508,12 +520,13 @@ func (c *Codec) decodeHandshake(fromAddr string, head *Header) (n *znode.Node, a
 		return nil, auth, nil, err
 	}
 	// Verify ephemeral key is on curve.
-	ephkey, err := DecodePubkey(c.privkey.Curve, auth.pubkey)
-	if err != nil {
-		return nil, auth, nil, errInvalidAuthKey
-	}
+	// ephkey, err := DecodePubkey(c.privkey.Curve, auth.pubkey)
+	// if err != nil {
+	// 	return nil, auth, nil, errInvalidAuthKey
+	// }
+	ZPubKey := c.privkey.GetPublic()
 	// Derive sesssion keys.
-	session := deriveKeys(sha256.New, c.privkey, ephkey, auth.h.SrcID, c.localnode.ID(), cdata)
+	session := deriveKeys(sha256.New, c.privkey, &ZPubKey, auth.h.SrcID, c.localnode.ID(), cdata)
 	session = session.keysFlipped()
 	return n, auth, session, nil
 }

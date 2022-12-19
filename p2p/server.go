@@ -314,7 +314,7 @@ func (srv *Server) startListening(keys crypto.PrivKey) error {
 	sourceMultiAddr, _ := multiaddr.NewMultiaddr(multiAddrStr)
 
 	host, err := libp2p.New(
-		//context.Background(),
+		// context.Background(),
 		libp2p.ListenAddrs(sourceMultiAddr),
 		libp2p.Identity(keys),
 	)

@@ -2,7 +2,6 @@ package p2p
 
 import (
 	"bytes"
-	"crypto/ecdsa"
 	"net"
 	"time"
 
@@ -11,9 +10,9 @@ import (
 	ma "github.com/multiformats/go-multiaddr"
 	"github.com/pkg/errors"
 	"github.com/prysmaticlabs/go-bitfield"
+	crypto2 "github.com/theQRL/go-libp2p-qrl/crypto"
 	"github.com/theQRL/zond/beacon-chain/cache"
 	"github.com/theQRL/zond/config/params"
-	ecdsaprysm "github.com/theQRL/zond/crypto/ecdsa"
 	"github.com/theQRL/zond/p2p/discover"
 	"github.com/theQRL/zond/p2p/znode"
 	"github.com/theQRL/zond/p2p/znr"
@@ -125,9 +124,95 @@ func (s *Service) listenForNewNodes() {
 	}
 }
 
+// func (s *Service) createListener(
+// 	ipAddr net.IP,
+// 	privKey *ecdsa.PrivateKey,
+// ) (*discover.UDPv5, error) {
+// 	// BindIP is used to specify the ip
+// 	// on which we will bind our listener on
+// 	// by default we will listen to all interfaces.
+// 	var bindIP net.IP
+// 	switch udpVersionFromIP(ipAddr) {
+// 	case "udp4":
+// 		bindIP = net.IPv4zero
+// 	case "udp6":
+// 		bindIP = net.IPv6zero
+// 	default:
+// 		return nil, errors.New("invalid ip provided")
+// 	}
+
+// 	// If local ip is specified then use that instead.
+// 	if s.cfg.LocalIP != "" {
+// 		ipAddr = net.ParseIP(s.cfg.LocalIP)
+// 		if ipAddr == nil {
+// 			return nil, errors.New("invalid local ip provided")
+// 		}
+// 		bindIP = ipAddr
+// 	}
+// 	udpAddr := &net.UDPAddr{
+// 		IP:   bindIP,
+// 		Port: int(s.cfg.UDPPort),
+// 	}
+// 	// Listen to all network interfaces
+// 	// for both ip protocols.
+// 	networkVersion := "udp"
+// 	conn, err := net.ListenUDP(networkVersion, udpAddr)
+// 	if err != nil {
+// 		return nil, errors.Wrap(err, "could not listen to UDP")
+// 	}
+
+// 	localNode, err := s.createLocalNode(
+// 		privKey,
+// 		ipAddr,
+// 		int(s.cfg.UDPPort),
+// 		int(s.cfg.TCPPort),
+// 	)
+// 	if err != nil {
+// 		return nil, errors.Wrap(err, "could not create local node")
+// 	}
+// 	if s.cfg.HostAddress != "" {
+// 		hostIP := net.ParseIP(s.cfg.HostAddress)
+// 		if hostIP.To4() == nil && hostIP.To16() == nil {
+// 			log.Errorf("Invalid host address given: %s", hostIP.String())
+// 		} else {
+// 			localNode.SetFallbackIP(hostIP)
+// 			localNode.SetStaticIP(hostIP)
+// 		}
+// 	}
+// 	if s.cfg.HostDNS != "" {
+// 		host := s.cfg.HostDNS
+// 		ips, err := net.LookupIP(host)
+// 		if err != nil {
+// 			return nil, errors.Wrap(err, "could not resolve host address")
+// 		}
+// 		if len(ips) > 0 {
+// 			// Use first IP returned from the
+// 			// resolver.
+// 			firstIP := ips[0]
+// 			localNode.SetFallbackIP(firstIP)
+// 		}
+// 	}
+// 	dv5Cfg := discover.Config{
+// 		PrivateKey: privKey,
+// 	}
+// 	dv5Cfg.Bootnodes = []*znode.Node{}
+// 	for _, addr := range s.cfg.Discv5BootStrapAddr {
+// 		bootNode, err := znode.Parse(znode.ValidSchemes, addr)
+// 		if err != nil {
+// 			return nil, errors.Wrap(err, "could not bootstrap addr")
+// 		}
+// 		dv5Cfg.Bootnodes = append(dv5Cfg.Bootnodes, bootNode)
+// 	}
+
+// 	listener, err := discover.ListenV5(conn, localNode, dv5Cfg)
+// 	if err != nil {
+// 		return nil, errors.Wrap(err, "could not listen to discV5")
+// 	}
+// 	return listener, nil
+// }
 func (s *Service) createListener(
 	ipAddr net.IP,
-	privKey *ecdsa.PrivateKey,
+	privKey *crypto2.DilithiumPrivateKey,
 ) (*discover.UDPv5, error) {
 	// BindIP is used to specify the ip
 	// on which we will bind our listener on
@@ -212,8 +297,35 @@ func (s *Service) createListener(
 	return listener, nil
 }
 
+// func (s *Service) createLocalNode(
+// 	privKey *ecdsa.PrivateKey,
+// 	ipAddr net.IP,
+// 	udpPort, tcpPort int,
+// ) (*znode.LocalNode, error) {
+// 	db, err := znode.OpenDB("")
+// 	if err != nil {
+// 		return nil, errors.Wrap(err, "could not open node's peer database")
+// 	}
+// 	localNode := znode.NewLocalNode(db, privKey)
+
+// 	ipEntry := znr.IP(ipAddr)
+// 	udpEntry := znr.UDP(udpPort)
+// 	tcpEntry := znr.TCP(tcpPort)
+// 	localNode.Set(ipEntry)
+// 	localNode.Set(udpEntry)
+// 	localNode.Set(tcpEntry)
+// 	localNode.SetFallbackIP(ipAddr)
+// 	localNode.SetFallbackUDP(udpPort)
+
+// 	localNode, err = addForkEntry(localNode, s.genesisTime, s.genesisValidatorsRoot)
+// 	if err != nil {
+// 		return nil, errors.Wrap(err, "could not add eth2 fork version entry to znr")
+// 	}
+// 	localNode = initializeAttSubnets(localNode)
+// 	return initializeSyncCommSubnets(localNode), nil
+// }
 func (s *Service) createLocalNode(
-	privKey *ecdsa.PrivateKey,
+	privKey *crypto2.DilithiumPrivateKey,
 	ipAddr net.IP,
 	udpPort, tcpPort int,
 ) (*znode.LocalNode, error) {
@@ -254,7 +366,7 @@ func (s *Service) createLocalNode(
 // }
 func (s *Service) startDiscoveryV5(
 	addr net.IP,
-	privKey *ecdsa.PrivateKey,
+	privKey *crypto2.DilithiumPrivateKey,
 ) (*discover.UDPv5, error) {
 	listener, err := s.createListener(addr, privKey)
 	if err != nil {
@@ -440,12 +552,12 @@ func convertToAddrInfo(node *znode.Node) (*peer.AddrInfo, ma.Multiaddr, error) {
 // 	return multiAddressBuilderWithID(node.IP().String(), "tcp", uint(node.TCP()), id)
 // }
 func convertToSingleMultiAddr(node *znode.Node) (ma.Multiaddr, error) {
-	pubkey := node.Pubkey()
-	assertedKey, err := ecdsaprysm.ConvertToInterfacePubkey(pubkey)
-	if err != nil {
-		return nil, errors.Wrap(err, "could not get pubkey")
-	}
-	id, err := peer.IDFromPublicKey(assertedKey)
+	pubkey := node.Pubkey().GetPublic()
+	// assertedKey, err := ecdsaprysm.ConvertToInterfacePubkey(pubkey)
+	// if err != nil {
+	// 	return nil, errors.Wrap(err, "could not get pubkey")
+	// }
+	id, err := peer.IDFromPublicKey(pubkey)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not get peer id")
 	}
@@ -453,11 +565,11 @@ func convertToSingleMultiAddr(node *znode.Node) (ma.Multiaddr, error) {
 }
 func convertToUdpMultiAddr(node *znode.Node) ([]ma.Multiaddr, error) {
 	pubkey := node.Pubkey()
-	assertedKey, err := ecdsaprysm.ConvertToInterfacePubkey(pubkey)
-	if err != nil {
-		return nil, errors.Wrap(err, "could not get pubkey")
-	}
-	id, err := peer.IDFromPublicKey(assertedKey)
+	// assertedKey, err := ecdsaprysm.ConvertToInterfacePubkey(pubkey)
+	// if err != nil {
+	// 	return nil, errors.Wrap(err, "could not get pubkey")
+	// }
+	id, err := peer.IDFromPublicKey(pubkey.GetPublic())
 	if err != nil {
 		return nil, errors.Wrap(err, "could not get peer id")
 	}

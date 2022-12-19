@@ -1,7 +1,6 @@
 package znode
 
 import (
-	"crypto/ecdsa"
 	"fmt"
 	"net"
 	"reflect"
@@ -10,7 +9,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/theQRL/zond/common/math"
+	crypto2 "github.com/theQRL/go-libp2p-qrl/crypto"
 	"github.com/theQRL/zond/crypto"
 	"github.com/theQRL/zond/log"
 	"github.com/theQRL/zond/p2p/netutil"
@@ -33,8 +32,9 @@ const (
 type LocalNode struct {
 	cur atomic.Value // holds a non-nil node pointer while the record is up-to-date
 
-	id  ID
-	key *ecdsa.PrivateKey
+	id ID
+	// key *ecdsa.PrivateKey
+	key *crypto2.DilithiumPrivateKey
 	db  *DB
 
 	// everything below is protected by a lock
@@ -52,19 +52,44 @@ type lnEndpoint struct {
 	fallbackUDP          uint16 // port
 }
 
-func PubkeyToIDV4(key *ecdsa.PublicKey) ID {
-	e := make([]byte, 64)
-	math.ReadBits(key.X, e[:len(e)/2])
-	math.ReadBits(key.Y, e[len(e)/2:])
+// func PubkeyToIDV4(key *ecdsa.PublicKey) ID {
+// 	e := make([]byte, 64)
+// 	math.ReadBits(key.X, e[:len(e)/2])
+// 	math.ReadBits(key.Y, e[len(e)/2:])
+// 	return ID(crypto.Keccak256Hash(e))
+// }
+func PubkeyToIDV4(key *crypto2.DilithiumPublicKey) ID {
+	// e := make([]byte, 64)
+	// math.ReadBits(key.X, e[:len(e)/2])
+	// math.ReadBits(key.Y, e[len(e)/2:])
+	e, _ := key.Bytes()
 	return ID(crypto.Keccak256Hash(e))
 }
 
 // NewLocalNode creates a local node.
-func NewLocalNode(db *DB, key *ecdsa.PrivateKey) *LocalNode {
+// func NewLocalNode(db *DB, key *ecdsa.PrivateKey) *LocalNode {
+// 	ln := &LocalNode{
+// 		id:      PubkeyToIDV4(&key.PublicKey),
+// 		db:      db,
+// 		key:     key,
+// 		entries: make(map[string]znr.Entry),
+// 		endpoint4: lnEndpoint{
+// 			track: netutil.NewIPTracker(iptrackWindow, iptrackContactWindow, iptrackMinStatements),
+// 		},
+// 		endpoint6: lnEndpoint{
+// 			track: netutil.NewIPTracker(iptrackWindow, iptrackContactWindow, iptrackMinStatements),
+// 		},
+// 	}
+// 	ln.seq = db.localSeq(ln.id)
+// 	ln.update = time.Now()
+// 	ln.cur.Store((*Node)(nil))
+// 	return ln
+// }
+func NewLocalNode(db *DB, privkey *crypto2.DilithiumPrivateKey, pubkey ...crypto2.DilithiumPublicKey) *LocalNode {
 	ln := &LocalNode{
-		id:      PubkeyToIDV4(&key.PublicKey),
+		id:      PubkeyToIDV4(&pubkey[0]),
 		db:      db,
-		key:     key,
+		key:     privkey,
 		entries: make(map[string]znr.Entry),
 		endpoint4: lnEndpoint{
 			track: netutil.NewIPTracker(iptrackWindow, iptrackContactWindow, iptrackMinStatements),

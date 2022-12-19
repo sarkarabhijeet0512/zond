@@ -2,8 +2,6 @@ package p2p
 
 import (
 	"bytes"
-	"crypto/ecdsa"
-	"crypto/rand"
 	"encoding/base64"
 	"encoding/hex"
 	"fmt"
@@ -12,10 +10,10 @@ import (
 	"path"
 	"time"
 
-	"github.com/libp2p/go-libp2p/core/crypto"
 	"github.com/pkg/errors"
 	"github.com/prysmaticlabs/go-bitfield"
 	"github.com/sirupsen/logrus"
+	crypto2 "github.com/theQRL/go-libp2p-qrl/crypto"
 	"github.com/theQRL/zond/consensus-types/wrapper"
 	ecdsaprysm "github.com/theQRL/zond/crypto/ecdsa"
 	"github.com/theQRL/zond/io/file"
@@ -45,7 +43,7 @@ func SerializeZNR(record *znr.Record) (string, error) {
 
 // Determines a private key for p2p networking from the p2p service's
 // configuration struct. If no key is found, it generates a new one.
-func privKey(cfg *Config) (*ecdsa.PrivateKey, error) {
+func privKey(cfg *Config) (*crypto2.DilithiumPrivateKey, error) {
 	defaultKeyPath := path.Join(cfg.DataDir, keyPath)
 	privateKeyPath := cfg.PrivateKey
 
@@ -55,13 +53,13 @@ func privKey(cfg *Config) (*ecdsa.PrivateKey, error) {
 		return nil, err
 	}
 
-	if privateKeyPath == "" && !defaultKeysExist {
-		priv, _, err := crypto.GenerateSecp256k1Key(rand.Reader)
-		if err != nil {
-			return nil, err
-		}
-		return ecdsaprysm.ConvertFromInterfacePrivKey(priv)
-	}
+	// if privateKeyPath == "" && !defaultKeysExist {
+	// 	priv, _, err := crypto.GenerateSecp256k1Key(rand.Reader)
+	// 	if err != nil {
+	// 		return nil, err
+	// 	}
+	// 	return ecdsaprysm.ConvertFromInterfacePrivKey(priv)
+	// }
 	if defaultKeysExist && privateKeyPath == "" {
 		privateKeyPath = defaultKeyPath
 	}
@@ -69,7 +67,7 @@ func privKey(cfg *Config) (*ecdsa.PrivateKey, error) {
 }
 
 // Retrieves a p2p networking private key from a file path.
-func privKeyFromFile(path string) (*ecdsa.PrivateKey, error) {
+func privKeyFromFile(path string) (*crypto2.DilithiumPrivateKey, error) {
 	src, err := os.ReadFile(path) // #nosec G304
 	if err != nil {
 		log.WithError(err).Error("Error reading private key from file")
@@ -80,7 +78,7 @@ func privKeyFromFile(path string) (*ecdsa.PrivateKey, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to decode hex string")
 	}
-	unmarshalledKey, err := crypto.UnmarshalSecp256k1PrivateKey(dst)
+	unmarshalledKey, err := crypto2.UnmarshalDilithiumPrivateKey(dst)
 	if err != nil {
 		return nil, err
 	}

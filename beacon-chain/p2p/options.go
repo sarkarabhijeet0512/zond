@@ -1,7 +1,6 @@
 package p2p
 
 import (
-	"crypto/ecdsa"
 	"fmt"
 	"net"
 
@@ -12,6 +11,7 @@ import (
 	"github.com/libp2p/go-libp2p/p2p/transport/tcp"
 	ma "github.com/multiformats/go-multiaddr"
 	"github.com/pkg/errors"
+	crypto2 "github.com/theQRL/go-libp2p-qrl/crypto"
 	ecdsaprysm "github.com/theQRL/zond/crypto/ecdsa"
 	"github.com/theQRL/zond/runtime/version"
 )
@@ -29,7 +29,10 @@ func MultiAddressBuilder(ipAddr string, port uint) (ma.Multiaddr, error) {
 }
 
 // buildOptions for the libp2p host.
-func (s *Service) buildOptions(ip net.IP, priKey *ecdsa.PrivateKey) []libp2p.Option {
+
+// func (s *Service) buildOptions(ip net.IP, priKey *ecdsa.PrivateKey) []libp2p.Option {
+func (s *Service) buildOptions(ip net.IP, priKey *crypto2.DilithiumPrivateKey) []libp2p.Option {
+
 	cfg := s.cfg
 	listen, err := MultiAddressBuilder(ip.String(), cfg.TCPPort)
 	if err != nil {
@@ -119,7 +122,7 @@ func multiAddressBuilderWithID(ipAddr, protocol string, port uint, id peer.ID) (
 // Adds a private key to the libp2p option if the option was provided.
 // If the private key file is missing or cannot be read, or if the
 // private key contents cannot be marshaled, an exception is thrown.
-func privKeyOption(privkey *ecdsa.PrivateKey) libp2p.Option {
+func privKeyOption(privkey *crypto2.DilithiumPrivateKey) libp2p.Option {
 	return func(cfg *libp2p.Config) error {
 		ifaceKey, err := ecdsaprysm.ConvertToInterfacePrivkey(privkey)
 		if err != nil {

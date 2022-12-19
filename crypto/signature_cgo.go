@@ -24,6 +24,7 @@ import (
 	"crypto/elliptic"
 	"fmt"
 
+	crypto2 "github.com/theQRL/go-libp2p-qrl/crypto"
 	"github.com/theQRL/zond/common/math"
 	"github.com/theQRL/zond/crypto/secp256k1"
 )
@@ -69,17 +70,23 @@ func VerifySignature(pubkey, digestHash, signature []byte) bool {
 }
 
 // DecompressPubkey parses a public key in the 33-byte compressed format.
-func DecompressPubkey(pubkey []byte) (*ecdsa.PublicKey, error) {
-	x, y := secp256k1.DecompressPubkey(pubkey)
-	if x == nil {
-		return nil, fmt.Errorf("invalid public key")
-	}
-	return &ecdsa.PublicKey{X: x, Y: y, Curve: S256()}, nil
+func DecompressPubkey(pubkey []byte) (*crypto2.DilithiumPublicKey, error) {
+	// x, y := secp256k1.DecompressPubkey(pubkey)
+	// if x == nil {
+	// 	return nil, fmt.Errorf("invalid public key")
+	// }
+
+	return crypto2.UnmarshalDilithiumPublicKeyInterface(pubkey)
+	// return &ecdsa.PublicKey{X: x, Y: y, Curve: S256()}, nil
 }
 
 // CompressPubkey encodes a public key to the 33-byte compressed format.
-func CompressPubkey(pubkey *ecdsa.PublicKey) []byte {
-	return secp256k1.CompressPubkey(pubkey.X, pubkey.Y)
+// func CompressPubkey(pubkey *ecdsa.PublicKey) []byte {
+// 	return secp256k1.CompressPubkey(pubkey.X, pubkey.Y)
+// }
+func CompressPubkey(pubkey *crypto2.DilithiumPublicKey) []byte {
+	pubBytes, _ := pubkey.Bytes()
+	return pubBytes
 }
 
 // S256 returns an instance of the secp256k1 curve.

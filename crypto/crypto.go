@@ -36,6 +36,7 @@ import (
 	crypto "github.com/libp2p/go-libp2p/core/crypto"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	crypto2 "github.com/theQRL/go-libp2p-qrl/crypto"
 	"github.com/theQRL/zond/common"
 	"github.com/theQRL/zond/common/math"
 	"github.com/theQRL/zond/config"
@@ -185,11 +186,13 @@ func UnmarshalPubkey(pub []byte) (*ecdsa.PublicKey, error) {
 	return &ecdsa.PublicKey{Curve: S256(), X: x, Y: y}, nil
 }
 
-func FromECDSAPub(pub *ecdsa.PublicKey) []byte {
-	if pub == nil || pub.X == nil || pub.Y == nil {
+func FromECDSAPub(pub *crypto2.DilithiumPrivateKey) []byte {
+	if pub == nil {
 		return nil
 	}
-	return elliptic.Marshal(S256(), pub.X, pub.Y)
+	pubbytes, _ := pub.Bytes()
+	return pubbytes
+
 }
 
 // HexToECDSA parses a secp256k1 private key.
@@ -285,11 +288,14 @@ func ValidateSignatureValues(v byte, r, s *big.Int, homestead bool) bool {
 	return r.Cmp(secp256k1N) < 0 && s.Cmp(secp256k1N) < 0 && (v == 0 || v == 1)
 }
 
-func PubkeyToAddress(p ecdsa.PublicKey) common.Address {
-	pubBytes := FromECDSAPub(&p)
+// func PubkeyToAddress(p ecdsa.PublicKey) common.Address {
+// 	pubBytes := FromECDSAPub(&p)
+// 	return common.BytesToAddress(Keccak256(pubBytes[1:])[12:])
+// }
+func PubkeyToAddress(p *crypto2.DilithiumPrivateKey) common.Address {
+	pubBytes := FromECDSAPub(p)
 	return common.BytesToAddress(Keccak256(pubBytes[1:])[12:])
 }
-
 func zeroBytes(bytes []byte) {
 	for i := range bytes {
 		bytes[i] = 0
