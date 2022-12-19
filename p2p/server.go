@@ -19,7 +19,6 @@ package p2p
 
 import (
 	"bytes"
-	"crypto/ecdsa"
 	"encoding/hex"
 	"errors"
 	"fmt"
@@ -29,6 +28,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	crypto2 "github.com/theQRL/go-libp2p-qrl/crypto"
 	"github.com/theQRL/zond/common"
 	"github.com/theQRL/zond/common/mclock"
 	"github.com/theQRL/zond/crypto"
@@ -69,7 +69,7 @@ var errServerStopped = errors.New("server stopped")
 // Config holds Server options.
 type Config struct {
 	// This field must be set to a valid secp256k1 private key.
-	PrivateKey *ecdsa.PrivateKey `toml:"-"`
+	PrivateKey *crypto2.DilithiumPrivateKey `toml:"-"`
 
 	// MaxPeers is the maximum number of peers that can be
 	// connected. It must be greater than zero.
@@ -169,7 +169,7 @@ type Server struct {
 
 	// Hooks for testing. These are useful because we can inhibit
 	// the whole protocol stack.
-	newTransport func(net.Conn, *ecdsa.PublicKey) transport
+	newTransport func(net.Conn, *crypto2.DilithiumPublicKey) transport
 	newPeerHook  func(*Peer)
 	listenFunc   func(network, addr string) (net.Listener, error)
 
@@ -234,7 +234,7 @@ type conn struct {
 
 type transport interface {
 	// The two handshakes.
-	doEncHandshake(prv *ecdsa.PrivateKey) (*ecdsa.PublicKey, error)
+	doEncHandshake(prv *crypto2.DilithiumPrivateKey) (*crypto2.DilithiumPublicKey, error)
 	doProtoHandshake(our *protoHandshake) (*protoHandshake, error)
 	// The MsgReadWriter can only be used after the encryption
 	// handshake has completed. The code uses conn.id to track this
@@ -386,7 +386,7 @@ func (srv *Server) Self() *znode.Node {
 	srv.lock.Unlock()
 
 	if ln == nil {
-		return znode.NewV4(&srv.PrivateKey.PublicKey, net.ParseIP("0.0.0.0"), 0, 0)
+		// return znode.NewV4(&srv.PrivateKey.PublicKey, net.ParseIP("0.0.0.0"), 0, 0)
 	}
 	return ln.Node()
 }
@@ -494,7 +494,7 @@ func (srv *Server) Start() (err error) {
 
 func (srv *Server) setupLocalNode() error {
 	// Create the devp2p handshake.
-	pubkey := crypto.FromECDSAPub(&srv.PrivateKey.PublicKey)
+	pubkey := crypto.FromECDSAPub(srv.PrivateKey)
 	srv.ourHandshake = &protoHandshake{Version: baseProtocolVersion, Name: srv.Name, ID: pubkey[1:]}
 	for _, p := range srv.Protocols {
 		srv.ourHandshake.Caps = append(srv.ourHandshake.Caps, p.cap())
@@ -935,7 +935,16 @@ func (srv *Server) SetupConn(fd net.Conn, flags connFlag, dialDest *znode.Node) 
 	if dialDest == nil {
 		c.transport = srv.newTransport(fd, nil)
 	} else {
-		c.transport = srv.newTransport(fd, dialDest.Pubkey())
+		pubBytes, err := dialDest.Pubkey().GetPublic().Raw()
+		if err != nil {
+			return err
+
+		}
+		pubInterface, err := crypto2.UnmarshalDilithiumPublicKeyInterface(pubBytes)
+		if err != nil {
+			return err
+		}
+		c.transport = srv.newTransport(fd, pubInterface)
 	}
 
 	err := srv.setupConn(c, flags, dialDest)
@@ -956,7 +965,7 @@ func (srv *Server) setupConn(c *conn, flags connFlag, dialDest *znode.Node) erro
 
 	// If dialing, figure out the remote public key.
 	if dialDest != nil {
-		dialPubkey := new(ecdsa.PublicKey)
+		dialPubkey := new(crypto2.DilithiumPublicKey)
 		if err := dialDest.Load((*znode.Secp256k1)(dialPubkey)); err != nil {
 			err = errors.New("dial destination doesn't have a secp256k1 public key")
 			srv.log.Trace("Setting up connection failed", "addr", c.fd.RemoteAddr(), "conn", c.flags, "err", err)
@@ -1002,7 +1011,7 @@ func (srv *Server) setupConn(c *conn, flags connFlag, dialDest *znode.Node) erro
 	return nil
 }
 
-func nodeFromConn(pubkey *ecdsa.PublicKey, conn net.Conn) *znode.Node {
+func nodeFromConn(pubkey *crypto2.DilithiumPublicKey, conn net.Conn) *znode.Node {
 	var ip net.IP
 	var port int
 	if tcp, ok := conn.RemoteAddr().(*net.TCPAddr); ok {

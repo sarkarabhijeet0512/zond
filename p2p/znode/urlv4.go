@@ -17,7 +17,6 @@
 package znode
 
 import (
-	"crypto/ecdsa"
 	"encoding/hex"
 	"errors"
 	"fmt"
@@ -26,7 +25,7 @@ import (
 	"regexp"
 	"strconv"
 
-	"github.com/theQRL/zond/crypto"
+	crypto2 "github.com/theQRL/go-libp2p-qrl/crypto"
 	"github.com/theQRL/zond/p2p/znr"
 )
 
@@ -81,7 +80,7 @@ func ParseV4(rawurl string) (*Node, error) {
 
 // NewV4 creates a node from discovery v4 node information. The record
 // contained in the node has a zero-length signature.
-func NewV4(pubkey *ecdsa.PublicKey, ip net.IP, tcp, udp int) *Node {
+func NewV4(pubkey *crypto2.DilithiumPublicKey, ip net.IP, tcp, udp int) *Node {
 	var r znr.Record
 	if len(ip) > 0 {
 		r.Set(znr.IP(ip))
@@ -108,7 +107,7 @@ func isNewV4(n *Node) bool {
 
 func parseComplete(rawurl string) (*Node, error) {
 	var (
-		id               *ecdsa.PublicKey
+		id               *crypto2.DilithiumPublicKey
 		tcpPort, udpPort uint64
 	)
 	u, err := url.Parse(rawurl)
@@ -154,7 +153,7 @@ func parseComplete(rawurl string) (*Node, error) {
 }
 
 // parsePubkey parses a hex-encoded secp256k1 public key.
-func parsePubkey(in string) (*ecdsa.PublicKey, error) {
+func parsePubkey(in string) (*crypto2.DilithiumPublicKey, error) {
 	b, err := hex.DecodeString(in)
 	if err != nil {
 		return nil, err
@@ -162,20 +161,22 @@ func parsePubkey(in string) (*ecdsa.PublicKey, error) {
 		return nil, fmt.Errorf("wrong length, want %d hex chars", 128)
 	}
 	b = append([]byte{0x4}, b...)
-	return crypto.UnmarshalPubkey(b)
+	pubCrypto, _ := crypto2.UnmarshalDilithiumPublicKeyInterface(b)
+	return pubCrypto, err
 }
 
 func (n *Node) URLv4() string {
 	var (
 		scheme znr.ID
 		nodeid string
-		key    ecdsa.PublicKey
+		key    crypto2.DilithiumPublicKey
 	)
 	n.Load(&scheme)
 	n.Load((*Secp256k1)(&key))
 	switch {
-	case scheme == "v4" || key != ecdsa.PublicKey{}:
-		nodeid = fmt.Sprintf("%x", crypto.FromECDSAPub(&key)[1:])
+	case scheme == "v4" || key != crypto2.DilithiumPublicKey{}:
+		pubBytes, _ := key.Bytes()
+		nodeid = fmt.Sprintf("%x", pubBytes)
 	default:
 		nodeid = fmt.Sprintf("%s.%x", scheme, n.id[:])
 	}

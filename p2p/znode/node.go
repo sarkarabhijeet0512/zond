@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/syndtr/goleveldb/leveldb/errors"
-	"github.com/theQRL/go-qrllib/dilithium"
+	crypto2 "github.com/theQRL/go-libp2p-qrl/crypto"
 	"github.com/theQRL/zond/p2p/znr"
 	"github.com/theQRL/zond/rlp"
 )
@@ -111,9 +111,11 @@ func (n *Node) TCP() int {
 // 	}
 // 	return &key
 // }
-
-// Pubkey returns the secp256k1 public key of the node, if present.
-func (n *Node) Pubkey() *dilithium.Dilithium {
+func (n *Node) Pubkey() *crypto2.DilithiumPrivateKey {
+	// var key crypto2.DilithiumPrivateKey
+	// if n.Load((*Secp256k1)(&key)) != nil {
+	// 	return nil
+	// }
 	return n.Pubkey()
 }
 

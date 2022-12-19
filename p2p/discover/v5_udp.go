@@ -3,7 +3,6 @@ package discover
 import (
 	"bytes"
 	"context"
-	"crypto/ecdsa"
 	crand "crypto/rand"
 	"errors"
 	"fmt"
@@ -13,6 +12,7 @@ import (
 	"sync"
 	"time"
 
+	crypto2 "github.com/theQRL/go-libp2p-qrl/crypto"
 	"github.com/theQRL/zond/common/mclock"
 	"github.com/theQRL/zond/log"
 	"github.com/theQRL/zond/p2p/discover/v5wire"
@@ -47,7 +47,8 @@ const (
 // Config holds settings for the discovery listener.
 type Config struct {
 	// These settings are required and configure the UDP listener:
-	PrivateKey *ecdsa.PrivateKey
+	// PrivateKey *ecdsa.PrivateKey
+	PrivateKey *crypto2.DilithiumPrivateKey
 
 	// These settings are optional:
 	NetRestrict  *netutil.Netlist   // list of allowed IP networks
@@ -110,10 +111,11 @@ type codecV5 interface {
 // UDPv5 is the implementation of protocol version 5.
 type UDPv5 struct {
 	// static fields
-	conn         UDPConn
-	tab          *Table
-	netrestrict  *netutil.Netlist
-	priv         *ecdsa.PrivateKey
+	conn        UDPConn
+	tab         *Table
+	netrestrict *netutil.Netlist
+	// priv         *ecdsa.PrivateKey
+	priv         *crypto2.DilithiumPrivateKey
 	localNode    *znode.LocalNode
 	db           *znode.DB
 	log          log.Logger

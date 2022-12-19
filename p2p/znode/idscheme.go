@@ -1,11 +1,10 @@
 package znode
 
 import (
-	"crypto/ecdsa"
 	"fmt"
 	"io"
 
-	"github.com/theQRL/zond/common/math"
+	crypto2 "github.com/theQRL/go-libp2p-qrl/crypto"
 	"github.com/theQRL/zond/crypto"
 	"github.com/theQRL/zond/p2p/znr"
 	"github.com/theQRL/zond/rlp"
@@ -26,15 +25,41 @@ var ValidSchemesForTesting = znr.SchemeMap{
 type V4ID struct{}
 
 // SignV4 signs a record using the v4 scheme.
-func SignV4(r *znr.Record, privkey *ecdsa.PrivateKey) error {
+// func SignV4(r *znr.Record, privkey *ecdsa.PrivateKey) error {
+// 	// Copy r to avoid modifying it if signing fails.
+// 	cpy := *r
+// 	cpy.Set(znr.ID("v4"))
+// 	cpy.Set(Secp256k1(privkey.PublicKey))
+
+// 	h := sha3.NewLegacyKeccak256()
+// 	rlp.Encode(h, cpy.AppendElements(nil))
+// 	sig, err := crypto.Sign(h.Sum(nil), privkey)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	sig = sig[:len(sig)-1] // remove v
+// 	if err = cpy.SetSig(V4ID{}, sig); err == nil {
+// 		*r = cpy
+// 	}
+// 	return err
+// }
+func SignV4(r *znr.Record, privkey *crypto2.DilithiumPrivateKey) error {
 	// Copy r to avoid modifying it if signing fails.
 	cpy := *r
 	cpy.Set(znr.ID("v4"))
-	cpy.Set(Secp256k1(privkey.PublicKey))
+	pubBytes, err := privkey.GetPublic().Raw()
+	if err != nil {
+		return err
+	}
+	pubKey, err := crypto2.UnmarshalDilithiumPublicKeyInterface(pubBytes)
+	if err != nil {
+		return err
+	}
+	cpy.Set(Secp256k1(*pubKey))
 
 	h := sha3.NewLegacyKeccak256()
 	rlp.Encode(h, cpy.AppendElements(nil))
-	sig, err := crypto.Sign(h.Sum(nil), privkey)
+	sig, err := privkey.Sign(h.Sum(nil))
 	if err != nil {
 		return err
 	}
@@ -44,7 +69,6 @@ func SignV4(r *znr.Record, privkey *ecdsa.PrivateKey) error {
 	}
 	return err
 }
-
 func (V4ID) Verify(r *znr.Record, sig []byte) error {
 	var entry s256raw
 	if err := r.Load(&entry); err != nil {
@@ -68,19 +92,20 @@ func (V4ID) NodeAddr(r *znr.Record) []byte {
 		return nil
 	}
 	buf := make([]byte, 64)
-	math.ReadBits(pubkey.X, buf[:32])
-	math.ReadBits(pubkey.Y, buf[32:])
+	// math.ReadBits(pubkey, buf[:32])
+	// math.ReadBits(pubkey, buf[32:])
 	return crypto.Keccak256(buf)
 }
 
 // Secp256k1 is the "secp256k1" key, which holds a public key.
-type Secp256k1 ecdsa.PublicKey
+// type Secp256k1 ecdsa.PublicKey
+type Secp256k1 crypto2.DilithiumPublicKey
 
 func (v Secp256k1) ZNRKey() string { return "secp256k1" }
 
 // EncodeRLP implements rlp.Encoder.
 func (v Secp256k1) EncodeRLP(w io.Writer) error {
-	return rlp.Encode(w, crypto.CompressPubkey((*ecdsa.PublicKey)(&v)))
+	return rlp.Encode(w, crypto.CompressPubkey((*crypto2.DilithiumPublicKey)(&v)))
 }
 
 // DecodeRLP implements rlp.Decoder.
@@ -113,8 +138,16 @@ func (v4CompatID) Verify(r *znr.Record, sig []byte) error {
 	return r.Load(&pubkey)
 }
 
-func signV4Compat(r *znr.Record, pubkey *ecdsa.PublicKey) {
-	r.Set((*Secp256k1)(pubkey))
+func signV4Compat(r *znr.Record, pubkey *crypto2.DilithiumPublicKey) {
+	pubBytes, err := pubkey.Bytes()
+	if err != nil {
+		return
+	}
+	pubKey, err := crypto2.UnmarshalDilithiumPublicKeyInterface(pubBytes)
+	if err != nil {
+		return
+	}
+	r.Set((*Secp256k1)(pubKey))
 	if err := r.SetSig(v4CompatID{}, []byte{}); err != nil {
 		panic(err)
 	}

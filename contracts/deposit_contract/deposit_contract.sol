@@ -105,7 +105,7 @@ contract DepositContract is IDepositContract, ERC165 {
         bytes32 deposit_data_root
     ) override external payable {
         // Extended ABI length checks since dynamic types are used.
-        require(pubkey.length == 48, "DepositContract: invalid pubkey length");
+        require(pubkey.length == 1472, "DepositContract: invalid pubkey length");
         require(withdrawal_credentials.length == 32, "DepositContract: invalid withdrawal_credentials length");
         require(signature.length == 96, "DepositContract: invalid signature length");
 

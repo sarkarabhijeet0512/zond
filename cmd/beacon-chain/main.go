@@ -10,6 +10,7 @@ import (
 	golog "github.com/ipfs/go-log/v2"
 	joonix "github.com/joonix/log"
 	"github.com/sirupsen/logrus"
+	crypto2 "github.com/theQRL/go-libp2p-qrl/crypto"
 	"github.com/theQRL/zond/beacon-chain/builder"
 	"github.com/theQRL/zond/beacon-chain/node"
 	"github.com/theQRL/zond/cmd"
@@ -235,6 +236,7 @@ func startNode(ctx *cli.Context) error {
 	if err != nil {
 		return err
 	}
+	crypto2.LoadAllExtendedKeyTypes()
 	logrus.SetLevel(level)
 	// Set libp2p logger to only panic logs for the info level.
 	golog.SetAllLoggers(golog.LevelPanic)

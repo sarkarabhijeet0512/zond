@@ -8,9 +8,9 @@ import (
 	"github.com/libp2p/go-libp2p/core/peer"
 	ma "github.com/multiformats/go-multiaddr"
 	log "github.com/sirupsen/logrus"
+	crypto2 "github.com/theQRL/go-libp2p-qrl/crypto"
 	"github.com/theQRL/zond/beacon-chain/p2p/peers"
 	"github.com/theQRL/zond/beacon-chain/p2p/peers/scorers"
-	"github.com/theQRL/zond/crypto"
 	"github.com/theQRL/zond/p2p/znode"
 	"github.com/theQRL/zond/p2p/znr"
 	pb "github.com/theQRL/zond/protos/zond/v1alpha1"
@@ -77,7 +77,15 @@ func (m *MockPeersProvider) Peers() *peers.Status {
 }
 
 func createENR() *znr.Record {
-	key, err := crypto.GenerateKey()
+	privkey, _, err := crypto2.GenerateDilithiumKey(nil)
+	if err != nil {
+		log.Error(err)
+	}
+	privBytes, err := privkey.Raw()
+	if err != nil {
+		log.Error(err)
+	}
+	key, err := crypto2.UnmarshalDilithiumPrivateKeyInterface(privBytes)
 	if err != nil {
 		log.Error(err)
 	}

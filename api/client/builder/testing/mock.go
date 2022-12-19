@@ -11,12 +11,12 @@ import (
 
 // MockClient is a mock implementation of BuilderClient.
 type MockClient struct {
-	RegisteredVals map[[48]byte]bool
+	RegisteredVals map[[1472]byte]bool
 }
 
 // NewClient creates a new, correctly initialized mock.
 func NewClient() MockClient {
-	return MockClient{RegisteredVals: map[[48]byte]bool{}}
+	return MockClient{RegisteredVals: map[[1472]byte]bool{}}
 }
 
 // NodeURL --
@@ -25,14 +25,14 @@ func (MockClient) NodeURL() string {
 }
 
 // GetHeader --
-func (MockClient) GetHeader(_ context.Context, _ types.Slot, _ [32]byte, _ [48]byte) (*ethpb.SignedBuilderBid, error) {
+func (MockClient) GetHeader(_ context.Context, _ types.Slot, _ [32]byte, _ [1472]byte) (*ethpb.SignedBuilderBid, error) {
 	return nil, nil
 }
 
 // RegisterValidator --
 func (m MockClient) RegisterValidator(_ context.Context, svr []*ethpb.SignedValidatorRegistrationV1) error {
 	for _, r := range svr {
-		b := bytesutil.ToBytes48(r.Message.Pubkey)
+		b := bytesutil.ToBytes1472Dilthium(r.Message.Pubkey)
 		m.RegisteredVals[b] = true
 	}
 	return nil

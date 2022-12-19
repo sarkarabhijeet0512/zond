@@ -25,8 +25,11 @@ func PublicKeyFromBytes(pubKey []byte) (common.PublicKey, error) {
 	if len(pubKey) != params.BeaconConfig().BLSPubkeyLength {
 		return nil, fmt.Errorf("public key must be %d bytes", params.BeaconConfig().BLSPubkeyLength)
 	}
-	newKey := (*[dilithium.PKSizePacked]byte)(pubKey)
-	if cv, ok := pubkeyCache.Get(*newKey); ok {
+	var newKey [dilithium.PKSizePacked]byte
+	// newKey := (*[dilithium.PKSizePacked]byte)(pubKey)
+	// newKey[:] = pubKey[:]
+	copy(newKey[:], pubKey)
+	if cv, ok := pubkeyCache.Get(newKey); ok {
 		return cv.(*PublicKey).Copy(), nil
 	}
 	// Subgroup check NOT done when decompressing pubkey.
@@ -41,7 +44,7 @@ func PublicKeyFromBytes(pubKey []byte) (common.PublicKey, error) {
 	}
 	pubKeyObj := &PublicKey{p: p}
 	copiedKey := pubKeyObj.Copy()
-	cacheKey := *newKey
+	cacheKey := newKey
 	pubkeyCache.Add(cacheKey, copiedKey)
 	return pubKeyObj, nil
 }

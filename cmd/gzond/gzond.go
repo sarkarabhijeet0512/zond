@@ -129,8 +129,8 @@ func loadP2PDilithiumKey(filePath string) (crypto.PrivKey, error) {
 		return nil, err
 	}
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
-		//keys, _, err := crypto2.GenerateDilithiumKey(nil)
-		keys, _, err := crypto.GenerateECDSAKeyPair(f)
+		keys, _, err := crypto2.GenerateDilithiumKey(nil)
+		// keys, _, err := crypto.GenerateECDSAKeyPair(f)
 		if err != nil {
 			return nil, err
 		}
@@ -145,8 +145,8 @@ func loadP2PDilithiumKey(filePath string) (crypto.PrivKey, error) {
 	if err != nil {
 		return nil, err
 	}
-	return crypto.UnmarshalECDSAPrivateKey(data)
-	//return crypto2.UnmarshalDilithiumPrivateKey(data)
+	// return crypto.UnmarshalECDSAPrivateKey(data)
+	return crypto2.UnmarshalDilithiumPrivateKey(data)
 }
 
 func main() {
