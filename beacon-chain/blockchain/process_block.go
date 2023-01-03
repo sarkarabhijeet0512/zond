@@ -111,10 +111,10 @@ func (s *Service) onBlock(ctx context.Context, signed interfaces.SignedBeaconBlo
 	preStateFinalizedEpoch := preState.FinalizedCheckpoint().Epoch
 	preStateJustifiedEpoch := preState.CurrentJustifiedCheckpoint().Epoch
 
-	preStateVersion, preStateHeader, err := getStateVersionAndPayload(preState)
-	if err != nil {
-		return err
-	}
+	// preStateVersion, preStateHeader, err := getStateVersionAndPayload(preState)
+	// if err != nil {
+	// 	return err
+	// }
 	stateTransitionStartTime := time.Now()
 	postState, err := transition.ExecuteStateTransition(ctx, preState, signed)
 	if err != nil {
@@ -130,11 +130,11 @@ func (s *Service) onBlock(ctx context.Context, signed interfaces.SignedBeaconBlo
 	if err != nil {
 		return errors.Wrap(err, "could not validate new payload")
 	}
-	if isValidPayload {
-		if err := s.validateMergeTransitionBlock(ctx, preStateVersion, preStateHeader, signed); err != nil {
-			return err
-		}
-	}
+	// if isValidPayload {
+	// 	if err := s.validateMergeTransitionBlock(ctx, preStateVersion, preStateHeader, signed); err != nil {
+	// 		return err
+	// 	}
+	// }
 	if err := s.savePostStateInfo(ctx, blockRoot, signed, postState); err != nil {
 		return err
 	}
@@ -394,12 +394,12 @@ func (s *Service) onBlockBatch(ctx context.Context, blks []interfaces.SignedBeac
 		if err != nil {
 			return err
 		}
-		if isValidPayload {
-			if err := s.validateMergeTransitionBlock(ctx, preVersionAndHeaders[i].version,
-				preVersionAndHeaders[i].header, b); err != nil {
-				return err
-			}
-		}
+		// if isValidPayload {
+		// 	if err := s.validateMergeTransitionBlock(ctx, preVersionAndHeaders[i].version,
+		// 		preVersionAndHeaders[i].header, b); err != nil {
+		// 		return err
+		// 	}
+		// }
 		args := &forkchoicetypes.BlockAndCheckpoints{Block: b.Block(),
 			JustifiedCheckpoint: jCheckpoints[i],
 			FinalizedCheckpoint: fCheckpoints[i]}

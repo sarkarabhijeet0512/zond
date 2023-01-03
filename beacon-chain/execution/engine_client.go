@@ -10,14 +10,13 @@ import (
 
 	"github.com/holiman/uint256"
 	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
 	"github.com/theQRL/zond/common"
 	"github.com/theQRL/zond/common/hexutil"
 	fieldparams "github.com/theQRL/zond/config/fieldparams"
 	"github.com/theQRL/zond/config/params"
 	"github.com/theQRL/zond/consensus-types/blocks"
 	"github.com/theQRL/zond/consensus-types/interfaces"
-	"github.com/theQRL/zond/encoding/bytesutil"
+	"github.com/theQRL/zond/core/beacon"
 	pb "github.com/theQRL/zond/protos/engine/v1"
 	gethRPC "github.com/theQRL/zond/rpc"
 	"go.opencensus.io/trace"
@@ -67,11 +66,11 @@ type EngineCaller interface {
 		ctx context.Context, state *pb.ForkchoiceState, attrs *pb.PayloadAttributes,
 	) (*pb.PayloadIDBytes, []byte, error)
 	GetPayload(ctx context.Context, payloadId [8]byte) (*pb.ExecutionPayload, error)
-	ExchangeTransitionConfiguration(
-		ctx context.Context, cfg *pb.TransitionConfiguration,
-	) error
+	// ExchangeTransitionConfiguration(
+	// 	ctx context.Context, cfg *pb.TransitionConfiguration,
+	// ) error
 	ExecutionBlockByHash(ctx context.Context, hash common.Hash, withTxs bool) (*pb.ExecutionBlock, error)
-	GetTerminalBlockHash(ctx context.Context, transitionTime uint64) ([]byte, bool, error)
+	// GetTerminalBlockHash(ctx context.Context, transitionTime uint64) ([]byte, bool, error)
 }
 
 // NewPayload calls the engine_newPayloadV1 method via JSON-RPC.
@@ -86,25 +85,45 @@ func (s *Service) NewPayload(ctx context.Context, payload interfaces.ExecutionDa
 	d := time.Now().Add(time.Duration(params.BeaconConfig().ExecutionEngineTimeoutValue) * time.Second)
 	ctx, cancel := context.WithDeadline(ctx, d)
 	defer cancel()
-	result := &pb.PayloadStatus{}
-	payloadPb, ok := payload.Proto().(*pb.ExecutionPayload)
-	if !ok {
-		return nil, errors.New("execution data must be an execution payload")
-	}
-	err := s.rpcClient.CallContext(ctx, result, NewPayloadMethod, payloadPb)
+	// result := &pb.PayloadStatus{}
+	// payloadPb, ok := payload.Proto().(*pb.ExecutionPayload)
+	// if !ok {
+	// 	return nil, errors.New("execution data must be an execution payload")
+	// }
+	// err := s.rpcClient.CallContext(ctx, result, NewPayloadMethod, payloadPb)
+	// if err != nil {
+	// 	return nil, handleRPCError(err)
+	// }
+	executableData := &beacon.ExecutableDataV1{}
+	executableData.BaseFeePerGas = new(big.Int)
+	executableData.BaseFeePerGas.SetBytes(payload.BaseFeePerGas())
+	executableData.BlockHash = common.BytesToHash(payload.BlockHash())
+	executableData.ExtraData = payload.ExtraData()
+	executableData.FeeRecipient = common.BytesToAddress(payload.FeeRecipient())
+	executableData.GasLimit = payload.GasLimit()
+	executableData.GasUsed = payload.GasUsed()
+	executableData.LogsBloom = payload.LogsBloom()
+	executableData.Number = payload.BlockNumber()
+	executableData.ParentHash = common.BytesToHash(payload.ParentHash())
+	executableData.Random = common.BytesToHash(payload.PrevRandao())
+	executableData.ReceiptsRoot = common.BytesToHash(payload.ReceiptsRoot())
+	executableData.StateRoot = common.BytesToHash(payload.StateRoot())
+	executableData.Timestamp = payload.Timestamp()
+	executableData.Transactions, _ = payload.Transactions()
+	result, err := s.consensusApi.NewPayloadV1(*executableData)
 	if err != nil {
-		return nil, handleRPCError(err)
+		return nil, fmt.Errorf("unable to get NewPayload: %v", err)
 	}
 
 	switch result.Status {
-	case pb.PayloadStatus_INVALID_BLOCK_HASH:
+	case "INVALID_BLOCK_HASH":
 		return nil, ErrInvalidBlockHashPayloadStatus
-	case pb.PayloadStatus_ACCEPTED, pb.PayloadStatus_SYNCING:
+	case "ACCEPTED", "SYNCING":
 		return nil, ErrAcceptedSyncingPayloadStatus
-	case pb.PayloadStatus_INVALID:
-		return result.LatestValidHash, ErrInvalidPayloadStatus
-	case pb.PayloadStatus_VALID:
-		return result.LatestValidHash, nil
+	case "INVALID":
+		return result.LatestValidHash.Bytes(), ErrInvalidPayloadStatus
+	case "VALID":
+		return result.LatestValidHash.Bytes(), nil
 	default:
 		return nil, ErrUnknownPayloadStatus
 	}
@@ -124,23 +143,37 @@ func (s *Service) ForkchoiceUpdated(
 	d := time.Now().Add(time.Duration(params.BeaconConfig().ExecutionEngineTimeoutValue) * time.Second)
 	ctx, cancel := context.WithDeadline(ctx, d)
 	defer cancel()
-	result := &ForkchoiceUpdatedResponse{}
-	err := s.rpcClient.CallContext(ctx, result, ForkchoiceUpdatedMethod, state, attrs)
+	// result := &ForkchoiceUpdatedResponse{}
+	// err := s.rpcClient.CallContext(ctx, result, ForkchoiceUpdatedMethod, state, attrs)
+	// if err != nil {
+	// 	return nil, nil, handleRPCError(err)
+	// }
+	forkState := &beacon.ForkchoiceStateV1{}
+	forkState.FinalizedBlockHash = common.BytesToHash(state.FinalizedBlockHash)
+	forkState.HeadBlockHash = common.BytesToHash(state.HeadBlockHash)
+	forkState.SafeBlockHash = common.BytesToHash(state.SafeBlockHash)
+
+	payloadAttribute := &beacon.PayloadAttributesV1{}
+	payloadAttribute.Random = common.BytesToHash(attrs.PrevRandao)
+	payloadAttribute.SuggestedFeeRecipient = common.BytesToAddress(attrs.SuggestedFeeRecipient)
+	payloadAttribute.Timestamp = attrs.Timestamp
+
+	result, err := s.consensusApi.ForkchoiceUpdatedV1(*forkState, payloadAttribute)
 	if err != nil {
-		return nil, nil, handleRPCError(err)
+		return nil, nil, fmt.Errorf("error while calling forkchoice update; %v", err)
 	}
 
-	if result.Status == nil {
-		return nil, nil, ErrNilResponse
-	}
-	resp := result.Status
+	// if result.PayloadStatus == nil {
+	// 	return nil, nil, ErrNilResponse
+	// }
+	resp := result.PayloadStatus
 	switch resp.Status {
-	case pb.PayloadStatus_SYNCING:
+	case "SYNCING":
 		return nil, nil, ErrAcceptedSyncingPayloadStatus
-	case pb.PayloadStatus_INVALID:
-		return nil, resp.LatestValidHash, ErrInvalidPayloadStatus
-	case pb.PayloadStatus_VALID:
-		return result.PayloadId, resp.LatestValidHash, nil
+	case "INVALID":
+		return nil, resp.LatestValidHash.Bytes(), ErrInvalidPayloadStatus
+	case "VALID":
+		return (*pb.PayloadIDBytes)(result.PayloadID), resp.LatestValidHash.Bytes(), nil
 	default:
 		return nil, nil, ErrUnknownPayloadStatus
 	}
@@ -158,55 +191,72 @@ func (s *Service) GetPayload(ctx context.Context, payloadId [8]byte) (*pb.Execut
 	d := time.Now().Add(defaultEngineTimeout)
 	ctx, cancel := context.WithDeadline(ctx, d)
 	defer cancel()
-	result := &pb.ExecutionPayload{}
-	err := s.rpcClient.CallContext(ctx, result, GetPayloadMethod, pb.PayloadIDBytes(payloadId))
-	return result, handleRPCError(err)
+	// result := &pb.ExecutionPayload{}
+	// err := s.rpcClient.CallContext(ctx, result, GetPayloadMethod, pb.PayloadIDBytes(payloadId))
+	result, err := s.consensusApi.GetPayloadV1(payloadId)
+	payload := &pb.ExecutionPayload{}
+	payload.BaseFeePerGas = result.BaseFeePerGas.Bytes()
+	payload.BlockHash = result.BlockHash.Bytes()
+	payload.BlockNumber = result.Number
+	payload.ExtraData = result.ExtraData
+	payload.FeeRecipient = result.FeeRecipient.Bytes()
+	payload.GasLimit = result.GasLimit
+	payload.GasUsed = result.GasUsed
+	payload.LogsBloom = result.LogsBloom
+	payload.ParentHash = result.ParentHash.Bytes()
+	payload.PrevRandao = result.Random.Bytes()
+	payload.ReceiptsRoot = result.ReceiptsRoot.Bytes()
+	payload.StateRoot = result.StateRoot.Bytes()
+	payload.Timestamp = result.Timestamp
+	payload.Transactions = result.Transactions
+
+	return payload, handleRPCError(err)
 }
 
 // ExchangeTransitionConfiguration calls the engine_exchangeTransitionConfigurationV1 method via JSON-RPC.
-func (s *Service) ExchangeTransitionConfiguration(
-	ctx context.Context, cfg *pb.TransitionConfiguration,
-) error {
-	ctx, span := trace.StartSpan(ctx, "powchain.engine-api-client.ExchangeTransitionConfiguration")
-	defer span.End()
+// func (s *Service) ExchangeTransitionConfiguration(
+// 	ctx context.Context, cfg *pb.TransitionConfiguration,
+// ) error {
+// 	ctx, span := trace.StartSpan(ctx, "powchain.engine-api-client.ExchangeTransitionConfiguration")
+// 	defer span.End()
 
-	// We set terminal block number to 0 as the parameter is not set on the consensus layer.
-	zeroBigNum := big.NewInt(0)
-	cfg.TerminalBlockNumber = zeroBigNum.Bytes()
-	d := time.Now().Add(defaultEngineTimeout)
-	ctx, cancel := context.WithDeadline(ctx, d)
-	defer cancel()
-	result := &pb.TransitionConfiguration{}
-	if err := s.rpcClient.CallContext(ctx, result, ExchangeTransitionConfigurationMethod, cfg); err != nil {
-		return handleRPCError(err)
-	}
+// 	// We set terminal block number to 0 as the parameter is not set on the consensus layer.
+// 	zeroBigNum := big.NewInt(0)
+// 	cfg.TerminalBlockNumber = zeroBigNum.Bytes()
+// 	d := time.Now().Add(defaultEngineTimeout)
+// 	ctx, cancel := context.WithDeadline(ctx, d)
+// 	defer cancel()
+// 	result := &pb.TransitionConfiguration{}
+// 	if err := s.rpcClient.CallContext(ctx, result, ExchangeTransitionConfigurationMethod, cfg); err != nil {
+// 		return handleRPCError(err)
+// 	}
 
-	// We surface an error to the user if local configuration settings mismatch
-	// according to the response from the execution node.
-	cfgTerminalHash := params.BeaconConfig().TerminalBlockHash[:]
-	if !bytes.Equal(cfgTerminalHash, result.TerminalBlockHash) {
-		return errors.Wrapf(
-			ErrConfigMismatch,
-			"got %#x from execution node, wanted %#x",
-			result.TerminalBlockHash,
-			cfgTerminalHash,
-		)
-	}
-	ttdCfg := params.BeaconConfig().TerminalTotalDifficulty
-	ttdResult, err := hexutil.DecodeBig(result.TerminalTotalDifficulty)
-	if err != nil {
-		return errors.Wrap(err, "could not decode received terminal total difficulty")
-	}
-	if ttdResult.String() != ttdCfg {
-		return errors.Wrapf(
-			ErrConfigMismatch,
-			"got %s from execution node, wanted %s",
-			ttdResult.String(),
-			ttdCfg,
-		)
-	}
-	return nil
-}
+// 	// We surface an error to the user if local configuration settings mismatch
+// 	// according to the response from the execution node.
+// 	cfgTerminalHash := params.BeaconConfig().TerminalBlockHash[:]
+// 	if !bytes.Equal(cfgTerminalHash, result.TerminalBlockHash) {
+// 		return errors.Wrapf(
+// 			ErrConfigMismatch,
+// 			"got %#x from execution node, wanted %#x",
+// 			result.TerminalBlockHash,
+// 			cfgTerminalHash,
+// 		)
+// 	}
+// 	ttdCfg := params.BeaconConfig().TerminalTotalDifficulty
+// 	ttdResult, err := hexutil.DecodeBig(result.TerminalTotalDifficulty)
+// 	if err != nil {
+// 		return errors.Wrap(err, "could not decode received terminal total difficulty")
+// 	}
+// 	if ttdResult.String() != ttdCfg {
+// 		return errors.Wrapf(
+// 			ErrConfigMismatch,
+// 			"got %s from execution node, wanted %s",
+// 			ttdResult.String(),
+// 			ttdCfg,
+// 		)
+// 	}
+// 	return nil
+// }
 
 // GetTerminalBlockHash returns the valid terminal block hash based on total difficulty.
 //
@@ -221,100 +271,106 @@ func (s *Service) ExchangeTransitionConfiguration(
 //            return block
 //
 //    return None
-func (s *Service) GetTerminalBlockHash(ctx context.Context, transitionTime uint64) ([]byte, bool, error) {
-	ttd := new(big.Int)
-	ttd.SetString(params.BeaconConfig().TerminalTotalDifficulty, 10)
-	terminalTotalDifficulty, overflows := uint256.FromBig(ttd)
-	if overflows {
-		return nil, false, errors.New("could not convert terminal total difficulty to uint256")
-	}
-	blk, err := s.LatestExecutionBlock(ctx)
-	if err != nil {
-		return nil, false, errors.Wrap(err, "could not get latest execution block")
-	}
-	if blk == nil {
-		return nil, false, errors.New("latest execution block is nil")
-	}
+// func (s *Service) GetTerminalBlockHash(ctx context.Context, transitionTime uint64) ([]byte, bool, error) {
+// 	ttd := new(big.Int)
+// 	ttd.SetString(params.BeaconConfig().TerminalTotalDifficulty, 10)
+// 	terminalTotalDifficulty, overflows := uint256.FromBig(ttd)
+// 	if overflows {
+// 		return nil, false, errors.New("could not convert terminal total difficulty to uint256")
+// 	}
+// 	blk, err := s.LatestExecutionBlock(ctx)
+// 	if err != nil {
+// 		return nil, false, errors.Wrap(err, "could not get latest execution block")
+// 	}
+// 	if blk == nil {
+// 		return nil, false, errors.New("latest execution block is nil")
+// 	}
 
-	for {
-		if ctx.Err() != nil {
-			return nil, false, ctx.Err()
-		}
-		currentTotalDifficulty, err := tDStringToUint256(blk.TotalDifficulty)
-		if err != nil {
-			return nil, false, errors.Wrap(err, "could not convert total difficulty to uint256")
-		}
-		blockReachedTTD := currentTotalDifficulty.Cmp(terminalTotalDifficulty) >= 0
+// 	for {
+// 		if ctx.Err() != nil {
+// 			return nil, false, ctx.Err()
+// 		}
+// 		currentTotalDifficulty, err := tDStringToUint256(blk.TotalDifficulty)
+// 		if err != nil {
+// 			return nil, false, errors.Wrap(err, "could not convert total difficulty to uint256")
+// 		}
+// 		blockReachedTTD := currentTotalDifficulty.Cmp(terminalTotalDifficulty) >= 0
 
-		parentHash := blk.ParentHash
-		if parentHash == params.BeaconConfig().ZeroHash {
-			return nil, false, nil
-		}
-		parentBlk, err := s.ExecutionBlockByHash(ctx, parentHash, false /* no txs */)
-		if err != nil {
-			return nil, false, errors.Wrap(err, "could not get parent execution block")
-		}
-		if parentBlk == nil {
-			return nil, false, errors.New("parent execution block is nil")
-		}
+// 		parentHash := blk.ParentHash
+// 		if parentHash == params.BeaconConfig().ZeroHash {
+// 			return nil, false, nil
+// 		}
+// 		parentBlk, err := s.ExecutionBlockByHash(ctx, parentHash, false /* no txs */)
+// 		if err != nil {
+// 			return nil, false, errors.Wrap(err, "could not get parent execution block")
+// 		}
+// 		if parentBlk == nil {
+// 			return nil, false, errors.New("parent execution block is nil")
+// 		}
 
-		if blockReachedTTD {
-			parentTotalDifficulty, err := tDStringToUint256(parentBlk.TotalDifficulty)
-			if err != nil {
-				return nil, false, errors.Wrap(err, "could not convert total difficulty to uint256")
-			}
+// 		if blockReachedTTD {
+// 			parentTotalDifficulty, err := tDStringToUint256(parentBlk.TotalDifficulty)
+// 			if err != nil {
+// 				return nil, false, errors.Wrap(err, "could not convert total difficulty to uint256")
+// 			}
 
-			// If terminal block has time same timestamp or greater than transition time,
-			// then the node violates the invariant that a block's timestamp must be
-			// greater than its parent's timestamp. Execution layer will reject
-			// a fcu call with such payload attributes. It's best that we return `None` in this a case.
-			parentReachedTTD := parentTotalDifficulty.Cmp(terminalTotalDifficulty) >= 0
-			if !parentReachedTTD {
-				if blk.Time >= transitionTime {
-					return nil, false, nil
-				}
+// 			// If terminal block has time same timestamp or greater than transition time,
+// 			// then the node violates the invariant that a block's timestamp must be
+// 			// greater than its parent's timestamp. Execution layer will reject
+// 			// a fcu call with such payload attributes. It's best that we return `None` in this a case.
+// 			parentReachedTTD := parentTotalDifficulty.Cmp(terminalTotalDifficulty) >= 0
+// 			if !parentReachedTTD {
+// 				if blk.Time >= transitionTime {
+// 					return nil, false, nil
+// 				}
 
-				log.WithFields(logrus.Fields{
-					"number":   blk.Number,
-					"hash":     fmt.Sprintf("%#x", bytesutil.Trunc(blk.Hash[:])),
-					"td":       blk.TotalDifficulty,
-					"parentTd": parentBlk.TotalDifficulty,
-					"ttd":      terminalTotalDifficulty,
-				}).Info("Retrieved terminal block hash")
-				return blk.Hash[:], true, nil
-			}
-		} else {
-			return nil, false, nil
-		}
-		blk = parentBlk
-	}
-}
+// 				log.WithFields(logrus.Fields{
+// 					"number":   blk.Number,
+// 					"hash":     fmt.Sprintf("%#x", bytesutil.Trunc(blk.Hash[:])),
+// 					"td":       blk.TotalDifficulty,
+// 					"parentTd": parentBlk.TotalDifficulty,
+// 					"ttd":      terminalTotalDifficulty,
+// 				}).Info("Retrieved terminal block hash")
+// 				return blk.Hash[:], true, nil
+// 			}
+// 		} else {
+// 			return nil, false, nil
+// 		}
+// 		blk = parentBlk
+// 	}
+// }
 
 // LatestExecutionBlock fetches the latest execution engine block by calling
 // eth_blockByNumber via JSON-RPC.
-func (s *Service) LatestExecutionBlock(ctx context.Context) (*pb.ExecutionBlock, error) {
-	ctx, span := trace.StartSpan(ctx, "powchain.engine-api-client.LatestExecutionBlock")
-	defer span.End()
+// func (s *Service) LatestExecutionBlock(ctx context.Context) (*pb.ExecutionBlock, error) {
+// 	ctx, span := trace.StartSpan(ctx, "powchain.engine-api-client.LatestExecutionBlock")
+// 	defer span.End()
 
-	result := &pb.ExecutionBlock{}
-	err := s.rpcClient.CallContext(
-		ctx,
-		result,
-		ExecutionBlockByNumberMethod,
-		"latest",
-		false, /* no full transaction objects */
-	)
-	return result, handleRPCError(err)
-}
+// 	result := &pb.ExecutionBlock{}
+// 	err := s.rpcClient.CallContext(
+// 		ctx,
+// 		result,
+// 		ExecutionBlockByNumberMethod,
+// 		"latest",
+// 		false, /* no full transaction objects */
+// 	)
+// 	return result, handleRPCError(err)
+// }
 
 // ExecutionBlockByHash fetches an execution engine block by hash by calling
 // eth_blockByHash via JSON-RPC.
 func (s *Service) ExecutionBlockByHash(ctx context.Context, hash common.Hash, withTxs bool) (*pb.ExecutionBlock, error) {
 	ctx, span := trace.StartSpan(ctx, "powchain.engine-api-client.ExecutionBlockByHash")
 	defer span.End()
-	result := &pb.ExecutionBlock{}
-	err := s.rpcClient.CallContext(ctx, result, ExecutionBlockByHashMethod, hash, withTxs)
-	return result, handleRPCError(err)
+	// result := &pb.ExecutionBlock{}
+	// err := s.rpcClient.CallContext(ctx, result, ExecutionBlockByHashMethod, hash, withTxs)
+	result := s.zond.BlockChain().GetBlockByHash(hash)
+	executionBlock := &pb.ExecutionBlock{}
+	executionBlock.Hash = result.Hash()
+	executionBlock.Header = *result.Header()
+	executionBlock.TotalDifficulty = result.Difficulty().String()
+	executionBlock.Transactions = result.Transactions()
+	return executionBlock, nil
 }
 
 // ExecutionBlocksByHashes fetches a batch of execution engine blocks by hash by calling

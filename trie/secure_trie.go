@@ -25,43 +25,53 @@ import (
 	"github.com/theQRL/zond/rlp"
 )
 
-// SecureTrie wraps a trie with key hashing. In a secure trie, all
+// SecureTrie is the old name of StateTrie.
+// Deprecated: use StateTrie.
+type SecureTrie = StateTrie
+
+// NewSecure creates a new StateTrie.
+// Deprecated: use NewStateTrie.
+func NewSecure(stateRoot common.Hash, owner common.Hash, root common.Hash, db *Database) (*SecureTrie, error) {
+	id := &ID{
+		StateRoot: stateRoot,
+		Owner:     owner,
+		Root:      root,
+	}
+	return NewStateTrie(id, db)
+}
+
+// StateTrie wraps a trie with key hashing. In a stateTrie trie, all
 // access operations hash the key using keccak256. This prevents
 // calling code from creating long chains of nodes that
 // increase the access time.
 //
-// Contrary to a regular trie, a SecureTrie can only be created with
+// Contrary to a regular trie, a StateTrie can only be created with
 // New and must have an attached database. The database also stores
-// the preimage of each key.
+// the preimage of each key if preimage recording is enabled.
 //
-// SecureTrie is not safe for concurrent use.
-type SecureTrie struct {
+// StateTrie is not safe for concurrent use.
+type StateTrie struct {
 	trie             Trie
+	preimages        *preimageStore
 	hashKeyBuf       [common.HashLength]byte
 	secKeyCache      map[string][]byte
-	secKeyCacheOwner *SecureTrie // Pointer to self, replace the key cache on mismatch
+	secKeyCacheOwner *StateTrie // Pointer to self, replace the key cache on mismatch
 }
 
-// NewSecure creates a trie with an existing root node from a backing database
-// and optional intermediate in-memory node pool.
+// NewStateTrie creates a trie with an existing root node from a backing database.
 //
 // If root is the zero hash or the sha3 hash of an empty string, the
 // trie is initially empty. Otherwise, New will panic if db is nil
 // and returns MissingNodeError if the root node cannot be found.
-//
-// Accessing the trie loads nodes from the database or node pool on demand.
-// Loaded nodes are kept around until their 'cache generation' expires.
-// A new cache generation is created by each call to Commit.
-// cachelimit sets the number of past cache generations to keep.
-func NewSecure(root common.Hash, db *Database) (*SecureTrie, error) {
+func NewStateTrie(id *ID, db *Database) (*StateTrie, error) {
 	if db == nil {
-		panic("trie.NewSecure called without a database")
+		panic("trie.NewStateTrie called without a database")
 	}
-	trie, err := New(root, db)
+	trie, err := New(id, db)
 	if err != nil {
 		return nil, err
 	}
-	return &SecureTrie{trie: *trie}, nil
+	return &StateTrie{trie: *trie, preimages: db.preimages}, nil
 }
 
 // Get returns the value for key stored in the trie.
@@ -79,6 +89,19 @@ func (t *SecureTrie) Get(key []byte) []byte {
 // If a node was not found in the database, a MissingNodeError is returned.
 func (t *SecureTrie) TryGet(key []byte) ([]byte, error) {
 	return t.trie.TryGet(t.hashKey(key))
+}
+
+// TryGetAccountWithPreHashedKey does the same thing as TryGetAccount, however
+// it expects a key that is already hashed. This constitutes an abstraction leak,
+// since the client code needs to know the key format.
+func (t *StateTrie) TryGetAccountWithPreHashedKey(key []byte) (*types.StateAccount, error) {
+	res, err := t.trie.TryGet(key)
+	if res == nil || err != nil {
+		return nil, err
+	}
+	ret := new(types.StateAccount)
+	err = rlp.DecodeBytes(res, ret)
+	return ret, err
 }
 
 // TryGetNode attempts to retrieve a trie node by compact-encoded path. It is not
@@ -153,7 +176,7 @@ func (t *SecureTrie) GetKey(shaKey []byte) []byte {
 	if key, ok := t.getSecKeyCache()[string(shaKey)]; ok {
 		return key
 	}
-	return t.trie.db.preimage(common.BytesToHash(shaKey))
+	return t.preimages.preimage(common.BytesToHash(shaKey))
 }
 
 // Commit writes all nodes and the secure hash pre-images to the trie's database.
@@ -161,20 +184,20 @@ func (t *SecureTrie) GetKey(shaKey []byte) []byte {
 //
 // Committing flushes nodes from memory. Subsequent Get calls will load nodes
 // from the database.
-func (t *SecureTrie) Commit(onleaf LeafCallback) (common.Hash, int, error) {
+func (t *SecureTrie) Commit(collectLeaf bool) (common.Hash, *NodeSet, error) {
 	// Write all the pre-images to the actual disk database
 	if len(t.getSecKeyCache()) > 0 {
-		if t.trie.db.preimages != nil { // Ugly direct check but avoids the below write lock
-			t.trie.db.lock.Lock()
+		if t.preimages != nil {
+			preimages := make(map[common.Hash][]byte)
 			for hk, key := range t.secKeyCache {
-				t.trie.db.insertPreimage(common.BytesToHash([]byte(hk)), key)
+				preimages[common.BytesToHash([]byte(hk))] = key
 			}
-			t.trie.db.lock.Unlock()
+			t.preimages.insertPreimage(preimages)
 		}
 		t.secKeyCache = make(map[string][]byte)
 	}
-	// Commit the trie to its intermediate node database
-	return t.trie.Commit(onleaf)
+	// Commit the trie and return its modified nodeset.
+	return t.trie.Commit(collectLeaf)
 }
 
 // Hash returns the root hash of SecureTrie. It does not write to the

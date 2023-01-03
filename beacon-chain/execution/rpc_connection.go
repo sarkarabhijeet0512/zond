@@ -37,6 +37,7 @@ func (s *Service) setupExecutionClientConnections(ctx context.Context, currEndpo
 
 	// Ensure we have the correct chain and deposit IDs.
 	if err := ensureCorrectExecutionChain(ctx, fetcher); err != nil {
+		fmt.Print(err)
 		client.Close()
 		errStr := err.Error()
 		if strings.Contains(errStr, "401 Unauthorized") {

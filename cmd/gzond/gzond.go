@@ -14,7 +14,7 @@ import (
 	"github.com/theQRL/zond/api"
 	"github.com/theQRL/zond/chain"
 	"github.com/theQRL/zond/config"
-	"github.com/theQRL/zond/consensus"
+	"github.com/theQRL/zond/consensus_old"
 	"github.com/theQRL/zond/db"
 	"github.com/theQRL/zond/misc"
 	"github.com/theQRL/zond/node"
@@ -53,15 +53,15 @@ func run(c *chain.Chain, db *db.DB, keys crypto.PrivKey) error {
 		go publicAPIServer.Start()
 	}
 
-	pos := consensus.NewPOS(srv, c, db)
+	pos := consensus_old.NewPOS(srv, c, db)
 
-	stack, err := node.New(c)
+	stack, err := node.NewV1(c)
 	if err != nil {
 		log.Error("Error creating new node")
 		return err
 	}
 
-	backend, err := zond.New(stack, pos)
+	backend, err := zond.NewV1(stack, pos)
 	if err != nil {
 		log.Error("Error creating zond backend")
 		return err

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"hash/crc32"
 	"os"
+	"path/filepath"
 	"reflect"
 	"strings"
 	"sync"
@@ -13,6 +14,8 @@ import (
 	"github.com/theQRL/zond/chain"
 	"github.com/theQRL/zond/common"
 	"github.com/theQRL/zond/common/hexutil"
+	"github.com/theQRL/zond/core/rawdb"
+	"github.com/theQRL/zond/ethdb"
 	"github.com/theQRL/zond/log"
 	"github.com/theQRL/zond/rpc"
 )
@@ -24,6 +27,7 @@ type Node struct {
 	startStopLock sync.Mutex    // Start/Stop are protected by an additional lock
 	state         int           // Tracks state of node lifecycle
 	blockchain    *chain.Chain
+	// blockchain *core.BlockChain
 
 	lock          sync.Mutex
 	lifecycles    []Lifecycle // All registered backends, services, and auxiliary services that have a lifecycle
@@ -34,6 +38,7 @@ type Node struct {
 	wsAuth        *httpServer
 	ipc           *ipcServer // Stores information about the ipc http server
 	inprocHandler *rpc.Server
+	databases     map[*closeTrackingDB]struct{} // All open databases
 }
 
 const (
@@ -42,7 +47,8 @@ const (
 	closedState
 )
 
-func New(blockchain *chain.Chain) (*Node, error) {
+// func New(blockchain *chain.Chain) (*Node, error) {
+func NewV1(blockchain *chain.Chain) (*Node, error) {
 	// TODO (cyyber): Move hardcoded host and port to config
 	conf := &Config{
 		HTTPHost: "127.0.0.1",
@@ -74,6 +80,37 @@ func New(blockchain *chain.Chain) (*Node, error) {
 	return node, nil
 }
 
+// func New(blockchain *chain.Chain) (*Node, error) {
+func New() (*Node, error) {
+	// TODO (cyyber): Move hardcoded host and port to config
+	conf := &Config{
+		HTTPHost: "127.0.0.1",
+		HTTPPort: 4545,
+		HTTPCors: []string{"*"}, // Allow all cors
+	}
+
+	if conf.Logger == nil {
+		conf.Logger = log.New()
+	}
+
+	node := &Node{
+		config:        conf,
+		inprocHandler: rpc.NewServer(),
+		//eventmux:      new(event.TypeMux),
+		log:  conf.Logger,
+		stop: make(chan struct{}),
+		//server:        &p2p.Server{Config: conf.P2P},
+		//databases:     make(map[*closeTrackingDB]struct{}),
+	}
+
+	node.http = newHTTPServer(node.log, rpc.DefaultHTTPTimeouts)
+	node.httpAuth = newHTTPServer(node.log, rpc.DefaultHTTPTimeouts)
+	node.ws = newHTTPServer(node.log, rpc.DefaultHTTPTimeouts)
+	node.wsAuth = newHTTPServer(node.log, rpc.DefaultHTTPTimeouts)
+	node.ipc = newIPCServer(node.log, conf.IPCEndpoint())
+
+	return node, nil
+}
 func (n *Node) Blockchain() *chain.Chain {
 	return n.blockchain
 }
@@ -506,4 +543,56 @@ func (n *Node) GetAPIs() (unauthenticated, all []rpc.API) {
 // ResolvePath returns the absolute path of a resource in the instance directory.
 func (n *Node) ResolvePath(x string) string {
 	return n.config.ResolvePath(x)
+}
+
+// ResolveAncient returns the absolute path of the root ancient directory.
+func (n *Node) ResolveAncient(name string, ancient string) string {
+	switch {
+	case ancient == "":
+		ancient = filepath.Join(n.ResolvePath(name), "ancient")
+	case !filepath.IsAbs(ancient):
+		ancient = n.ResolvePath(ancient)
+	}
+	return ancient
+}
+
+// closeTrackingDB wraps the Close method of a database. When the database is closed by the
+// service, the wrapper removes it from the node's database map. This ensures that Node
+// won't auto-close the database if it is closed by the service that opened it.
+type closeTrackingDB struct {
+	ethdb.Database
+	n *Node
+}
+
+// OpenDatabaseWithFreezer opens an existing database with the given name (or
+// creates one if no previous can be found) from within the node's data directory,
+// also attaching a chain freezer to it that moves ancient chain data from the
+// database to immutable append-only files. If the node is an ephemeral one, a
+// memory database is returned.
+func (n *Node) OpenDatabaseWithFreezer(name string, cache, handles int, ancient string, namespace string, readonly bool) (ethdb.Database, error) {
+	n.lock.Lock()
+	defer n.lock.Unlock()
+	if n.state == closedState {
+		return nil, ErrNodeStopped
+	}
+
+	var db ethdb.Database
+	var err error
+	if n.config.DataDir == "" {
+		db = rawdb.NewMemoryDatabase()
+	} else {
+		db, err = rawdb.NewLevelDBDatabaseWithFreezer(n.ResolvePath(name), cache, handles, n.ResolveAncient(name, ancient), namespace, readonly)
+	}
+
+	if err == nil {
+		db = n.wrapDatabase(db)
+	}
+	return db, err
+}
+
+// wrapDatabase ensures the database will be auto-closed when Node is closed.
+func (n *Node) wrapDatabase(db ethdb.Database) ethdb.Database {
+	wrapper := &closeTrackingDB{db, n}
+	n.databases[wrapper] = struct{}{}
+	return wrapper
 }

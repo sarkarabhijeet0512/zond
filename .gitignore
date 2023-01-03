@@ -6,3 +6,5 @@ bootstrap
 gzond
 zond-cli
 mainnet.ssz.snappy
+.vscode
+jwt.hex

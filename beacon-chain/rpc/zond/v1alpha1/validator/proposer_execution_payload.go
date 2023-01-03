@@ -9,7 +9,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/sirupsen/logrus"
-	"github.com/theQRL/zond/beacon-chain/core/blocks"
 	"github.com/theQRL/zond/beacon-chain/core/helpers"
 	"github.com/theQRL/zond/beacon-chain/core/time"
 	"github.com/theQRL/zond/beacon-chain/core/transition"
@@ -88,8 +87,8 @@ func (vs *Server) getExecutionPayload(ctx context.Context, slot types.Slot, vIdx
 	}
 
 	var parentHash []byte
-	var hasTerminalBlock bool
-	mergeComplete, err := blocks.IsMergeTransitionComplete(st)
+	// var hasTerminalBlock bool
+	// mergeComplete, err := blocks.IsMergeTransitionComplete(st)
 	if err != nil {
 		return nil, err
 	}
@@ -98,24 +97,24 @@ func (vs *Server) getExecutionPayload(ctx context.Context, slot types.Slot, vIdx
 	if err != nil {
 		return nil, err
 	}
-	if mergeComplete {
-		header, err := st.LatestExecutionPayloadHeader()
-		if err != nil {
-			return nil, err
-		}
-		parentHash = header.BlockHash()
-	} else {
-		if activationEpochNotReached(slot) {
-			return emptyPayload(), nil
-		}
-		parentHash, hasTerminalBlock, err = vs.getTerminalBlockHashIfExists(ctx, uint64(t.Unix()))
-		if err != nil {
-			return nil, err
-		}
-		if !hasTerminalBlock {
-			return emptyPayload(), nil
-		}
+	// if mergeComplete {
+	header, err := st.LatestExecutionPayloadHeader()
+	if err != nil {
+		return nil, err
 	}
+	parentHash = header.BlockHash()
+	// } else {
+	// 	if activationEpochNotReached(slot) {
+	// 		return emptyPayload(), nil
+	// 	}
+	// 	parentHash, hasTerminalBlock, err = vs.getTerminalBlockHashIfExists(ctx, uint64(t.Unix()))
+	// 	if err != nil {
+	// 		return nil, err
+	// 	}
+	// 	if !hasTerminalBlock {
+	// 		return emptyPayload(), nil
+	// 	}
+	// }
 	payloadIDCacheMiss.Inc()
 
 	random, err := helpers.RandaoMix(st, time.CurrentEpoch(st))
@@ -194,23 +193,23 @@ func warnIfFeeRecipientDiffers(payload *enginev1.ExecutionPayload, feeRecipient 
 //            return None
 //
 //    return get_pow_block_at_terminal_total_difficulty(pow_chain)
-func (vs *Server) getTerminalBlockHashIfExists(ctx context.Context, transitionTime uint64) ([]byte, bool, error) {
-	terminalBlockHash := params.BeaconConfig().TerminalBlockHash
-	// Terminal block hash override takes precedence over terminal total difficulty.
-	if params.BeaconConfig().TerminalBlockHash != params.BeaconConfig().ZeroHash {
-		exists, _, err := vs.Eth1BlockFetcher.BlockExists(ctx, terminalBlockHash)
-		if err != nil {
-			return nil, false, err
-		}
-		if !exists {
-			return nil, false, nil
-		}
+// func (vs *Server) getTerminalBlockHashIfExists(ctx context.Context, transitionTime uint64) ([]byte, bool, error) {
+// 	terminalBlockHash := params.BeaconConfig().TerminalBlockHash
+// 	// Terminal block hash override takes precedence over terminal total difficulty.
+// 	if params.BeaconConfig().TerminalBlockHash != params.BeaconConfig().ZeroHash {
+// 		exists, _, err := vs.Eth1BlockFetcher.BlockExists(ctx, terminalBlockHash)
+// 		if err != nil {
+// 			return nil, false, err
+// 		}
+// 		if !exists {
+// 			return nil, false, nil
+// 		}
 
-		return terminalBlockHash.Bytes(), true, nil
-	}
+// 		return terminalBlockHash.Bytes(), true, nil
+// 	}
 
-	return vs.ExecutionEngineCaller.GetTerminalBlockHash(ctx, transitionTime)
-}
+// 	return vs.ExecutionEngineCaller.GetTerminalBlockHash(ctx, transitionTime)
+// }
 
 // activationEpochNotReached returns true if activation epoch has not been reach.
 // Which satisfy the following conditions in spec:

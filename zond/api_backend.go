@@ -3,9 +3,12 @@ package zond
 import (
 	"context"
 	"errors"
+	"time"
+
 	"github.com/theQRL/zond/block"
 	"github.com/theQRL/zond/common"
 	"github.com/theQRL/zond/config"
+	"github.com/theQRL/zond/consensus"
 	"github.com/theQRL/zond/core"
 	"github.com/theQRL/zond/core/state"
 	"github.com/theQRL/zond/core/types"
@@ -16,7 +19,6 @@ import (
 	"github.com/theQRL/zond/protos"
 	"github.com/theQRL/zond/rpc"
 	"github.com/theQRL/zond/transactions"
-	"time"
 )
 
 // ZondAPIBackend implements ethapi.Backend for full nodes
@@ -43,7 +45,7 @@ func (b *ZondAPIBackend) ChainConfig() *params.ChainConfig {
 //}
 
 func (b *ZondAPIBackend) GetValidators(ctx context.Context) (*metadata.EpochMetaData, error) {
-	return b.zond.blockchain.GetValidators()
+	return b.zond.blockchainV1.GetValidators()
 }
 
 func (b *ZondAPIBackend) HeaderByNumber(ctx context.Context, number rpc.BlockNumber) (*protos.BlockHeader, error) {
@@ -54,12 +56,12 @@ func (b *ZondAPIBackend) HeaderByNumber(ctx context.Context, number rpc.BlockNum
 	//}
 	// Otherwise resolve and return the block
 	if number == rpc.LatestBlockNumber {
-		return b.zond.blockchain.CurrentBlock().Header().PBData(), nil
+		return b.zond.blockchainV1.CurrentBlock().Header().PBData(), nil
 	}
 	if number == rpc.FinalizedBlockNumber {
-		return b.zond.blockchain.CurrentFinalizedBlock().Header().PBData(), nil
+		return b.zond.blockchainV1.CurrentFinalizedBlock().Header().PBData(), nil
 	}
-	block := b.zond.blockchain.GetBlockByNumber(uint64(number))
+	block := b.zond.blockchainV1.GetBlockByNumber(uint64(number))
 	return block.Header().PBData(), nil
 }
 
@@ -82,7 +84,7 @@ func (b *ZondAPIBackend) HeaderByNumber(ctx context.Context, number rpc.BlockNum
 
 func (b *ZondAPIBackend) HeaderByHash(ctx context.Context, hash common.Hash) (*protos.BlockHeader, error) {
 	//return b.zond.blockchain.GetHeaderByHash(hash), nil
-	block, err := b.zond.blockchain.GetBlock(hash)
+	block, err := b.zond.blockchainV1.GetBlock(hash)
 	if err != nil {
 		return nil, err
 	}
@@ -100,12 +102,12 @@ func (b *ZondAPIBackend) BlockByNumber(ctx context.Context, number rpc.BlockNumb
 	}
 	// Otherwise resolve and return the block
 	if number == rpc.LatestBlockNumber {
-		return b.zond.blockchain.GetLastBlock().PBData(), nil
+		return b.zond.blockchainV1.GetLastBlock().PBData(), nil
 	}
 	//if number == rpc.FinalizedBlockNumber {
 	//	return b.zond.blockchain.CurrentFinalizedBlock(), nil
 	//}
-	block := b.zond.blockchain.GetBlockByNumber(uint64(number))
+	block := b.zond.blockchainV1.GetBlockByNumber(uint64(number))
 	if block == nil {
 		return nil, nil
 	}
@@ -113,7 +115,7 @@ func (b *ZondAPIBackend) BlockByNumber(ctx context.Context, number rpc.BlockNumb
 }
 
 func (b *ZondAPIBackend) BlockByHash(ctx context.Context, hash common.Hash) (*protos.Block, error) {
-	block, err := b.zond.blockchain.GetBlock(hash)
+	block, err := b.zond.blockchainV1.GetBlock(hash)
 	if err != nil {
 		return nil, err
 	}
@@ -128,7 +130,7 @@ func (b *ZondAPIBackend) BlockByNumberOrHash(ctx context.Context, blockNrOrHash 
 		return b.BlockByNumber(ctx, blockNr)
 	}
 	if hash, ok := blockNrOrHash.Hash(); ok {
-		block, err := b.zond.blockchain.GetBlock(hash)
+		block, err := b.zond.blockchainV1.GetBlock(hash)
 		if err != nil {
 			return nil, err
 		}
@@ -152,15 +154,15 @@ func (b *ZondAPIBackend) StateAndHeaderByNumber(ctx context.Context, number rpc.
 	//	return state, block.Header(), nil
 	//}
 	// Otherwise resolve the block number and return its state
-	if rpc.BlockNumber(b.zond.BlockChain().GetLastBlock().SlotNumber()) < number || number < 0 {
-		number = rpc.BlockNumber(b.zond.BlockChain().GetLastBlock().SlotNumber())
+	if rpc.BlockNumber(b.zond.BlockChainV1().GetLastBlock().SlotNumber()) < number || number < 0 {
+		number = rpc.BlockNumber(b.zond.BlockChainV1().GetLastBlock().SlotNumber())
 	}
-	block := b.zond.BlockChain().GetBlockByNumber(uint64(number))
+	block := b.zond.BlockChainV1().GetBlockByNumber(uint64(number))
 	if block == nil {
 		return nil, nil, errors.New("header not found")
 	}
 
-	bm, err := b.zond.BlockChain().GetBlockMetaData(block.Hash())
+	bm, err := b.zond.BlockChainV1().GetBlockMetaData(block.Hash())
 	if err != nil {
 		return nil, nil, err
 	}
@@ -176,12 +178,12 @@ func (b *ZondAPIBackend) StateAndHeaderByNumberOrHash(ctx context.Context, block
 		return b.StateAndHeaderByNumber(ctx, blockNr)
 	}
 	if hash, ok := blockNrOrHash.Hash(); ok {
-		block, err := b.zond.BlockChain().GetBlock(hash)
+		block, err := b.zond.BlockChainV1().GetBlock(hash)
 		if err != nil {
 			return nil, nil, err
 		}
 
-		bm, err := b.zond.BlockChain().GetBlockMetaData(block.Hash())
+		bm, err := b.zond.BlockChainV1().GetBlockMetaData(block.Hash())
 		if err != nil {
 			return nil, nil, err
 		}
@@ -192,7 +194,7 @@ func (b *ZondAPIBackend) StateAndHeaderByNumberOrHash(ctx context.Context, block
 		//}
 
 		//stateDb, err := b.zond.BlockChain().StateAt(header.Root)
-		stateDb, err := b.zond.BlockChain().StateAt(bm.TrieRoot())
+		stateDb, err := b.zond.BlockChainV1().StateAt(bm.TrieRoot())
 		return stateDb, block.Header().PBData(), err
 	}
 	return nil, nil, errors.New("invalid arguments; neither block nor hash specified")
@@ -200,11 +202,11 @@ func (b *ZondAPIBackend) StateAndHeaderByNumberOrHash(ctx context.Context, block
 
 func (b *ZondAPIBackend) GetReceipts(ctx context.Context, hash common.Hash, isProtocolTransaction bool) (types.Receipts, error) {
 	//return b.zond.blockchain.GetReceiptsByHash(hash), nil
-	return b.zond.blockchain.GetReceiptsByHash(hash, isProtocolTransaction), nil
+	return b.zond.blockchainV1.GetReceiptsByHash(hash, isProtocolTransaction), nil
 }
 
 func (b *ZondAPIBackend) GetLogs(ctx context.Context, hash common.Hash) ([][]*types.Log, error) {
-	return b.zond.blockchain.GetLogsByHash(hash)
+	return b.zond.blockchainV1.GetLogsByHash(hash)
 }
 
 //func (b *ZondAPIBackend) GetTd(ctx context.Context, hash common.Hash) *big.Int {
@@ -222,12 +224,12 @@ func (b *ZondAPIBackend) GetEVM(ctx context.Context, msg core.Message, state *st
 	txContext := core.NewEVMTxContext(msg)
 
 	// TODO (cyyber): Fix getHashFunc && author
-	blockData, err := b.zond.BlockChain().GetBlock(common.BytesToHash(header.Hash))
+	blockData, err := b.zond.BlockChainV1().GetBlock(common.BytesToHash(header.Hash))
 	if err != nil {
 		return nil, vmError, err
 	}
 	author := blockData.GetBlockProposer()
-	context := core.NewEVMBlockContext(block.HeaderFromPBData(header), nil, &author)
+	context := core.NewEVMBlockContextV1(block.HeaderFromPBData(header), nil, &author)
 
 	return vm.NewEVM(context, txContext, state, b.zond.blockchain.Config(), *vmConfig), vmError, nil
 }
@@ -257,10 +259,10 @@ func (b *ZondAPIBackend) GetEVM(ctx context.Context, msg core.Message, state *st
 //}
 
 func (b *ZondAPIBackend) SendTx(ctx context.Context, signedTx transactions.TransactionInterface) error {
-	if err := b.zond.blockchain.ValidateTransaction(signedTx.PBData()); err != nil {
+	if err := b.zond.blockchainV1.ValidateTransaction(signedTx.PBData()); err != nil {
 		return err
 	}
-	return b.zond.blockchain.GetTransactionPool().Add(signedTx, signedTx.Hash(), b.zond.blockchain.GetLastBlock().SlotNumber(),
+	return b.zond.blockchainV1.GetTransactionPool().Add(signedTx, signedTx.Hash(), b.zond.blockchainV1.GetLastBlock().SlotNumber(),
 		b.ntp.Time())
 }
 
@@ -280,13 +282,13 @@ func (b *ZondAPIBackend) SendTx(ctx context.Context, signedTx transactions.Trans
 func (b *ZondAPIBackend) GetTransaction(ctx context.Context, txHash common.Hash) (*protos.Transaction, common.Hash, uint64, uint64, error) {
 	//tx, blockHash, blockNumber, index := rawdb.ReadTransaction(b.zond.ChainDb(), txHash)
 	//return tx, blockHash, blockNumber, index, nil
-	tx, blockHash, blockNumber, index := b.zond.BlockChain().GetTransactionMetaDataByHash(txHash)
+	tx, blockHash, blockNumber, index := b.zond.BlockChainV1().GetTransactionMetaDataByHash(txHash)
 	return tx, blockHash, blockNumber, index, nil
 }
 
 func (b *ZondAPIBackend) GetPoolNonce(ctx context.Context, addr common.Address) (uint64, error) {
 	//return b.zond.txPool.Nonce(addr), nil
-	return b.zond.blockchain.GetNonce(addr)
+	return b.zond.blockchainV1.GetNonce(addr)
 }
 
 //func (b *ZondAPIBackend) Stats() (pending int, queued int) {
@@ -368,9 +370,10 @@ func (b *ZondAPIBackend) RPCEVMTimeout() time.Duration {
 //	}
 //}
 //
-//func (b *ZondAPIBackend) Engine() consensus.Engine {
-//	return b.zond.engine
-//}
+func (b *ZondAPIBackend) Engine() consensus.Engine {
+	return b.zond.engine
+}
+
 //
 //func (b *ZondAPIBackend) CurrentHeader() *types.Header {
 //	return b.zond.blockchain.CurrentHeader()

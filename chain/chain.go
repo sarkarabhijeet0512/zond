@@ -369,7 +369,7 @@ func (c *Chain) Load() error {
 			return err
 		}
 
-		stateProcessor := core.NewStateProcessor(&params.ChainConfig{ChainID: c.config.Dev.ChainID}, c.GetBlockHashBySlotNumber)
+		stateProcessor := core.NewStateProcessorV1(&params.ChainConfig{ChainID: c.config.Dev.ChainID}, c.GetBlockHashBySlotNumber)
 
 		preState, err := genesis.LoadPreState()
 		if err != nil {
@@ -776,7 +776,7 @@ func (c *Chain) AddBlock(b *block.Block) bool {
 		b.PartialBlockSigningHash(), b.BlockSigningHash(), epochMetaData)
 
 	// TODO: chain id is currently hardcoded to 0, need to be loaded based on Network type
-	stateProcessor := core.NewStateProcessor(&params.ChainConfig{ChainID: c.config.Dev.ChainID}, c.GetBlockHashBySlotNumber)
+	stateProcessor := core.NewStateProcessorV1(&params.ChainConfig{ChainID: c.config.Dev.ChainID}, c.GetBlockHashBySlotNumber)
 
 	//receipts, logs, usedGas, err := stateProcessor.Process(b, statedb, stateContext, validators, false, vm.Config{})
 	_, _, _, err = stateProcessor.Process(b, parentBlock, statedb, stateContext, validators, false, vm.Config{})

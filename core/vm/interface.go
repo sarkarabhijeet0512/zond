@@ -33,7 +33,6 @@ type StateDB interface {
 
 	GetNonce(common.Address) uint64
 	SetNonce(common.Address, uint64)
-	SetOTSBitfield(common.Address, uint64, bool)
 
 	GetCodeHash(common.Address) common.Hash
 	GetCode(common.Address) []byte

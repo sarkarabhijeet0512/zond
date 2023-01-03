@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/theQRL/zond/cli/commands"
 	"github.com/urfave/cli/v2"
-	"os"
 )
 
 var app = cli.NewApp()
@@ -19,7 +20,7 @@ func initCommands() {
 	app.Commands = []*cli.Command{}
 	commands.AddWalletCommand(app)
 	commands.AddDilithiumKeyCommand(app)
-	commands.AddTransactionCommand(app)
+	// commands.AddTransactionCommand(app)
 	commands.AddGenesisCommand(app)
 	commands.AddDevCommand(app)
 }

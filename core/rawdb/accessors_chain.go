@@ -21,9 +21,10 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
-	"github.com/theQRL/zond/protos"
 	"math/big"
 	"sort"
+
+	"github.com/theQRL/zond/protos"
 
 	"github.com/theQRL/zond/common"
 	"github.com/theQRL/zond/core/types"
@@ -214,6 +215,22 @@ func ReadHeadFastBlockHash(db ethdb.KeyValueReader) common.Hash {
 func WriteHeadFastBlockHash(db ethdb.KeyValueWriter, hash common.Hash) {
 	if err := db.Put(headFastBlockKey, hash.Bytes()); err != nil {
 		log.Crit("Failed to store last fast block's hash", "err", err)
+	}
+}
+
+// ReadFinalizedBlockHash retrieves the hash of the finalized block.
+func ReadFinalizedBlockHash(db ethdb.KeyValueReader) common.Hash {
+	data, _ := db.Get(headFinalizedBlockKey)
+	if len(data) == 0 {
+		return common.Hash{}
+	}
+	return common.BytesToHash(data)
+}
+
+// WriteFinalizedBlockHash stores the hash of the finalized block.
+func WriteFinalizedBlockHash(db ethdb.KeyValueWriter, hash common.Hash) {
+	if err := db.Put(headFinalizedBlockKey, hash.Bytes()); err != nil {
+		log.Crit("Failed to store last finalized block's hash", "err", err)
 	}
 }
 

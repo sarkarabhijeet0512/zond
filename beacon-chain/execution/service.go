@@ -7,6 +7,8 @@ import (
 	"context"
 	"fmt"
 	"math/big"
+	"os"
+	"os/signal"
 	"reflect"
 	"runtime/debug"
 	"sort"
@@ -19,7 +21,6 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/theQRL/zond/accounts/abi/bind"
 	"github.com/theQRL/zond/beacon-chain/cache/depositcache"
-	"github.com/theQRL/zond/beacon-chain/core/feed"
 	statefeed "github.com/theQRL/zond/beacon-chain/core/feed/state"
 	"github.com/theQRL/zond/beacon-chain/core/transition"
 	"github.com/theQRL/zond/beacon-chain/db"
@@ -36,10 +37,14 @@ import (
 	"github.com/theQRL/zond/encoding/bytesutil"
 	"github.com/theQRL/zond/monitoring/clientstats"
 	"github.com/theQRL/zond/network"
+	"github.com/theQRL/zond/node"
 	ethpb "github.com/theQRL/zond/protos/zond/v1alpha1"
 	gethRPC "github.com/theQRL/zond/rpc"
 	prysmTime "github.com/theQRL/zond/time"
 	"github.com/theQRL/zond/time/slots"
+	"github.com/theQRL/zond/zond"
+	"github.com/theQRL/zond/zond/catalyst"
+	"github.com/theQRL/zond/zond/tracers"
 )
 
 var (
@@ -164,6 +169,9 @@ type Service struct {
 	lastReceivedMerkleIndex int64 // Keeps track of the last received index to prevent log spam.
 	runError                error
 	preGenesisState         state.BeaconState
+	zond                    *zond.Zond
+	stack                   *node.Node
+	consensusApi            *catalyst.ConsensusAPI
 }
 
 // NewService sets up a new instance with an ethclient when given a web3 endpoint as a string in the config.
@@ -223,6 +231,13 @@ func NewService(ctx context.Context, opts ...Option) (*Service, error) {
 	if err := s.initializeEth1Data(ctx, eth1Data); err != nil {
 		return nil, err
 	}
+
+	stack, err := node.New()
+	if err != nil {
+		log.Error("Error creating new node: %v", err)
+	}
+	s.stack = stack
+
 	return s, nil
 }
 
@@ -251,9 +266,28 @@ func (s *Service) Start() {
 	s.pollConnectionStatus(s.ctx)
 
 	// Check transition configuration for the engine API client in the background.
-	go s.checkTransitionConfiguration(s.ctx, make(chan *feed.Event, 1))
+	// go s.checkTransitionConfiguration(s.ctx, make(chan *feed.Event, 1))
 
 	go s.run(s.ctx.Done())
+
+	s.stack.RegisterAPIs(tracers.APIs(s.zond.APIBackend))
+
+	err := s.stack.Start()
+	if err != nil {
+		log.Error("Failed to start API stacks ", err)
+	}
+	backend, err := zond.New(s.stack)
+	if err != nil {
+		log.Errorf("Error creating zond backend: %v", err)
+	}
+	s.zond = backend
+	s.consensusApi = catalyst.NewConsensusAPI(s.zond)
+
+	defer s.stack.Close()
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, os.Interrupt)
+	<-quit
 }
 
 // Stop the web3 service's main event loop and associated goroutines.

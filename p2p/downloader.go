@@ -20,22 +20,22 @@ const MaxRequest = 40 // Size has to be calculated based on maximum possible val
 
 type BlockAndPeer struct {
 	block *block.Block
-	peer  *Peer
+	peer  *PeerV1
 }
 
 type HashesAndPeerInfo struct {
 	slotNumber      uint64
-	peerByBlockHash map[string][]*Peer
+	peerByBlockHash map[string][]*PeerV1
 }
 
 type RequestTracker struct {
 	lock sync.Mutex
 
-	requests map[string]*Peer
+	requests map[string]*PeerV1
 	sequence []string // Sequence of Header hashes in which request was made
 }
 
-func (r *RequestTracker) AddPeerRequest(headerHash string, peer *Peer) {
+func (r *RequestTracker) AddPeerRequest(headerHash string, peer *PeerV1) {
 	r.lock.Lock()
 	defer r.lock.Unlock()
 
@@ -43,7 +43,7 @@ func (r *RequestTracker) AddPeerRequest(headerHash string, peer *Peer) {
 	r.sequence = append(r.sequence, headerHash)
 }
 
-func (r *RequestTracker) GetPeerByHeaderHash(headerHash string) (*Peer, bool) {
+func (r *RequestTracker) GetPeerByHeaderHash(headerHash string) (*PeerV1, bool) {
 	r.lock.Lock()
 	defer r.lock.Unlock()
 
@@ -81,7 +81,7 @@ func (r *RequestTracker) RemoveFirstElementFromSequence() {
 
 func NewRequestTracker() *RequestTracker {
 	return &RequestTracker{
-		requests: make(map[string]*Peer),
+		requests: make(map[string]*PeerV1),
 		sequence: make([]string, 0),
 	}
 }
@@ -97,7 +97,7 @@ type Downloader struct {
 
 	wg                     sync.WaitGroup
 	exitDownloadMonitor    chan struct{}
-	peersList              map[string]*Peer
+	peersList              map[string]*PeerV1
 	ignorePeers            map[string]int  // List of peers that need to be ignored
 	requestTracker         *RequestTracker // Maintains block header hash requested by the peer
 	peerSelectionCount     int
@@ -142,7 +142,7 @@ TODO:
    remove slot number, header hash keys from map.
 */
 
-func (d *Downloader) AddPeer(p *Peer) {
+func (d *Downloader) AddPeer(p *PeerV1) {
 	d.lock.Lock()
 	defer d.lock.Unlock()
 
@@ -153,7 +153,7 @@ func (d *Downloader) AddPeer(p *Peer) {
 	d.peersList[p.ID()] = p
 }
 
-func (d *Downloader) RemovePeer(p *Peer) bool {
+func (d *Downloader) RemovePeer(p *PeerV1) bool {
 	d.lock.Lock()
 	defer d.lock.Unlock()
 
@@ -212,7 +212,7 @@ func (d *Downloader) isDownloaderRunning() bool {
 	return d.consumerRunning || d.blockDownloaderRunning
 }
 
-//func (d *Downloader) AddPeerToTargetPeers(p *Peer) {
+//func (d *Downloader) AddPeerToTargetPeers(p *PeerV1) {
 //	d.lock.Lock()
 //	defer d.lock.Unlock()
 //
@@ -227,7 +227,7 @@ func (d *Downloader) isDownloaderRunning() bool {
 //	d.targetPeerList = append(d.targetPeerList, p.ID())
 //}
 //
-//func (d *Downloader) RemovePeerFromTargetPeers(p *Peer) bool {
+//func (d *Downloader) RemovePeerFromTargetPeers(p *PeerV1) bool {
 //	d.lock.Lock()
 //	defer d.lock.Unlock()
 //
@@ -245,7 +245,7 @@ func (d *Downloader) isDownloaderRunning() bool {
 //	return false
 //}
 
-func (d *Downloader) Consumer(lastBlockHeaderToDownload common.Hash, peerGroup []*Peer) {
+func (d *Downloader) Consumer(lastBlockHeaderToDownload common.Hash, peerGroup []*PeerV1) {
 	d.consumerRunning = true
 	defer func() {
 		d.consumerRunning = false
@@ -255,7 +255,7 @@ func (d *Downloader) Consumer(lastBlockHeaderToDownload common.Hash, peerGroup [
 		select {
 		case blockAndPeer := <-d.blockAndPeerChannel:
 			b := blockAndPeer.block
-			// Ensure if the block received is from the same Peer from which it was requested
+			// Ensure if the block received is from the same PeerV1 from which it was requested
 			bHash := blockAndPeer.block.Hash()
 			strHeaderHash := misc.BytesToHexStr(bHash[:])
 			targetPeer, ok := d.requestTracker.GetPeerByHeaderHash(strHeaderHash)
@@ -290,7 +290,7 @@ func (d *Downloader) Consumer(lastBlockHeaderToDownload common.Hash, peerGroup [
 				return
 			}
 		case <-time.After(30 * time.Second):
-			log.Info("[Consumer Timeout] Ignoring Peer")
+			log.Info("[Consumer Timeout] Ignoring PeerV1")
 			d.isSyncingFinished(true, lastBlockHeaderToDownload, nil)
 			return
 		case <-d.done:
@@ -347,7 +347,7 @@ main:
 }
 
 func (d *Downloader) BlockDownloader(targetSlotNumbers []*HashesAndPeerInfo,
-	lastBlockHeaderToDownload common.Hash, peerGroup []*Peer) {
+	lastBlockHeaderToDownload common.Hash, peerGroup []*PeerV1) {
 	d.blockDownloaderRunning = true
 	defer func() {
 		d.blockDownloaderRunning = false
@@ -390,7 +390,7 @@ func (d *Downloader) BlockDownloader(targetSlotNumbers []*HashesAndPeerInfo,
 	}
 }
 
-//func (d *Downloader) NewTargetNode(nodeHeaderHash *protos.NodeHeaderHash, peer *Peer) {
+//func (d *Downloader) NewTargetNode(nodeHeaderHash *protos.NodeHeaderHash, peer *PeerV1) {
 //	d.targetNode = &TargetNode {
 //		peer: peer,
 //		blockNumber: nodeHeaderHash.SlotNumber,
@@ -403,7 +403,7 @@ func (d *Downloader) BlockDownloader(targetSlotNumbers []*HashesAndPeerInfo,
 //}
 
 func (d *Downloader) isSyncingFinished(forceFinish bool,
-	lastBlockHeaderToDownload common.Hash, peerGroup []*Peer) bool {
+	lastBlockHeaderToDownload common.Hash, peerGroup []*PeerV1) bool {
 	d.lock.Lock()
 	defer d.lock.Unlock()
 
@@ -437,7 +437,7 @@ func NewDownloader(c *chain.Chain) (d *Downloader) {
 		chain:     c,
 		ntp:       ntp.GetNTP(),
 
-		peersList:           make(map[string]*Peer),
+		peersList:           make(map[string]*PeerV1),
 		peerSelectionCount:  0,
 		slotNumberProcessed: make(chan uint64, MaxRequest),
 		blockAndPeerChannel: make(chan *BlockAndPeer, MaxRequest*2),
@@ -456,7 +456,7 @@ func (d *Downloader) Exit() {
 	d.wg.Wait()
 }
 
-func (d *Downloader) AddEpochBlockHashesResponse(data *protos.EpochBlockHashesResponse, peer *Peer) {
+func (d *Downloader) AddEpochBlockHashesResponse(data *protos.EpochBlockHashesResponse, peer *PeerV1) {
 
 }
 
@@ -484,7 +484,7 @@ func (d *Downloader) DownloadMonitor() {
 
 			addedPeers := make(map[string]uint64) // Temporary variable to ensure
 			// duplicate peers are not added
-			peerGroup := make([]*Peer, 0)
+			peerGroup := make([]*PeerV1, 0)
 			totalStakeAmount, err := d.chain.GetTotalStakeAmount()
 			if err != nil {
 				log.Error("[DownloadMonitor] Failed to GetTotalStakeAmount ",
@@ -504,7 +504,7 @@ func (d *Downloader) DownloadMonitor() {
 				err := peerTotalStakeAmount.UnmarshalText(peerChainState.TotalStakeAmount)
 				if err != nil {
 					log.Error("[DownloadMonitor] Failed to unmarshal TotalStakeAmount for ",
-						" Peer ", p.ID())
+						" PeerV1 ", p.ID())
 					continue
 				}
 				// Ignore peer as current total stake amount of the chain
@@ -547,12 +547,12 @@ func (d *Downloader) DownloadMonitor() {
 	}
 }
 
-func (d *Downloader) Initialize(peerGroup []*Peer,
+func (d *Downloader) Initialize(peerGroup []*PeerV1,
 	startingNonFinalizedEpoch uint64, finalizedHeaderHash common.Hash) {
 	/*
 		Syncing start after finalized block
 		1. Request for all child header hashes from all peers of an epoch.
-		2. Assign header hashes with Peer
+		2. Assign header hashes with PeerV1
 		3. Request for block from randomly selected peer
 	*/
 	log.Info("Initializing Downloader")
@@ -607,7 +607,7 @@ func (d *Downloader) Initialize(peerGroup []*Peer,
 			if !ok {
 				hashesWithPeers = &HashesAndPeerInfo{
 					slotNumber:      slotNumber,
-					peerByBlockHash: make(map[string][]*Peer),
+					peerByBlockHash: make(map[string][]*PeerV1),
 				}
 				hashesWithPeerInfoBySlotNumber[slotNumber] = hashesWithPeers
 			}
@@ -615,7 +615,7 @@ func (d *Downloader) Initialize(peerGroup []*Peer,
 				strHeaderHash := misc.BytesToHexStr(headerHash)
 				data, ok := hashesWithPeers.peerByBlockHash[strHeaderHash]
 				if !ok {
-					data = make([]*Peer, 0)
+					data = make([]*PeerV1, 0)
 					hashesWithPeers.peerByBlockHash[strHeaderHash] = data
 				}
 				hashesWithPeers.peerByBlockHash[strHeaderHash] = append(data, peer)

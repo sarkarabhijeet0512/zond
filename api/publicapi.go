@@ -3,6 +3,10 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"strconv"
+	"time"
+
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
 	log "github.com/sirupsen/logrus"
@@ -14,9 +18,6 @@ import (
 	"github.com/theQRL/zond/ntp"
 	"github.com/theQRL/zond/p2p/messages"
 	"github.com/theQRL/zond/protos"
-	"net/http"
-	"strconv"
-	"time"
 )
 
 type GetHeightResponse struct {

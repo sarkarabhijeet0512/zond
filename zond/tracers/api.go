@@ -4,6 +4,9 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"os"
+	"time"
+
 	"github.com/theQRL/zond/block"
 	"github.com/theQRL/zond/common"
 	"github.com/theQRL/zond/common/hexutil"
@@ -16,8 +19,6 @@ import (
 	"github.com/theQRL/zond/rlp"
 	"github.com/theQRL/zond/rpc"
 	"github.com/theQRL/zond/zond/tracers/logger"
-	"os"
-	"time"
 )
 
 const (
@@ -38,9 +39,9 @@ const (
 	defaultTracechainMemLimit = common.StorageSize(500 * 1024 * 1024)
 )
 
-// Backend interface provides the common API services (that are provided by
+// BackendV1 interface provides the common API services (that are provided by
 // both full and light clients) with access to necessary functions.
-type Backend interface {
+type BackendV1 interface {
 	HeaderByHash(ctx context.Context, hash common.Hash) (*protos.BlockHeader, error)
 	HeaderByNumber(ctx context.Context, number rpc.BlockNumber) (*protos.BlockHeader, error)
 	BlockByHash(ctx context.Context, hash common.Hash) (*protos.Block, error)
@@ -48,7 +49,24 @@ type Backend interface {
 	GetTransaction(ctx context.Context, txHash common.Hash) (*protos.Transaction, common.Hash, uint64, uint64, error)
 	RPCGasCap() uint64
 	//ChainConfig() *params.ChainConfig
-	//Engine() consensus.Engine
+	Engine() consensus.Engine
+	//ChainDb() ethdb.Database
+	// StateAtBlock returns the state corresponding to the stateroot of the block.
+	// N.B: For executing transactions on block N, the required stateRoot is block N-1,
+	// so this method should be called with the parent.
+	//StateAtBlock(ctx context.Context, block *types.Block, reexec uint64, base *state.StateDB, checkLive, preferDisk bool) (*state.StateDB, error)
+	//StateAtTransaction(ctx context.Context, block *types.Block, txIndex int, reexec uint64) (core.Message, vm.BlockContext, *state.StateDB, error)
+}
+
+type Backend interface {
+	HeaderByHash(ctx context.Context, hash common.Hash) (*types.Header, error)
+	HeaderByNumber(ctx context.Context, number rpc.BlockNumber) (*types.Header, error)
+	BlockByHash(ctx context.Context, hash common.Hash) (*protos.Block, error)
+	BlockByNumber(ctx context.Context, number rpc.BlockNumber) (*protos.Block, error)
+	GetTransaction(ctx context.Context, txHash common.Hash) (*protos.Transaction, common.Hash, uint64, uint64, error)
+	RPCGasCap() uint64
+	//ChainConfig() *params.ChainConfig
+	Engine() consensus.Engine
 	//ChainDb() ethdb.Database
 	// StateAtBlock returns the state corresponding to the stateroot of the block.
 	// N.B: For executing transactions on block N, the required stateRoot is block N-1,
@@ -59,11 +77,11 @@ type Backend interface {
 
 // API is the collection of tracing APIs exposed over the private debugging endpoint.
 type API struct {
-	backend Backend
+	backend BackendV1
 }
 
 // NewAPI creates a new API definition for the tracing methods of the Ethereum service.
-func NewAPI(backend Backend) *API {
+func NewAPI(backend BackendV1) *API {
 	return &API{backend: backend}
 }
 
@@ -72,13 +90,8 @@ type chainContext struct {
 	ctx context.Context
 }
 
-func (context *chainContext) GetBlockBySlotNumber(n uint64) (*block.Block, error) {
-	return nil, nil
-}
-
 func (context *chainContext) Engine() consensus.Engine {
-	return nil
-	//return context.api.backend.Engine()
+	return context.api.backend.Engine()
 }
 
 func (context *chainContext) GetHeader(hash common.Hash, number uint64) *protos.BlockHeader {
@@ -86,9 +99,9 @@ func (context *chainContext) GetHeader(hash common.Hash, number uint64) *protos.
 	if err != nil {
 		return nil
 	}
-	if common.BytesToHash(header.Hash) == hash {
-		return header
-	}
+	// if header.Hash() == hash {
+	// 	return header
+	// }
 	header, err = context.api.backend.HeaderByHash(context.ctx, hash)
 	if err != nil {
 		return nil
@@ -96,9 +109,13 @@ func (context *chainContext) GetHeader(hash common.Hash, number uint64) *protos.
 	return header
 }
 
+func (context *chainContext) GetBlockBySlotNumber(n uint64) (*block.Block, error) {
+	return nil, nil
+}
+
 // chainContext construts the context reader which is used by the evm for reading
 // the necessary chain context.
-func (api *API) chainContext(ctx context.Context) core.ChainContext {
+func (api *API) chainContext(ctx context.Context) core.ChainContextV1 {
 	return &chainContext{api: api, ctx: ctx}
 }
 
@@ -899,7 +916,7 @@ func (api *API) TraceCall(ctx context.Context, args zondapi.TransactionArgs, blo
 //}
 
 // APIs return the collection of RPC services the tracer package offers.
-func APIs(backend Backend) []rpc.API {
+func APIs(backend BackendV1) []rpc.API {
 	// Append all the local APIs and return
 	return []rpc.API{
 		{
